@@ -41,4 +41,4 @@ El contenido será revisado y retirado si procede.
 Podemos actualizar esta política. La fecha de última actualización aparecerá arriba.
 
 ## 10. Contacto
-tu-email@ejemplo.com
+ivanchu8888@gmail.com

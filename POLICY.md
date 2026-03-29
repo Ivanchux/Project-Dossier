@@ -30,7 +30,7 @@ Project Dossier puede enlazar a fuentes externas. No nos responsabilizamos del c
 - El usuario asume la responsabilidad de interpretar y usar la información.
 
 ## 8. Solicitudes de retirada (DMCA)
-Si eres titular de derechos o consideras que un contenido vulnera la ley, envía un correo a tu-email@ejemplo.com con:
+Si eres titular de derechos o consideras que un contenido vulnera la ley, envía un correo a ivanchu8888@gmail.com con:
 - Identificación del contenido.
 - Motivo de la solicitud.
 - Tus datos de contacto.

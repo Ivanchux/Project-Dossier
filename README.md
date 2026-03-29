@@ -33,4 +33,4 @@ Código y contenido bajo **CC BY-NC-ND 4.0** — ver [LICENSE](LICENSE).
 Ver [POLICY.md](POLICY.md)
 
 ## Contacto
-Para reportar contenido problemático o solicitar la retirada de material: tu-email@ejemplo.com
+Para reportar contenido problemático o solicitar la retirada de material: ivanchu8888@gmail.com

@@ -27,7 +27,7 @@ Todo el contenido:
 Todas las aportaciones serán revisadas antes de publicarse.
 
 ## Licencia
-Código y contenido bajo **CC BY-NC-ND 4.0** — ver [LICENSE](LICENSE).
+Código y contenido bajo **CC BY-NC-ND 4.0** — ver [LICENSE.md](LICENSE.md).
 
 ## Política de privacidad
 Ver [POLICY.md](POLICY.md)

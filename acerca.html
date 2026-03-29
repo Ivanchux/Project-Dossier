@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acerca de | PROJECT DOSSIER</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+
+    .acerca-hero {
+      padding: 5rem 2rem 3rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .acerca-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(212,135,10,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .acerca-hero::after {
+      content: 'PROJECT\ADOSSIER';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      font-size: 10rem;
+      font-weight: 700;
+      color: rgba(212,135,10,0.02);
+      letter-spacing: 8px;
+      pointer-events: none;
+      white-space: nowrap;
+      line-height: 0.9;
+    }
+
+    .acerca-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .acerca-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      letter-spacing: 6px;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .acerca-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    /* ===== LAYOUT ===== */
+    .acerca-layout {
+      max-width: 860px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+    }
+
+    /* ===== BLOQUES DE CONTENIDO ===== */
+    .acerca-block {
+      margin-bottom: 4rem;
+      padding-bottom: 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .acerca-block:last-child {
+      border-bottom: none;
+    }
+
+    .acerca-block-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .acerca-block-num {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--amber-dim);
+      letter-spacing: 2px;
+      flex-shrink: 0;
+    }
+
+    .acerca-block-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 4px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+    }
+
+    .acerca-text {
+      font-size: 0.92rem;
+      color: var(--text-primary);
+      line-height: 1.9;
+      margin-bottom: 1rem;
+    }
+
+    .acerca-text .hl {
+      color: var(--amber-bright);
+      font-style: italic;
+    }
+
+    .acerca-text a {
+      color: var(--amber);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-bright);
+      transition: color 0.2s;
+    }
+
+    .acerca-text a:hover { color: var(--amber-bright); }
+
+    /* ===== NOTA EDITORIAL ===== */
+    .acerca-nota {
+      border-left: 3px solid var(--amber-dim);
+      padding: 1rem 1.5rem;
+      background: rgba(212,135,10,0.04);
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+      line-height: 1.8;
+      margin: 1.5rem 0;
+    }
+
+    /* ===== ESTRUCTURA DE EXPEDIENTE ===== */
+    .structure-list {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .structure-list li {
+      display: flex;
+      gap: 1rem;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .structure-list li:last-child { border-bottom: none; }
+
+    .structure-list .s-num {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--amber-dim);
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      padding-top: 2px;
+      min-width: 24px;
+    }
+
+    .structure-list .s-name {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .structure-list .s-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ===== TEMAS ===== */
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .theme-card {
+      border: 1px solid var(--border);
+      padding: 1rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      background: var(--bg-card);
+    }
+
+    .theme-card:hover { border-color: var(--amber-dim); }
+
+    .theme-preview {
+      height: 40px;
+      margin-bottom: 0.8rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+    }
+
+    .theme-card-name {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .theme-card-desc {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* ===== STATS FINALES ===== */
+    .acerca-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .acerca-stat {
+      border: 1px solid var(--border);
+      padding: 1rem;
+      background: var(--bg-card);
+      text-align: center;
+    }
+
+    .acerca-stat-num {
+      font-family: var(--font-mono);
+      font-size: 1.8rem;
+      color: var(--amber-bright);
+      display: block;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .acerca-stat-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .acerca-hero { padding: 3rem 1rem 2rem; }
+      .acerca-layout { padding: 0 1rem; margin: 2.5rem auto; }
+      .acerca-hero::after { font-size: 5rem; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html">Casos</a>
+        <a href="mapa.html">Mapa</a>
+        <a href="cronologia.html">Cronología</a>
+        <a href="archivo.html">Archivo</a>
+        <a href="acerca.html" class="active">Acerca de</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="acerca-hero">
+    <p class="acerca-eyebrow">// SOBRE ESTE PROYECTO</p>
+    <h1 class="acerca-title">Acerca de</h1>
+    <p class="acerca-subtitle">Qué es esto, cómo funciona y por qué existe</p>
+  </section>
+
+  <!-- ===== CONTENIDO ===== -->
+  <div class="acerca-layout">
+
+    <!-- BLOQUE 01 — QUÉ ES -->
+    <div class="acerca-block">
+      <div class="acerca-block-header">
+        <span class="acerca-block-num">01</span>
+        <h2 class="acerca-block-title">Qué es Project Dossier</h2>
+      </div>
+      <p class="acerca-text">
+        <span class="hl">Project Dossier</span> es un archivo personal de investigación sobre conspiraciones, misterios y casos sin resolver. No pretende ser una fuente de verdad absoluta ni afirmar que todo lo aquí documentado ocurrió exactamente como se describe. Es un proyecto de <span class="hl">recopilación, organización y análisis</span> de testimonios, documentos y teorías que la historia oficial ha ignorado, clasificado o directamente negado.
+      </p>
+      <p class="acerca-text">
+        Cada expediente nace de la curiosidad. Cuando un caso llama la atención, se investigan sus fuentes, se documentan sus personas implicadas, se construye una cronología de eventos y se presenta todo con la mayor objetividad posible — dejando al lector la tarea de decidir qué creer.
+      </p>
+      <div class="acerca-nota">
+        La información aquí presentada proviene de testimonios públicos, documentos desclasificados, libros de investigación y fuentes periodísticas. Nada de lo aquí publicado debe tomarse como verdad verificada salvo que se indique lo contrario con documentación oficial.
+      </div>
+    </div>
+
+    <!-- BLOQUE 02 — ESTRUCTURA -->
+    <div class="acerca-block">
+      <div class="acerca-block-header">
+        <span class="acerca-block-num">02</span>
+        <h2 class="acerca-block-title">Cómo se documenta cada caso</h2>
+      </div>
+      <p class="acerca-text">
+        Cada expediente sigue una estructura estándar que permite comparar casos entre sí y evaluar su credibilidad de forma consistente.
+      </p>
+      <ul class="structure-list">
+        <li>
+          <span class="s-num">01</span>
+          <div>
+            <span class="s-name">El Expediente</span>
+            <span class="s-desc">Narrativa del caso. Contexto histórico, personas implicadas y resumen de los hechos según las fuentes disponibles.</span>
+          </div>
+        </li>
+        <li>
+          <span class="s-num">02</span>
+          <div>
+            <span class="s-name">Cronología</span>
+            <span class="s-desc">Línea de tiempo interactiva con los eventos clave ordenados cronológicamente. Clic en cada evento para expandir el detalle.</span>
+          </div>
+        </li>
+        <li>
+          <span class="s-num">03</span>
+          <div>
+            <span class="s-name">Personas implicadas</span>
+            <span class="s-desc">Fichas de cada persona relevante. Clic en cada ficha para ver datos detallados: origen, vinculación, estado y biografía contextual.</span>
+          </div>
+        </li>
+        <li>
+          <span class="s-num">04</span>
+          <div>
+            <span class="s-name">Evidencias documentales</span>
+            <span class="s-desc">Recopilación de documentos, grabaciones, fotografías y artículos de prensa. Clic en cada pieza para ver descripción y enlace a la fuente.</span>
+          </div>
+        </li>
+        <li>
+          <span class="s-num">—</span>
+          <div>
+            <span class="s-name">Índice de credibilidad</span>
+            <span class="s-desc">Evaluación subjetiva del caso en tres dimensiones: testimonios, documentación y consistencia interna. No es una verificación científica.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- BLOQUE 03 — NIVEL DE PELIGRO -->
+    <div class="acerca-block">
+      <div class="acerca-block-header">
+        <span class="acerca-block-num">03</span>
+        <h2 class="acerca-block-title">El nivel de peligro</h2>
+      </div>
+      <p class="acerca-text">
+        Cada caso lleva un <span class="hl">nivel de peligro del 1 al 5</span> visible en la tarjeta del índice y en la cabecera del expediente. No mide el peligro real de los hechos, sino el <span class="hl">impacto potencial en la sensibilidad del lector</span>: casos con muertes, experimentos en humanos, o contenido perturbador tienen niveles más altos.
+      </p>
+      <p class="acerca-text">
+        Es una herramienta de orientación, no una advertencia de censura. Todos los casos están disponibles para cualquier lector.
+      </p>
+    </div>
+
+    <!-- BLOQUE 04 — TEMAS -->
+    <div class="acerca-block">
+      <div class="acerca-block-header">
+        <span class="acerca-block-num">04</span>
+        <h2 class="acerca-block-title">Temas de color</h2>
+      </div>
+      <p class="acerca-text">
+        El proyecto incluye cuatro temas visuales. Puedes cambiarlos en cualquier momento usando los puntos de color en la esquina superior derecha del header. Tu elección se guarda automáticamente.
+      </p>
+      <div class="themes-grid">
+        <div class="theme-card" onclick="applyTheme('amber')">
+          <div class="theme-preview" style="background:#0a0a08;color:#d4870a;border-color:#8a5a08;">ÁMBAR</div>
+          <p class="theme-card-name">Ámbar</p>
+          <p class="theme-card-desc">Monitor CRT clásico. El tema original.</p>
+        </div>
+        <div class="theme-card" onclick="applyTheme('phosphor')">
+          <div class="theme-preview" style="background:#020d02;color:#00cc44;border-color:#006622;">FÓSFORO</div>
+          <p class="theme-card-name">Fósforo</p>
+          <p class="theme-card-desc">Terminal verde de los 80. Hacking estético.</p>
+        </div>
+        <div class="theme-card" onclick="applyTheme('paper')">
+          <div class="theme-preview" style="background:#f0ebe0;color:#6a3800;border-color:#b87820;">PAPEL</div>
+          <p class="theme-card-name">Papel</p>
+          <p class="theme-card-desc">Documento envejecido. Lectura cómoda.</p>
+        </div>
+        <div class="theme-card" onclick="applyTheme('blood')">
+          <div class="theme-preview" style="background:#0a0000;color:#cc2200;border-color:#7a1500;">SANGRE</div>
+          <p class="theme-card-name">Sangre</p>
+          <p class="theme-card-desc">Rojo sobre negro. Para los casos más oscuros.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 05 — ESTADÍSTICAS -->
+    <div class="acerca-block">
+      <div class="acerca-block-header">
+        <span class="acerca-block-num">05</span>
+        <h2 class="acerca-block-title">Estado del archivo</h2>
+      </div>
+      <div class="acerca-stats">
+        <div class="acerca-stat">
+          <span class="acerca-stat-num">05</span>
+          <span class="acerca-stat-label">Expedientes</span>
+        </div>
+        <div class="acerca-stat">
+          <span class="acerca-stat-num">05</span>
+          <span class="acerca-stat-label">Sin resolver</span>
+        </div>
+        <div class="acerca-stat">
+          <span class="acerca-stat-num">04</span>
+          <span class="acerca-stat-label">Clasificados</span>
+        </div>
+        <div class="acerca-stat">
+          <span class="acerca-stat-num">∞</span>
+          <span class="acerca-stat-label">Preguntas</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>PROJECT DOSSIER © 2024 — <span>TODOS LOS EXPEDIENTES SON DE DOMINIO PÚBLICO O RECOPILACIÓN PROPIA</span></p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archivo | PROJECT DOSSIER</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+
+    .archivo-hero {
+      padding: 4rem 2rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .archivo-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 50% 50% at 50% 0%, rgba(212,135,10,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .archivo-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .archivo-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      letter-spacing: 6px;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .archivo-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    /* ===== CONTROLES ===== */
+    .archivo-controls {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding: 0 2rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .archivo-search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 340px;
+    }
+
+    .archivo-search {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border-bright);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 8px 32px 8px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .archivo-search::placeholder { color: var(--text-dim); }
+    .archivo-search:focus { border-color: var(--amber); }
+
+    .archivo-search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .archivo-select {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 8px 12px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236a5f48'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    .archivo-select:focus { border-color: var(--amber); color: var(--text-primary); }
+    .archivo-select option { background: #111109; color: #c8b88a; }
+
+    .archivo-count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      margin-left: auto;
+    }
+
+    .archivo-count span { color: var(--amber); }
+
+    /* ===== TABLA ===== */
+    .archivo-container {
+      max-width: 1200px;
+      margin: 2rem auto 4rem;
+      padding: 0 2rem;
+    }
+
+    .archivo-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+    }
+
+    .archivo-table thead tr {
+      background: rgba(212,135,10,0.06);
+      border-bottom: 1px solid var(--border-bright);
+    }
+
+    .archivo-table th {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+
+    .archivo-table th:hover { color: var(--amber-bright); }
+    .archivo-table th.sort-asc::after  { content: ' ↑'; }
+    .archivo-table th.sort-desc::after { content: ' ↓'; }
+
+    .archivo-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+
+    .archivo-table tbody tr:hover {
+      background: var(--amber-glow);
+    }
+
+    .archivo-table tbody tr.hidden { display: none; }
+
+    .archivo-table td {
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    .td-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .td-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+    }
+
+    .td-cat {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+    }
+
+    .td-year {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .td-danger {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .td-pip {
+      width: 7px;
+      height: 7px;
+      border: 1px solid var(--border);
+    }
+
+    .td-pip.p1 { background: #3aaa50; border-color: #3aaa50; }
+    .td-pip.p2 { background: #aaaa20; border-color: #aaaa20; }
+    .td-pip.p3 { background: #d4870a; border-color: #d4870a; }
+    .td-pip.p4 { background: #cc5500; border-color: #cc5500; }
+    .td-pip.p5 { background: #cc2200; border-color: #cc2200; }
+
+    .td-arrow {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--amber-dim);
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    tr:hover .td-arrow {
+      color: var(--amber-bright);
+      transform: translateX(4px);
+    }
+
+    .no-results-row td {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      padding: 3rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .archivo-hero { padding: 2.5rem 1rem 2rem; }
+      .archivo-controls { padding: 0 1rem; }
+      .archivo-container { padding: 0 1rem; overflow-x: auto; }
+      .archivo-table { min-width: 560px; }
+      .td-cat { display: none; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html">Casos</a>
+        <a href="mapa.html">Mapa</a>
+        <a href="cronologia.html">Cronología</a>
+        <a href="archivo.html" class="active">Archivo</a>
+        <a href="acerca.html">Acerca de</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="archivo-hero">
+    <div class="container">
+      <p class="archivo-eyebrow">// REPOSITORIO COMPLETO — TODOS LOS EXPEDIENTES</p>
+      <h1 class="archivo-title">Archivo</h1>
+      <p class="archivo-subtitle">Base de datos de casos · Ordena, filtra y busca</p>
+    </div>
+  </section>
+
+  <!-- ===== CONTROLES ===== -->
+  <div class="archivo-controls">
+    <div class="archivo-search-wrapper">
+      <input type="text" id="archivo-search" class="archivo-search" placeholder="Buscar por título, categoría...">
+      <span class="archivo-search-icon">⌕</span>
+    </div>
+
+    <select id="filter-cat" class="archivo-select">
+      <option value="">Categoría: Todas</option>
+      <option value="extraterrestres">Extraterrestres</option>
+      <option value="gobierno">Gobierno</option>
+      <option value="bases subterráneas">Bases subterráneas</option>
+      <option value="experimentos">Experimentos</option>
+      <option value="operación">Operación encubierta</option>
+    </select>
+
+    <select id="filter-danger" class="archivo-select">
+      <option value="">Peligro: Todos</option>
+      <option value="3">Peligro ≥ 3</option>
+      <option value="4">Peligro ≥ 4</option>
+      <option value="5">Peligro = 5</option>
+    </select>
+
+    <select id="filter-status" class="archivo-select">
+      <option value="">Estado: Todos</option>
+      <option value="abierto">Abierto</option>
+      <option value="clasificado">Clasificado</option>
+    </select>
+
+    <p class="archivo-count">Mostrando <span id="visible-count">5</span> de <span id="total-count">5</span> expedientes</p>
+  </div>
+
+  <!-- ===== TABLA ===== -->
+  <div class="archivo-container">
+    <table class="archivo-table" id="archivo-table">
+      <thead>
+        <tr>
+          <th data-col="num">#</th>
+          <th data-col="title">Expediente</th>
+          <th data-col="cat">Categoría</th>
+          <th data-col="year">Año</th>
+          <th data-col="danger">Peligro</th>
+          <th data-col="status">Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="archivo-body">
+
+        <tr data-url="casos/valiant-thor.html"
+            data-tags="extraterrestres gobierno sin resolver 1957"
+            data-danger="3" data-status="abierto" data-year="1957" data-num="1">
+          <td class="td-num">001</td>
+          <td class="td-title">Valiant Thor</td>
+          <td class="td-cat">Extraterrestres · Gobierno</td>
+          <td class="td-year">1957</td>
+          <td>
+            <div class="td-danger">
+              <span class="td-pip p1"></span>
+              <span class="td-pip p2"></span>
+              <span class="td-pip p3"></span>
+              <span class="td-pip"></span>
+              <span class="td-pip"></span>
+            </div>
+          </td>
+          <td><span class="stamp stamp-open" style="font-size:8px;padding:2px 7px;">Abierto</span></td>
+          <td class="td-arrow">→</td>
+        </tr>
+
+        <tr data-url="casos/dulce-base.html"
+            data-tags="bases subterráneas gobierno extraterrestres sin resolver 1970s"
+            data-danger="4" data-status="clasificado" data-year="1970" data-num="2">
+          <td class="td-num">002</td>
+          <td class="td-title">Dulce Base</td>
+          <td class="td-cat">Bases subterráneas · Gobierno</td>
+          <td class="td-year">1970s</td>
+          <td>
+            <div class="td-danger">
+              <span class="td-pip p1"></span>
+              <span class="td-pip p2"></span>
+              <span class="td-pip p3"></span>
+              <span class="td-pip p4"></span>
+              <span class="td-pip"></span>
+            </div>
+          </td>
+          <td><span class="stamp stamp-classified" style="font-size:8px;padding:2px 7px;">Clasificado</span></td>
+          <td class="td-arrow">→</td>
+        </tr>
+
+        <tr data-url="casos/mk-ultra.html"
+            data-tags="experimentos cia gobierno sin resolver 1953"
+            data-danger="5" data-status="clasificado" data-year="1953" data-num="3">
+          <td class="td-num">003</td>
+          <td class="td-title">Proyecto MK-Ultra</td>
+          <td class="td-cat">Experimentos · CIA</td>
+          <td class="td-year">1953</td>
+          <td>
+            <div class="td-danger">
+              <span class="td-pip p1"></span>
+              <span class="td-pip p2"></span>
+              <span class="td-pip p3"></span>
+              <span class="td-pip p4"></span>
+              <span class="td-pip p5"></span>
+            </div>
+          </td>
+          <td><span class="stamp stamp-classified" style="font-size:8px;padding:2px 7px;">Clasificado</span></td>
+          <td class="td-arrow">→</td>
+        </tr>
+
+        <tr data-url="casos/paperclip.html"
+            data-tags="operación encubierta nazis gobierno sin resolver 1945"
+            data-danger="4" data-status="clasificado" data-year="1945" data-num="4">
+          <td class="td-num">004</td>
+          <td class="td-title">Operación Paperclip</td>
+          <td class="td-cat">Operación encubierta · Nazis</td>
+          <td class="td-year">1945</td>
+          <td>
+            <div class="td-danger">
+              <span class="td-pip p1"></span>
+              <span class="td-pip p2"></span>
+              <span class="td-pip p3"></span>
+              <span class="td-pip p4"></span>
+              <span class="td-pip"></span>
+            </div>
+          </td>
+          <td><span class="stamp stamp-classified" style="font-size:8px;padding:2px 7px;">Clasificado</span></td>
+          <td class="td-arrow">→</td>
+        </tr>
+
+        <tr data-url="casos/majestic-12.html"
+            data-tags="extraterrestres gobierno sin resolver 1947"
+            data-danger="4" data-status="clasificado" data-year="1947" data-num="5">
+          <td class="td-num">005</td>
+          <td class="td-title">Majestic 12</td>
+          <td class="td-cat">Gobierno · Extraterrestres</td>
+          <td class="td-year">1947</td>
+          <td>
+            <div class="td-danger">
+              <span class="td-pip p1"></span>
+              <span class="td-pip p2"></span>
+              <span class="td-pip p3"></span>
+              <span class="td-pip p4"></span>
+              <span class="td-pip"></span>
+            </div>
+          </td>
+          <td><span class="stamp stamp-classified" style="font-size:8px;padding:2px 7px;">Clasificado</span></td>
+          <td class="td-arrow">→</td>
+        </tr>
+
+        <tr class="no-results-row" id="no-results-row" style="display:none;">
+          <td colspan="7">// SIN RESULTADOS PARA ESA BÚSQUEDA</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>PROJECT DOSSIER © 2024 — <span>TODOS LOS EXPEDIENTES SON DE DOMINIO PÚBLICO O RECOPILACIÓN PROPIA</span></p>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    const rows = Array.from(document.querySelectorAll('#archivo-body tr:not(.no-results-row)'));
+    const totalCount = document.getElementById('total-count');
+    const visibleCount = document.getElementById('visible-count');
+    const noResultsRow = document.getElementById('no-results-row');
+    totalCount.textContent = rows.length;
+
+    function updateTable() {
+      const q = document.getElementById('archivo-search').value.trim().toLowerCase();
+      const cat = document.getElementById('filter-cat').value.toLowerCase();
+      const danger = parseInt(document.getElementById('filter-danger').value || '0');
+      const status = document.getElementById('filter-status').value.toLowerCase();
+
+      let visible = 0;
+
+      rows.forEach(row => {
+        const tags  = (row.dataset.tags || '').toLowerCase();
+        const title = row.querySelector('.td-title')?.textContent.toLowerCase() || '';
+        const catTd = row.querySelector('.td-cat')?.textContent.toLowerCase() || '';
+        const rowDanger = parseInt(row.dataset.danger || '0');
+        const rowStatus = (row.dataset.status || '').toLowerCase();
+
+        const matchQ      = !q      || title.includes(q) || tags.includes(q) || catTd.includes(q);
+        const matchCat    = !cat    || tags.includes(cat);
+        const matchDanger = !danger || rowDanger >= danger;
+        const matchStatus = !status || rowStatus === status;
+
+        const show = matchQ && matchCat && matchDanger && matchStatus;
+        row.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+
+      visibleCount.textContent = visible;
+      noResultsRow.style.display = visible === 0 ? 'table-row' : 'none';
+    }
+
+    // Click en fila → navegar al expediente
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+        const url = row.dataset.url;
+        if (url) window.location.href = url;
+      });
+    });
+
+    // Ordenar por columna
+    let sortCol = 'num', sortDir = 1;
+    document.querySelectorAll('.archivo-table th[data-col]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (sortCol === col) {
+          sortDir *= -1;
+        } else {
+          sortCol = col;
+          sortDir = 1;
+        }
+
+        document.querySelectorAll('.archivo-table th').forEach(t => {
+          t.classList.remove('sort-asc', 'sort-desc');
+        });
+        th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+
+        const tbody = document.getElementById('archivo-body');
+        rows.sort((a, b) => {
+          let va, vb;
+          if (col === 'num' || col === 'year' || col === 'danger') {
+            va = parseInt(a.dataset[col === 'num' ? 'num' : col] || '0');
+            vb = parseInt(b.dataset[col === 'num' ? 'num' : col] || '0');
+          } else if (col === 'title') {
+            va = a.querySelector('.td-title')?.textContent || '';
+            vb = b.querySelector('.td-title')?.textContent || '';
+          } else if (col === 'status') {
+            va = a.dataset.status || '';
+            vb = b.dataset.status || '';
+          } else {
+            va = a.querySelector('.td-cat')?.textContent || '';
+            vb = b.querySelector('.td-cat')?.textContent || '';
+          }
+          if (va < vb) return -1 * sortDir;
+          if (va > vb) return 1 * sortDir;
+          return 0;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+        tbody.appendChild(noResultsRow);
+      });
+    });
+
+    document.getElementById('archivo-search').addEventListener('input', updateTable);
+    document.getElementById('filter-cat').addEventListener('change', updateTable);
+    document.getElementById('filter-danger').addEventListener('change', updateTable);
+    document.getElementById('filter-status').addEventListener('change', updateTable);
+  </script>
+</body>
+</html>

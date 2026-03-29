@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caso #003 — Proyecto MK-Ultra | PROJECT DOSSIER</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+
+    /* ===== HERO DEL CASO ===== */
+    .case-hero {
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .case-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 60% at 80% 50%, rgba(204,34,0,0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 30% 40% at 20% 50%, rgba(212,135,10,0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .case-hero::after {
+      content: 'CLASSIFIED';
+      position: absolute;
+      top: 50%;
+      right: -2rem;
+      transform: translateY(-50%) rotate(-15deg);
+      font-family: var(--font-display);
+      font-size: 8rem;
+      font-weight: 700;
+      color: rgba(204,34,0,0.04);
+      letter-spacing: 8px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .case-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breadcrumb a {
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb a:hover { color: var(--amber); }
+
+    .case-meta-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .case-hero-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      letter-spacing: 5px;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 0;
+    }
+
+    .hero-danger {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hero-danger-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .hero-danger-pip {
+      width: 10px;
+      height: 10px;
+      border: 1px solid var(--border);
+      display: inline-block;
+    }
+
+    .hero-danger-pip.p1 { background: #3aaa50; border-color: #3aaa50; }
+    .hero-danger-pip.p2 { background: #aaaa20; border-color: #aaaa20; }
+    .hero-danger-pip.p3 { background: #d4870a; border-color: #d4870a; }
+    .hero-danger-pip.p4 { background: #cc5500; border-color: #cc5500; }
+    .hero-danger-pip.p5 { background: #cc2200; border-color: #cc2200; box-shadow: 0 0 5px #cc2200; }
+
+    .case-hero-subtitle {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .case-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding: 1.2rem;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .case-info-item label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .case-info-item span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-primary);
+      letter-spacing: 1px;
+    }
+
+    /* Foto / imagen del caso */
+    .case-hero-photo {
+      width: 220px;
+      flex-shrink: 0;
+    }
+
+    .case-hero-photo-frame {
+      border: 1px solid var(--border);
+      padding: 8px;
+      background: var(--bg-card);
+    }
+
+    .case-hero-photo-frame img {
+      width: 100%;
+      display: block;
+      filter: sepia(0.4) contrast(1.1) brightness(0.85);
+    }
+
+    .case-hero-photo-caption {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 0 2px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+    }
+
+    /* Sello girado */
+    .case-stamp-rotated {
+      position: absolute;
+      top: 2.5rem;
+      right: 2rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      transform: rotate(-8deg);
+      opacity: 0.14;
+      pointer-events: none;
+      border: 3px solid;
+      padding: 0.3rem 1rem;
+      color: rgba(204,34,0,0.55);
+      border-color: rgba(204,34,0,0.45);
+    }
+
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .case-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 3rem;
+      padding-top: 3rem;
+      padding-bottom: 4rem;
+    }
+
+    /* ===== SECCIONES ===== */
+    .section {
+      margin-bottom: 3.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-number {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--amber-dim);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+    }
+
+    /* ===== NARRATIVA ===== */
+    .narrative p {
+      font-size: 0.95rem;
+      line-height: 1.9;
+      color: var(--text-primary);
+      margin-bottom: 1.3rem;
+    }
+
+    .narrative .highlight {
+      color: var(--amber-bright);
+    }
+
+    .narrative blockquote {
+      border-left: 3px solid var(--red-dim);
+      padding: 1rem 1.5rem;
+      margin: 1.8rem 0;
+      background: rgba(204,34,0,0.04);
+      font-style: italic;
+      color: var(--text-bright);
+    }
+
+    .narrative blockquote cite {
+      display: block;
+      margin-top: 0.6rem;
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* ===== BLOQUE REDACTADO ===== */
+    .redacted-block {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--red-dim);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .redacted-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--red-classified);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .redacted-bar {
+      height: 12px;
+      background: var(--red-dim);
+      margin-bottom: 8px;
+      opacity: 0.65;
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+      padding: 0.8rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2.35rem;
+      top: 1.1rem;
+      width: 8px;
+      height: 8px;
+      background: var(--amber-dim);
+      border: 1px solid var(--amber);
+    }
+
+    .timeline-item:hover::before,
+    .timeline-item.expanded::before {
+      background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+
+    .timeline-item:hover,
+    .timeline-item.expanded {
+      border-color: var(--amber-dim);
+    }
+
+    .timeline-date {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-event {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .timeline-detail {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      display: none;
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .timeline-item.expanded .timeline-detail {
+      display: block;
+    }
+
+    .expand-hint {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      opacity: 0.5;
+    }
+
+    /* ===== PERSONAS CLAVE ===== */
+    .personas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .persona-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .persona-card:hover { border-color: var(--amber-dim); }
+
+    .persona-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--amber-dim);
+    }
+
+    .persona-role {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .persona-name {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .persona-desc {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .persona-status {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      padding: 2px 6px;
+      border: 1px solid;
+      text-transform: uppercase;
+      margin-top: 0.6rem;
+    }
+
+    .status-deceased { color: var(--red-dim); border-color: var(--red-dim); }
+    .status-unknown { color: var(--text-dim); border-color: var(--text-dim); }
+    .status-convicted { color: var(--amber-dim); border-color: var(--amber-dim); }
+
+    /* ===== SUBPROGRAMAS ===== */
+    .subprograms-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .subprogram {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red-dim);
+      padding: 0.8rem 1.2rem;
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+    }
+
+    .subprogram-code {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--red-dim);
+      text-transform: uppercase;
+      min-width: 120px;
+      flex-shrink: 0;
+    }
+
+    .subprogram-desc {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: sticky;
+      top: 80px;
+    }
+
+    .sidebar-block {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .sidebar-block-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--bg-primary);
+      background: var(--amber-dim);
+      padding: 6px 12px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-block-body {
+      padding: 1rem;
+    }
+
+    .credibility-bar { margin-bottom: 1rem; }
+
+    .credibility-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .credibility-track {
+      height: 4px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .credibility-fill {
+      height: 100%;
+      background: var(--amber);
+      transition: width 1s ease;
+    }
+
+    .credibility-fill.high { background: var(--red-classified); }
+
+    .related-case {
+      display: block;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .related-case:last-child { border-bottom: none; }
+    .related-case:hover { color: var(--amber); }
+    .related-case span { color: var(--amber-dim); margin-right: 6px; }
+
+    .sources-list { list-style: none; }
+
+    .sources-list li {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      line-height: 1.5;
+    }
+
+    .sources-list li:last-child { border-bottom: none; }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row strong { color: var(--amber); font-weight: normal; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .case-hero-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+      .case-hero-photo { width: 100%; max-width: 320px; margin: 0 auto; }
+      .case-layout { grid-template-columns: 1fr; gap: 0; padding: 0 1rem 3rem; }
+      .sidebar { display: none; }
+    }
+    @media (max-width: 768px) {
+      .case-hero { padding: 2.5rem 1rem 2rem; }
+      .case-hero-title { font-size: clamp(1.6rem, 7vw, 3rem) !important; }
+      .case-stamp-rotated { font-size: clamp(1rem, 4vw, 2rem); top: 1rem; right: 1rem; opacity: 0.1; }
+      .case-info-grid { grid-template-columns: 1fr 1fr; }
+      .case-meta-top { gap: 6px; flex-wrap: wrap; }
+      .case-layout { padding: 1.5rem 1rem 3rem; }
+      .section { margin-bottom: 2rem; }
+      .timeline { padding-left: 1.5rem; }
+      .narrative p { font-size: 0.9rem; }
+    }
+    @media (max-width: 480px) {
+      .case-hero { padding: 1.5rem 0.8rem 1.5rem; }
+      .case-info-grid { grid-template-columns: 1fr; gap: 0.6rem; }
+      .breadcrumb { font-size: 9px; }
+      .narrative blockquote { padding: 0.8rem 1rem; margin: 1rem 0; }
+      .case-layout { padding: 1.2rem 0.8rem 2rem; }
+      .case-meta-top .tag { font-size: 8px; }
+      .timeline { padding-left: 1.2rem; }
+      .timeline-item { padding: 0.6rem 0.8rem; }
+      .section-header { margin-bottom: 1rem; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="../index.html">Casos</a>
+        <a href="../mapa.html">Mapa</a>
+        <a href="../cronologia.html">Cronología</a>
+        <a href="../archivo.html">Archivo</a>
+        <a href="../acerca.html">Acerca de</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+            <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="case-hero">
+    <div class="case-stamp-rotated">Clasificado</div>
+    <div class="case-hero-inner container">
+      <div>
+        <div class="breadcrumb">
+          <a href="../index.html">Casos</a>
+          <span>/</span>
+          <span>Caso #003</span>
+        </div>
+        <div class="case-meta-top">
+          <span class="stamp stamp-classified">Clasificado</span>
+          <span class="tag">Experimentos</span>
+          <span class="tag">CIA</span>
+          <span class="tag">Control mental</span>
+          <span class="tag">1953–1973</span>
+        </div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:0.8rem;">
+          <h1 class="case-hero-title fade-in" style="margin-bottom:0;">Proyecto MK-Ultra</h1>
+          <div class="hero-danger fade-in">
+            <span class="hero-danger-label">Peligro</span>
+            <span class="hero-danger-pip p1"></span>
+            <span class="hero-danger-pip p2"></span>
+            <span class="hero-danger-pip p3"></span>
+            <span class="hero-danger-pip p4"></span>
+            <span class="hero-danger-pip p5"></span>
+          </div>
+        </div>
+        <p class="case-hero-subtitle">El programa de control mental de la CIA · Caso #003</p>
+        <div class="case-info-grid fade-in">
+          <div class="case-info-item">
+            <label>Periodo activo</label>
+            <span>1953 – 1973</span>
+          </div>
+          <div class="case-info-item">
+            <label>Organismo</label>
+            <span>CIA — ARTICHOKE / TSS</span>
+          </div>
+          <div class="case-info-item">
+            <label>Director</label>
+            <span>Sidney Gottlieb</span>
+          </div>
+          <div class="case-info-item">
+            <label>Subprogramas</label>
+            <span>+150 documentados</span>
+          </div>
+          <div class="case-info-item">
+            <label>Sujetos estimados</label>
+            <span>Miles — sin consentimiento</span>
+          </div>
+          <div class="case-info-item">
+            <label>Estado</label>
+            <span>Confirmado — desclasificado</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-hero-photo fade-in">
+        <div class="case-hero-photo-frame">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Frank_Olson.jpg/400px-Frank_Olson.jpg"
+            alt="Frank Olson — víctima de MK-Ultra"
+            onerror="this.parentElement.innerHTML='<div style=\'height:180px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:2px\'>IMAGEN CLASIFICADA</div>'"
+          >
+          <div class="case-hero-photo-caption">Frank Olson — bacteriólogo. Murió en 1953 tras ser dosificado sin su conocimiento</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== CONTENIDO ===== -->
+  <div class="case-layout">
+
+    <!-- COLUMNA PRINCIPAL -->
+    <main>
+
+      <!-- SECCIÓN 01 — EL EXPEDIENTE -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">01</span>
+          <h2 class="section-title">El Expediente</h2>
+        </div>
+        <div class="narrative">
+          <p>
+            En abril de 1953, el director de la CIA <span class="highlight">Allen Dulles</span> autorizó en secreto el programa que se convertiría en el experimento de control mental más extenso y perturbador de la historia occidental. Su nombre en clave: <span class="highlight">MK-Ultra</span>. Su objetivo declarado: desarrollar técnicas para manipular la mente humana, extraer confesiones, implantar amnesia y crear sujetos programables. Su método: cualquier medio necesario, sobre cualquier persona disponible, sin que ninguna de ellas lo supiera.
+          </p>
+          <p>
+            El programa no era un proyecto marginal. Contaba con el respaldo directo del director de la CIA, operaba a través de más de <span class="highlight">150 subprogramas</span> distribuidos en universidades, hospitales, cárceles y bases militares de Estados Unidos y Canadá, y disponía de un presupuesto estimado en varios millones de dólares anuales. Su director técnico, el bioquímico <span class="highlight">Sidney Gottlieb</span>, era conocido dentro de la agencia como "el hechicero". Gottlieb creía firmemente que el LSD podía ser la clave para abrir la mente humana como una cerradura.
+          </p>
+          <blockquote>
+            "Necesitamos un arma que no deje marcas. Algo que entre por la puerta principal y salga sin que nadie recuerde haberla visto."
+            <cite>— Memorándum interno CIA, atribuido a Richard Helms, director de operaciones encubiertas, c. 1955</cite>
+          </blockquote>
+          <p>
+            Durante veinte años, miles de personas fueron sometidas sin su conocimiento a dosis de <span class="highlight">LSD</span>, mescalina, escopolamina, heroína y otras sustancias. En paralelo, se experimentó con privación sensorial, hipnosis, electroshocks, torturas psicológicas y técnicas de desprogramación de personalidad. Las víctimas incluían a presidiarios, pacientes psiquiátricos, soldados, prostitutas y ciudadanos civiles completamente ajenos al programa. En algunos casos, los propios agentes de la CIA fueron dosificados sin saberlo para evaluar las reacciones.
+          </p>
+          <p>
+            El programa fue oficialmente cancelado en <span class="highlight">1973</span>, cuando el director de la CIA Richard Helms ordenó destruir la mayoría de los archivos antes de que el Comité Church del Senado pudiera investigarlo. Sin embargo, en 1977, durante una revisión rutinaria de archivos financieros en una instalación remota, <span class="highlight">20.000 documentos</span> sobrevivieron por error administrativo. Lo que revelaban era suficiente para que el Congreso abriera audiencias públicas ese mismo año.
+          </p>
+          <p style="font-style:italic;color:var(--text-dim);border-left:2px solid var(--border);padding-left:1rem;">
+            ✎ HUECO PARA INVESTIGACIÓN — Amplía aquí con los testimonios de las audiencias del Senado de 1977, el caso de Gina Haspel y los vínculos con el programa de torturas post-9/11, y las teorías sobre subprogramas que nunca fueron desclasificados.
+          </p>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 02 — CRONOLOGÍA -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">02</span>
+          <h2 class="section-title">Cronología</h2>
+        </div>
+        <div class="timeline">
+
+          <div class="timeline-item">
+            <p class="timeline-date">1950 – 1951</p>
+            <p class="timeline-event">Operación ARTICHOKE — el precedente</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">Antes de MK-Ultra existió ARTICHOKE, un programa de la CIA centrado en el interrogatorio con sustancias químicas y la hipnosis. ARTICHOKE investigaba si era posible inducir amnesia en agentes capturados o crear "asesinos involuntarios" que no recordaran haber recibido órdenes. Fue el laboratorio previo del que emergió MK-Ultra.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">13 Abril 1953</p>
+            <p class="timeline-event" style="color:var(--red-classified);">Allen Dulles firma la orden de creación</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">El director de la CIA Allen Dulles firma el memorándum que autoriza oficialmente el Proyecto MK-Ultra bajo la supervisión de Richard Helms y con Sidney Gottlieb al frente de las operaciones técnicas. El programa queda clasificado al más alto nivel. Su nombre combina "MK" (prefijo de operaciones de contrainteligencia) con "Ultra", el nombre clave de los programas más secretos de inteligencia aliada en la Segunda Guerra Mundial.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">Noviembre 1953</p>
+            <p class="timeline-event" style="color:var(--red-classified);">Muerte de Frank Olson</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">Frank Olson, bacteriólogo del Ejército que colaboraba con la CIA en el programa, es dosificado con LSD sin su conocimiento durante una reunión en Deep Creek Lake, Maryland. Nueve días después cae por la ventana de la habitación 1018A del Hotel Statler en Nueva York. La versión oficial: suicidio. Su familia siempre sostuvo que fue empujado. En 1994, una autopsia reveló un hematoma craneal incompatible con la caída. El caso permanece sin resolverse.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1957 – 1964</p>
+            <p class="timeline-event">Dr. Ewen Cameron — el experimento canadiense</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">El psiquiatra escocés Donald Ewen Cameron, director del Allan Memorial Institute de Montreal, recibe financiación encubierta de la CIA para llevar a cabo experimentos de "psicodinamia" sobre pacientes que habían acudido a tratarse de depresión o ansiedad leve. Cameron les somete a semanas de sueño inducido por drogas, sesiones repetidas de electroshock a voltajes tres veces superiores a los estándar, y bombardeos de mensajes de audio en bucle durante días. El objetivo: borrar la personalidad existente y "reprogramarla". Muchas víctimas quedaron con daños cerebrales permanentes.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1955 – 1966</p>
+            <p class="timeline-event">Operación Midnight Climax — San Francisco</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">La CIA establece pisos francos en San Francisco y Nueva York donde prostitutas a sueldo atraen a hombres desprevenidos. Los agentes observan desde detrás de espejos unidireccionales cómo reaccionan sus víctimas al LSD que ha sido añadido a sus bebidas. El propósito: estudiar la reacción al fármaco en sujetos que no saben que están siendo observados. El agente George White, que dirigía la operación en San Francisco, escribió en su diario: "Fui un sucio capitalista durante veinte años y me lo pasé bomba."</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1973</p>
+            <p class="timeline-event" style="color:var(--red-classified);">Richard Helms ordena destruir los archivos</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">Ante la inminente investigación del Comité Church y el escándalo Watergate, el director saliente de la CIA Richard Helms ordena la destrucción masiva de los archivos de MK-Ultra. La orden se ejecuta en enero de 1973. Se estima que se destruyeron decenas de miles de documentos. Helms declaró años después que "los secretos más importantes nunca se ponen por escrito".</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1977</p>
+            <p class="timeline-event">20.000 documentos sobreviven por error</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">Durante una revisión de archivos financieros solicitada por el periodista John Marks bajo la Ley de Libertad de Información, un funcionario localiza por error 20.000 documentos de MK-Ultra en un almacén de la CIA en Rockville, Maryland. Los documentos habían sobrevivido porque estaban archivados como "registros financieros" y no fueron incluidos en la orden de destrucción. Las audiencias del Senado celebradas ese mismo año, con Sidney Gottlieb como testigo, revelan al público la existencia del programa por primera vez.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1994</p>
+            <p class="timeline-event">Segunda autopsia de Frank Olson</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">El forense James Starrs exhuma el cuerpo de Frank Olson y realiza una segunda autopsia. El resultado contradice la versión oficial: Olson presentaba un hematoma en la sien izquierda anterior a la caída, consistente con un golpe recibido antes de abandonar la habitación. El caso es reabierto por el fiscal de Manhattan. Nunca se formulan cargos. El gobierno de Clinton paga a la familia Olson una indemnización de 750.000 dólares sin reconocer responsabilidad.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">2001 — presente</p>
+            <p class="timeline-event">El hilo que no termina</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">Tras el 11-S, memorándums desclasificados revelan que técnicas derivadas de MK-Ultra —privación de sueño, estrés de posición, waterboarding— fueron aplicadas en las "enhanced interrogation programs" de la CIA en Guantánamo y cárceles secretas. Los psicólogos James Mitchell y Bruce Jessen, contratados por la CIA, adaptaron explícitamente los estudios de indefensión aprendida de los años 60 para los interrogatorios post-9/11. El programa fue archivado. Las técnicas, no.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECCIÓN 03 — PERSONAS CLAVE -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">03</span>
+          <h2 class="section-title">Personas clave</h2>
+        </div>
+        <div class="personas-grid">
+
+          <div class="persona-card">
+            <p class="persona-role">Director técnico</p>
+            <p class="persona-name">Sidney Gottlieb</p>
+            <p class="persona-desc">Bioquímico. Director del programa durante sus años más activos. Conocido como "el hechicero" dentro de la CIA. Ordenó la destrucción de los archivos en 1973. Nunca fue procesado. Murió en 1999.</p>
+            <span class="persona-status status-deceased">Fallecido — 1999</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Director de operaciones</p>
+            <p class="persona-name">Richard Helms</p>
+            <p class="persona-desc">Director de operaciones encubiertas y posteriormente director de la CIA. Ordenó la destrucción de archivos. Declaró ante el Senado en 1977 negando conocer los detalles. Condenado en 1977 por perjurio en un caso no relacionado.</p>
+            <span class="persona-status status-convicted">Procesado</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Víctima — caso sin resolver</p>
+            <p class="persona-name">Frank Olson</p>
+            <p class="persona-desc">Bacteriólogo del Ejército. Dosificado con LSD sin su conocimiento en noviembre de 1953. Murió nueve días después al caer desde un hotel de Nueva York. La segunda autopsia de 1994 apunta a homicidio.</p>
+            <span class="persona-status status-deceased">Fallecido — 1953</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Ejecutor en Canadá</p>
+            <p class="persona-name">Dr. Ewen Cameron</p>
+            <p class="persona-desc">Psiquiatra director del Allan Memorial Institute de Montreal. Realizó experimentos de "depatterning" sobre pacientes sin su consentimiento con financiación encubierta de la CIA. Murió antes de que su rol fuera expuesto.</p>
+            <span class="persona-status status-deceased">Fallecido — 1967</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Agente de campo</p>
+            <p class="persona-name">George White</p>
+            <p class="persona-desc">Agente de la DEA comisionado por la CIA para dirigir la Operación Midnight Climax en San Francisco. Administraba LSD a civiles desprevenidos y observaba los resultados. En sus diarios escribió: "Fue la mejor época de mi vida".</p>
+            <span class="persona-status status-deceased">Fallecido — 1975</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Superviviente — testimonio clave</p>
+            <p class="persona-name">Velma Orlikow</p>
+            <p class="persona-desc">Paciente del Dr. Cameron en Montreal. Acudió a tratarse de depresión leve y fue sometida durante meses a descargas eléctricas y drogas experimentales. Junto a otras víctimas canadienses demandó a la CIA en 1988 y obtuvo una compensación extrajudicial.</p>
+            <span class="persona-status status-unknown">Superviviente</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECCIÓN 04 — SUBPROGRAMAS -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">04</span>
+          <h2 class="section-title">Subprogramas documentados</h2>
+        </div>
+        <div class="narrative">
+          <p>MK-Ultra no era un programa monolítico sino una constelación de más de 150 subproyectos clasificados con nombres en clave, cada uno centrado en un vector de manipulación diferente. La mayoría fueron destruidos en 1973. Los que sobrevivieron revelan un catálogo metódico de crueldad aplicada con rigor científico.</p>
+        </div>
+        <div class="subprograms-list">
+          <div class="subprogram">
+            <span class="subprogram-code">SUBPROYECTO 54</span>
+            <span class="subprogram-desc">Investigación sobre concusión cerebral controlada. Objetivo: inducir amnesia selectiva mediante golpes físicos calculados. Universidad de Minnesota.</span>
+          </div>
+          <div class="subprogram">
+            <span class="subprogram-code">SUBPROYECTO 68</span>
+            <span class="subprogram-desc">Depatterning y reprogramación de personalidad. Dr. Ewen Cameron, Montreal. Sujetos mantenidos en sueño inducido hasta 65 días mientras se les bombardeaba con mensajes grabados.</span>
+          </div>
+          <div class="subprogram">
+            <span class="subprogram-code">SUBPROYECTO 119</span>
+            <span class="subprogram-desc">Control del comportamiento mediante telemetría y estimulación eléctrica cerebral. Implantación de electrodos en sujetos humanos. Financiado a través de la Universidad de Georgetown.</span>
+          </div>
+          <div class="subprogram">
+            <span class="subprogram-code">SUBPROYECTO 35</span>
+            <span class="subprogram-desc">Financiación encubierta del Laboratorio de Psiquiatria de la Universidad de Harvard, donde Timothy Leary y Richard Alpert conducían experimentos paralelos con psilocibina no vinculados directamente al programa.</span>
+          </div>
+          <div class="subprogram">
+            <span class="subprogram-code">OP. MIDNIGHT CLIMAX</span>
+            <span class="subprogram-desc">Pisos francos en San Francisco y Nueva York. Civiles atraídos por prostitutas a sueldo de la CIA eran dosificados con LSD y observados sin su conocimiento a través de espejos unidireccionales.</span>
+          </div>
+          <div class="subprogram">
+            <span class="subprogram-code">SUBPROYECTO 43</span>
+            <span class="subprogram-desc">Estudio del efecto combinado de LSD y cloroformo en prisioneros de la Penitenciaría de Atlanta. Los sujetos fueron seleccionados sin su conocimiento por cooperación del Departamento de Justicia.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- BLOQUE REDACTADO -->
+      <div class="redacted-block fade-in">
+        <div class="redacted-label">// SUBPROYECTOS 89–143 — INFORMACIÓN PENDIENTE DE DESCLASIFICACIÓN //</div>
+        <div style="margin-top:1rem">
+          <div class="redacted-bar" style="width:100%"></div>
+          <div class="redacted-bar" style="width:87%"></div>
+          <div class="redacted-bar" style="width:94%"></div>
+          <div class="redacted-bar" style="width:72%"></div>
+          <div class="redacted-bar" style="width:88%"></div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 05 — LO QUE SABEMOS Y LO QUE NO -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">05</span>
+          <h2 class="section-title">Lo que sabemos. Lo que no.</h2>
+        </div>
+        <div class="narrative">
+          <p>
+            MK-Ultra es uno de los poquísimos casos de este archivo que no requiere especulación. Es un hecho confirmado por el propio gobierno de Estados Unidos, documentado en audiencias públicas del Congreso, reconocido por presidentes y saldado económicamente con sus víctimas. Y sin embargo, sigue siendo perturbador precisamente por eso: porque lo que sabemos es suficiente para ser monstruoso.
+          </p>
+          <p>
+            Lo que <span class="highlight">sí sabemos</span>: el programa existió. Duró veinte años. Involucró a universidades de primer nivel. Tuvo víctimas en al menos dos países. Sus directores nunca fueron procesados por los experimentos. La mayoría de los archivos fueron destruidos deliberadamente.
+          </p>
+          <p>
+            Lo que <span class="highlight">no sabemos</span>: cuántos subprogramas quedaron fuera de los 20.000 documentos que sobrevivieron. Si el programa fue realmente cancelado en 1973 o simplemente reclasificado. Cuántas víctimas hubo en total. Qué resultados concretos se obtuvieron. Y sobre todo: si las técnicas desarrolladas siguen siendo aplicadas bajo otro nombre.
+          </p>
+          <blockquote>
+            "Lo que destruimos era solo el papel. El conocimiento no se destruye."
+            <cite>— Sidney Gottlieb, en declaración ante el Comité Church del Senado, 1977</cite>
+          </blockquote>
+          <p style="font-style:italic;color:var(--text-dim);border-left:2px solid var(--border);padding-left:1rem;">
+            ✎ HUECO PARA INVESTIGACIÓN — Añade aquí tu análisis sobre los programas de "interrogación mejorada" post-9/11, el informe del Senado de 2014 sobre torturas de la CIA y los paralelismos con MK-Ultra. ¿Dónde acaba uno y empieza el otro?
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Índice de credibilidad</div>
+        <div class="sidebar-block-body">
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Documentación</span><span>97%</span></div>
+            <div class="credibility-track"><div class="credibility-fill high" style="width:97%"></div></div>
+          </div>
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Testimonios</span><span>88%</span></div>
+            <div class="credibility-track"><div class="credibility-fill high" style="width:88%"></div></div>
+          </div>
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Confirmación oficial</span><span>100%</span></div>
+            <div class="credibility-track"><div class="credibility-fill high" style="width:100%"></div></div>
+          </div>
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Alcance real</span><span>35%</span></div>
+            <div class="credibility-track"><div class="credibility-fill" style="width:35%"></div></div>
+          </div>
+          <p style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:0.8rem;line-height:1.6;">El alcance real es bajo porque la mayor parte de los archivos fue destruida. Lo que sabemos es solo lo que no pudieron eliminar.</p>
+        </div>
+      </div>
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Cifras clave</div>
+        <div class="sidebar-block-body">
+          <div class="stat-row"><span>Subprogramas</span><strong>+150</strong></div>
+          <div class="stat-row"><span>Instituciones implicadas</span><strong>+80</strong></div>
+          <div class="stat-row"><span>Docs. destruidos</span><strong>~100.000</strong></div>
+          <div class="stat-row"><span>Docs. recuperados</span><strong>20.000</strong></div>
+          <div class="stat-row"><span>Condenas por el programa</span><strong>0</strong></div>
+          <div class="stat-row"><span>Compensaciones pagadas</span><strong>+$1M</strong></div>
+        </div>
+      </div>
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Casos relacionados</div>
+        <div class="sidebar-block-body">
+          <a href="valiant-thor.html" class="related-case">
+            <span>#001</span>Valiant Thor
+          </a>
+          <a href="dulce-base.html" class="related-case">
+            <span>#002</span>Dulce Base
+          </a>
+          <a href="../index.html" class="related-case" style="color:var(--amber-dim)">
+            <span>+</span>Más casos próximamente
+          </a>
+        </div>
+      </div>
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Fuentes</div>
+        <div class="sidebar-block-body">
+          <ul class="sources-list">
+            <li>Audiencias del Comité Church — Senado de EE.UU., 1977</li>
+            <li>John Marks — "The Search for the Manchurian Candidate", 1979</li>
+            <li>Archivos FOIA — 20.000 docs. MK-Ultra, NARA</li>
+            <li>Informe del Inspector General de la CIA, 1963 (desclasificado 1994)</li>
+            <li>Autopsia Olson — Prof. James Starrs, George Washington Univ., 1994</li>
+            <li>Senate Select Committee on Intelligence — Informe de torturas, 2014</li>
+          </ul>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>PROJECT DOSSIER © 2024 — <span>TODOS LOS EXPEDIENTES SON DE DOMINIO PÚBLICO O RECOPILACIÓN PROPIA</span></p>
+    <p style="margin-top:0.5rem;">Construido con curiosidad · <span>v0.1 — ALPHA</span></p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+
+</body>
+</html>

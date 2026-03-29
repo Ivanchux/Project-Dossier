@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caso #004 — Operación Paperclip | PROJECT DOSSIER</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+
+    .case-hero {
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .case-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 60% at 80% 50%, rgba(212,135,10,0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 30% 40% at 10% 50%, rgba(204,34,0,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .case-hero::after {
+      content: 'TOP SECRET';
+      position: absolute;
+      top: 50%;
+      right: -1rem;
+      transform: translateY(-50%) rotate(-15deg);
+      font-family: var(--font-display);
+      font-size: 7rem;
+      font-weight: 700;
+      color: rgba(212,135,10,0.035);
+      letter-spacing: 8px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .case-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breadcrumb a { color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--amber); }
+
+    .case-meta-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .case-hero-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      letter-spacing: 5px;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 0;
+    }
+
+    .hero-danger { display: flex; align-items: center; gap: 5px; }
+    .hero-danger-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-right: 4px; }
+    .hero-danger-pip { width: 10px; height: 10px; border: 1px solid var(--border); display: inline-block; }
+    .hero-danger-pip.p1 { background: #3aaa50; border-color: #3aaa50; }
+    .hero-danger-pip.p2 { background: #aaaa20; border-color: #aaaa20; }
+    .hero-danger-pip.p3 { background: #d4870a; border-color: #d4870a; }
+    .hero-danger-pip.p4 { background: #cc5500; border-color: #cc5500; }
+    .hero-danger-pip.p5 { background: #cc2200; border-color: #cc2200; box-shadow: 0 0 5px #cc2200; }
+
+    .case-hero-subtitle {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .case-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding: 1.2rem;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .case-info-item label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .case-info-item span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-primary);
+      letter-spacing: 1px;
+    }
+
+    .case-hero-photo { width: 220px; flex-shrink: 0; }
+
+    .case-hero-photo-frame {
+      border: 1px solid var(--border);
+      padding: 8px;
+      background: var(--bg-card);
+    }
+
+    .case-hero-photo-frame img {
+      width: 100%;
+      display: block;
+      filter: sepia(0.5) contrast(1.1) brightness(0.8);
+    }
+
+    .case-hero-photo-caption {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 0 2px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+    }
+
+    .case-stamp-rotated {
+      position: absolute;
+      top: 2.5rem;
+      right: 2rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      transform: rotate(-8deg);
+      opacity: 0.14;
+      pointer-events: none;
+      border: 3px solid;
+      padding: 0.3rem 1rem;
+      color: rgba(204,34,0,0.55);
+      border-color: rgba(204,34,0,0.45);
+    }
+
+    /* ===== LAYOUT ===== */
+    .case-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 3rem;
+      padding-top: 3rem;
+      padding-bottom: 4rem;
+    }
+
+    .section { margin-bottom: 3.5rem; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-number { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--amber-dim); }
+    .section-title { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; letter-spacing: 3px; color: var(--amber-bright); text-transform: uppercase; }
+
+    /* ===== NARRATIVA ===== */
+    .narrative p { font-size: 0.95rem; line-height: 1.9; color: var(--text-primary); margin-bottom: 1.3rem; }
+    .narrative .highlight { color: var(--amber-bright); }
+
+    .narrative blockquote {
+      border-left: 3px solid var(--amber-dim);
+      padding: 1rem 1.5rem;
+      margin: 1.8rem 0;
+      background: rgba(212,135,10,0.04);
+      font-style: italic;
+      color: var(--text-bright);
+    }
+
+    .narrative blockquote cite {
+      display: block;
+      margin-top: 0.6rem;
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* ===== REDACTADO ===== */
+    .redacted-block {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--red-dim);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .redacted-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--red-classified);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .redacted-bar { height: 12px; background: var(--red-dim); margin-bottom: 8px; opacity: 0.65; }
+
+    /* ===== TIMELINE ===== */
+    .timeline { position: relative; padding-left: 2rem; }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+      padding: 0.8rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2.35rem; top: 1.1rem;
+      width: 8px; height: 8px;
+      background: var(--amber-dim);
+      border: 1px solid var(--amber);
+    }
+
+    .timeline-item:hover::before, .timeline-item.expanded::before {
+      background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+
+    .timeline-item:hover, .timeline-item.expanded { border-color: var(--amber-dim); }
+
+    .timeline-date { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--amber-dim); text-transform: uppercase; margin-bottom: 0.3rem; }
+    .timeline-event { font-family: var(--font-display); font-size: 1rem; letter-spacing: 2px; color: var(--text-bright); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .timeline-detail { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; display: none; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+    .timeline-item.expanded .timeline-detail { display: block; }
+    .expand-hint { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); letter-spacing: 1px; opacity: 0.5; }
+
+    /* ===== PERSONAS ===== */
+    .personas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .persona-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .persona-card:hover { border-color: var(--amber-dim); }
+
+    .persona-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--amber-dim);
+    }
+
+    .persona-role { font-family: var(--font-mono); font-size: 8px; letter-spacing: 2px; color: var(--amber-dim); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .persona-name { font-family: var(--font-display); font-weight: 600; font-size: 1rem; letter-spacing: 2px; color: var(--text-bright); text-transform: uppercase; margin-bottom: 0.6rem; }
+    .persona-desc { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+
+    .persona-status {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      padding: 2px 6px;
+      border: 1px solid;
+      text-transform: uppercase;
+      margin-top: 0.6rem;
+    }
+
+    .status-recruited { color: var(--amber-dim); border-color: var(--amber-dim); }
+    .status-escaped { color: var(--red-dim); border-color: var(--red-dim); }
+    .status-convicted { color: #cc5500; border-color: #cc5500; }
+    .status-deceased { color: var(--text-dim); border-color: var(--text-dim); }
+
+    /* ===== OPERACIONES DERIVADAS ===== */
+    .ops-list { display: flex; flex-direction: column; gap: 0.8rem; }
+
+    .op-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber-dim);
+      padding: 0.9rem 1.2rem;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .op-code { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--amber-dim); text-transform: uppercase; line-height: 1.5; }
+    .op-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+    .op-link { font-family: var(--font-mono); font-size: 9px; color: var(--red-dim); letter-spacing: 1px; margin-top: 4px; display: block; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar { position: sticky; top: 80px; }
+
+    .sidebar-block { border: 1px solid var(--border); background: var(--bg-card); margin-bottom: 1.5rem; overflow: hidden; }
+    .sidebar-block-title { font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px; color: var(--bg-primary); background: var(--amber-dim); padding: 6px 12px; text-transform: uppercase; }
+    .sidebar-block-body { padding: 1rem; }
+
+    .credibility-bar { margin-bottom: 1rem; }
+    .credibility-label { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 4px; }
+    .credibility-track { height: 4px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); overflow: hidden; }
+    .credibility-fill { height: 100%; background: var(--amber); transition: width 1s ease; }
+    .credibility-fill.high { background: var(--red-classified); }
+    .credibility-fill.low { background: var(--text-dim); }
+
+    .related-case { display: block; padding: 8px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text-dim); font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; transition: color 0.2s; }
+    .related-case:last-child { border-bottom: none; }
+    .related-case:hover { color: var(--amber); }
+    .related-case span { color: var(--amber-dim); margin-right: 6px; }
+
+    .sources-list { list-style: none; }
+    .sources-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); letter-spacing: 1px; line-height: 1.5; }
+    .sources-list li:last-child { border-bottom: none; }
+
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row strong { color: var(--amber); font-weight: normal; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .case-hero-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+      .case-hero-photo { width: 100%; max-width: 320px; margin: 0 auto; }
+      .case-layout { grid-template-columns: 1fr; gap: 0; padding: 0 1rem 3rem; }
+      .sidebar { display: none; }
+      .op-item { grid-template-columns: 1fr; gap: 0.3rem; }
+    }
+    @media (max-width: 768px) {
+      .case-hero { padding: 2.5rem 1rem 2rem; }
+      .case-hero-title { font-size: clamp(1.6rem, 7vw, 3rem) !important; }
+      .case-stamp-rotated { font-size: clamp(1rem, 4vw, 2rem); top: 1rem; right: 1rem; opacity: 0.1; }
+      .case-info-grid { grid-template-columns: 1fr 1fr; }
+      .case-meta-top { gap: 6px; flex-wrap: wrap; }
+      .case-layout { padding: 1.5rem 1rem 3rem; }
+      .section { margin-bottom: 2rem; }
+      .timeline { padding-left: 1.5rem; }
+      .narrative p { font-size: 0.9rem; }
+    }
+    @media (max-width: 480px) {
+      .case-hero { padding: 1.5rem 0.8rem 1.5rem; }
+      .case-info-grid { grid-template-columns: 1fr; gap: 0.6rem; }
+      .breadcrumb { font-size: 9px; }
+      .narrative blockquote { padding: 0.8rem 1rem; margin: 1rem 0; }
+      .case-layout { padding: 1.2rem 0.8rem 2rem; }
+      .case-meta-top .tag { font-size: 8px; }
+      .timeline { padding-left: 1.2rem; }
+      .timeline-item { padding: 0.6rem 0.8rem; }
+      .section-header { margin-bottom: 1rem; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="../index.html">Casos</a>
+        <a href="../mapa.html">Mapa</a>
+        <a href="../cronologia.html">Cronología</a>
+        <a href="../archivo.html">Archivo</a>
+        <a href="../acerca.html">Acerca de</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+            <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="case-hero">
+    <div class="case-stamp-rotated">Top Secret</div>
+    <div class="case-hero-inner container">
+      <div>
+        <div class="breadcrumb">
+          <a href="../index.html">Casos</a>
+          <span>/</span>
+          <span>Caso #004</span>
+        </div>
+        <div class="case-meta-top">
+          <span class="stamp stamp-classified">Clasificado</span>
+          <span class="tag">Operación encubierta</span>
+          <span class="tag">Nazis</span>
+          <span class="tag">Programa espacial</span>
+          <span class="tag">1945–1990</span>
+        </div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:0.8rem;">
+          <h1 class="case-hero-title fade-in" style="margin-bottom:0;">Operación Paperclip</h1>
+          <div class="hero-danger fade-in">
+            <span class="hero-danger-label">Peligro</span>
+            <span class="hero-danger-pip p1"></span>
+            <span class="hero-danger-pip p2"></span>
+            <span class="hero-danger-pip p3"></span>
+            <span class="hero-danger-pip p4"></span>
+            <span class="hero-danger-pip"></span>
+          </div>
+        </div>
+        <p class="case-hero-subtitle">El pacto que América no debería haber firmado · Caso #004</p>
+        <div class="case-info-grid fade-in">
+          <div class="case-info-item">
+            <label>Periodo activo</label>
+            <span>1945 – 1990</span>
+          </div>
+          <div class="case-info-item">
+            <label>Organismo</label>
+            <span>OSS / JIOA / DoD</span>
+          </div>
+          <div class="case-info-item">
+            <label>Científicos reclutados</label>
+            <span>1.600 documentados</span>
+          </div>
+          <div class="case-info-item">
+            <label>Autorización presidencial</label>
+            <span>Truman — 1946</span>
+          </div>
+          <div class="case-info-item">
+            <label>Desclasificado</label>
+            <span>1999 — parcialmente</span>
+          </div>
+          <div class="case-info-item">
+            <label>Estado</label>
+            <span>Confirmado oficialmente</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-hero-photo fade-in">
+        <div class="case-hero-photo-frame">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Wernher_von_Braun_1960.jpg/400px-Wernher_von_Braun_1960.jpg"
+            alt="Wernher von Braun — SS-Sturmbannführer convertido en héroe espacial americano"
+            onerror="this.parentElement.innerHTML='<div style=\'height:180px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:2px\'>IMAGEN CLASIFICADA</div>'"
+          >
+          <div class="case-hero-photo-caption">Wernher von Braun, 1960 — padre del programa Apollo. Antes: SS-Sturmbannführer y arquitecto de los V-2 fabricados con trabajo esclavo.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTENIDO ===== -->
+  <div class="case-layout">
+    <main>
+
+      <!-- 01 — EL EXPEDIENTE -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">01</span>
+          <h2 class="section-title">El Expediente</h2>
+        </div>
+        <div class="narrative">
+          <p>
+            En mayo de 1945, mientras los Aliados entraban en Berlín y el mundo celebraba el fin de la guerra más sangrienta de la historia, los servicios de inteligencia americanos llevaban semanas haciendo otra cosa: identificar, localizar y rescatar a los mejores científicos del Reich antes de que cayeran en manos soviéticas. La carrera no era contra los nazis. Era contra los rusos.
+          </p>
+          <p>
+            El programa que los absorbió se llamó inicialmente <span class="highlight">Operación Overcast</span> y fue rebautizado en 1946 como <span class="highlight">Operación Paperclip</span> — el nombre venía del clip que los agentes de la JIOA usaban para señalar los expedientes de los candidatos más valiosos. El procedimiento era sencillo en teoría y monstruoso en la práctica: se borraban o falsificaban los registros de afiliación nazi, se fabricaban nuevas biografías, y los científicos eran trasladados a Estados Unidos con contratos gubernamentales y nuevas identidades limpias. El objetivo declarado era la ventaja tecnológica en la nueva guerra que ya se veía venir.
+          </p>
+          <blockquote>
+            "Tenemos que elegir entre importar los cerebros alemanes o importar las bombas alemanas. Prefiero los cerebros."
+            <cite>— General Hugh Knerr, Fuerza Aérea de EE.UU., memorándum interno, 1945</cite>
+          </blockquote>
+          <p>
+            Lo que se importó no eran solo cerebros. <span class="highlight">Wernher von Braun</span>, el hombre que diseñaría el cohete Saturn V que llevaría a los americanos a la Luna, había sido <span class="highlight">SS-Sturmbannführer</span> — equivalente a comandante — y había supervisado la producción de los misiles V-2 en la fábrica subterránea de Mittelwerk, donde entre 10.000 y 20.000 trabajadores esclavos de los campos de concentración murieron de agotamiento, hambre y ejecuciones sumarias. Más personas murieron fabricando los V-2 que matando las explosiones que causaron.
+          </p>
+          <p>
+            El Departamento de Estado se opuso. El FBI abrió expedientes. El presidente Truman firmó una directiva que expresamente prohibía reclutar a "miembros activos del Partido Nazi o militaristas". La JIOA — la Junta de Inteligencia de Objetivos Conjuntos — simplemente ignoró la directiva y falsificó los registros de todos los candidatos que consideró valiosos. La firma de Truman fue una pantalla. La operación siguió su curso.
+          </p>
+          <blockquote>
+            "Nuestro mayor problema fue que los rusos se llevaron a los mejores. Nosotros nos quedamos con los segundos mejores."
+            <cite>— Major James Hamill, coordinador de la Operación Paperclip, testimonio posterior</cite>
+          </blockquote>
+          <p>
+            El alcance final fue mayor de lo que los documentos desclasificados reconocen. Los 1.600 científicos oficialmente registrados son solo los que dejaron rastro en papel. Las estimaciones históricas sitúan el número real entre 10.000 y 16.000 personas, contando a familiares, técnicos y colaboradores. Muchos no llegaron con sus nombres. Algunos nunca salieron del todo a la luz. Y el conocimiento que trajeron consigo — sobre cohetes, armas químicas, técnicas de interrogación, medicina de guerra — se filtró en decenas de programas americanos de las décadas siguientes. Incluyendo, según documentos desclasificados parcialmente, <span class="highlight">el propio MK-Ultra</span>.
+          </p>
+          <p style="font-style:italic;color:var(--text-dim);border-left:2px solid var(--border);padding-left:1rem;">
+            ✎ HUECO PARA INVESTIGACIÓN — Desarrolla aquí la conexión con el programa espacial soviético (los rusos también se llevaron científicos nazis, empezando por Helmut Gröttrup) y el paralelismo de ambas superpotencias construyendo su carrera espacial sobre los mismos cimientos morales.
+          </p>
+        </div>
+      </section>
+
+      <!-- 02 — CRONOLOGÍA -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">02</span>
+          <h2 class="section-title">Cronología</h2>
+        </div>
+        <div class="timeline">
+
+          <div class="timeline-item">
+            <p class="timeline-date">1943 – 1945</p>
+            <p class="timeline-event">Mittelwerk — la fábrica que no debería existir</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">En las entrañas del monte Kohnstein, en Turingia, la SS construye una fábrica subterránea de producción de misiles V-1 y V-2. La mano de obra: prisioneros del campo de concentración de Dora-Mittelbau. Se estima que entre 10.000 y 20.000 personas murieron en las condiciones de trabajo. Von Braun visitó la instalación al menos una vez. Los supervivientes lo identificaron en el recinto. Su implicación directa en las condiciones de los prisioneros fue deliberadamente omitida de su expediente americano.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">Mayo 1945</p>
+            <p class="timeline-event">Von Braun se entrega — con sus planos</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">Anticipando el final del Reich, Von Braun negocia la rendición de su equipo de 125 científicos del programa de cohetes ante las tropas americanas en los Alpes austriacos. Se asegura de enterrar previamente 14 toneladas de documentos técnicos en una mina de sal para evitar que los soviéticos los capturen. Al entregarse, pregunta directamente por quién tiene autoridad para hablar de contratos de trabajo.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">Julio 1945</p>
+            <p class="timeline-event">Operación Overcast — los primeros contratos</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">El Departamento de Guerra americano aprueba el traslado provisional de científicos alemanes a Fort Bliss, Texas. El programa está pensado como temporal: seis meses para extraer conocimiento técnico. Los expedientes son revisados para verificar afiliación nazi. Muchos son rechazados en esta fase. La JIOA comienza a trabajar para revertir esas decisiones en los casos que considera estratégicamente valiosos.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">Septiembre 1946</p>
+            <p class="timeline-event" style="color:var(--amber);">Truman firma — y la JIOA lo ignora</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">El presidente Truman firma la directiva que autoriza oficialmente el programa pero prohíbe expresamente reclutar a nazis activos o militaristas declarados. La JIOA, bajo el mando del coronel Thomas Ford, decide que la directiva presidencial es un inconveniente logístico. Durante los meses siguientes, los expedientes de decenas de científicos con historial nazi documentado son reescritos, eliminando o suavizando toda referencia comprometedora. El programa se rebautiza como Paperclip.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1947 – 1950</p>
+            <p class="timeline-event">Fort Bliss y White Sands — los V-2 americanos</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">Von Braun y su equipo trabajan en el desierto de Nuevo México lanzando los V-2 capturados y desarrollando los primeros cohetes de largo alcance americanos. Las condiciones son duras y los científicos se sienten prisioneros más que contratados. Algunos consideran fugarse a México. Von Braun escribe a sus superiores reclamando mejores condiciones y mayor reconocimiento. Lo obtiene. A partir de 1950 son trasladados al Arsenal de Redstone en Huntsville, Alabama, donde comenzará el programa de misiles balísticos que derivará en la NASA.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1949 – 1952</p>
+            <p class="timeline-event">El FBI abre expedientes — y los cierra</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">J. Edgar Hoover, director del FBI, abre investigaciones sobre varios científicos Paperclip al recibir informes sobre su historial en el Reich. En los casos de Von Braun, Otto Ambros (director de la planta de IG Farben donde se producía el Zyklon B) y varios otros, los expedientes del FBI documentan claramente los crímenes de guerra. En todos los casos, la CIA y el Departamento de Defensa intervienen para paralizar las investigaciones alegando "necesidades de seguridad nacional". Hoover protesta formalmente. No obtiene respuesta.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1958</p>
+            <p class="timeline-event">La NASA — construida sobre Paperclip</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">La NASA es creada en respuesta al lanzamiento del Sputnik soviético. Von Braun es nombrado director del Centro de Vuelo Espacial Marshall. Su equipo, en su mayoría ex científicos del programa V-2 del Reich, diseña los cohetes Redstone, Jupiter y Saturn. El Saturn V que lleva a los americanos a la Luna en 1969 es, técnicamente, la evolución directa de los misiles que Von Braun desarrolló bajo la bandera de la SS. Esta continuidad nunca es mencionada en las ruedas de prensa de la NASA.</p>
+          </div>
+
+          <div class="timeline-item">
+            <p class="timeline-date">1999 – 2004</p>
+            <p class="timeline-event" style="color:var(--amber);">Desclasificación parcial — lo que deciden enseñar</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">El gobierno americano desclasifica parcialmente los archivos de la Operación Paperclip bajo la Ley de Divulgación de Crímenes de Guerra Nazis. Los documentos confirman que la JIOA falsificó expedientes deliberadamente. Reconocen el reclutamiento de al menos 1.600 científicos. Pero decenas de expedientes individuales permanecen clasificados o con páginas íntegras redactadas. La desclasificación es suficiente para confirmar que todo ocurrió. Insuficiente para establecer responsabilidades.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 03 — PERSONAS CLAVE -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">03</span>
+          <h2 class="section-title">Personas clave</h2>
+        </div>
+        <div class="personas-grid">
+
+          <div class="persona-card">
+            <p class="persona-role">Reclutado — programa espacial</p>
+            <p class="persona-name">Wernher von Braun</p>
+            <p class="persona-desc">SS-Sturmbannführer. Director técnico del programa V-2 en Peenemünde. Supervisó producción en Mittelwerk con trabajo esclavo. En EE.UU.: padre del programa Apollo y del cohete Saturn V. Nunca fue procesado.</p>
+            <span class="persona-status status-recruited">Reclutado — NASA</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Reclutado — armas químicas</p>
+            <p class="persona-name">Otto Ambros</p>
+            <p class="persona-desc">Director de la planta de IG Farben en Auschwitz donde se producía Zyklon B y gas nervioso tabún. Condenado en Nuremberg a 8 años. Liberado en 1951 por presión americana. Contratado por el Departamento de Defensa y por Dow Chemical.</p>
+            <span class="persona-status status-recruited">Reclutado — DoD</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Reclutado — medicina de guerra</p>
+            <p class="persona-name">Walter Schreiber</p>
+            <p class="persona-desc">General médico de la Wehrmacht. Supervisó experimentos con gas mostaza y tifus en prisioneros en Buchenwald. Identificado como criminal de guerra en Nuremberg. Introducido en EE.UU. con documentación falsa. Expuesto por la prensa en 1952 y enviado a Argentina.</p>
+            <span class="persona-status status-escaped">Escapó a Argentina</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Reclutado — aeronáutica</p>
+            <p class="persona-name">Hubertus Strughold</p>
+            <p class="persona-desc">Jefe de medicina aeronáutica de la Luftwaffe. Presente en la conferencia de 1942 donde se aprobaron experimentos de presión y congelación en prisioneros de Dachau. En EE.UU.: "padre de la medicina espacial americana". La NASA nombró una biblioteca en su honor hasta 1995.</p>
+            <span class="persona-status status-recruited">Reclutado — USAF</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">Arquitecto del programa</p>
+            <p class="persona-name">Coronel Thomas Ford</p>
+            <p class="persona-desc">Director de la JIOA. Responsable directo de la falsificación sistemática de expedientes para evitar que la directiva de Truman bloqueara los reclutamientos. Nunca fue investigado ni procesado. Murió siendo un oficial retirado con honores.</p>
+            <span class="persona-status status-deceased">Fallecido — sin cargos</span>
+          </div>
+
+          <div class="persona-card">
+            <p class="persona-role">El que escapó al sur</p>
+            <p class="persona-name">Klaus Barbie</p>
+            <p class="persona-desc">"El carnicero de Lyon". Jefe de la Gestapo en Lyon, responsable de la tortura y deportación de miles de personas. Trabajó para la inteligencia americana entre 1947 y 1951. Cuando el CIC ya no lo necesitó, lo ayudaron a escapar a Bolivia a través de la red ODESSA.</p>
+            <span class="persona-status status-escaped">Exfiltrado a Bolivia</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 04 — OPERACIONES DERIVADAS -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">04</span>
+          <h2 class="section-title">Lo que Paperclip sembró</h2>
+        </div>
+        <div class="narrative">
+          <p>Paperclip no fue un programa aislado. Fue el nodo de entrada de una red de conocimiento, métodos y personas que se dispersó por decenas de programas americanos durante las décadas siguientes. Algunas conexiones están documentadas. Otras, apenas insinuadas en los archivos que sobrevivieron.</p>
+        </div>
+        <div class="ops-list">
+
+          <div class="op-item">
+            <div>
+              <span class="op-code">Proyecto MK-Ultra</span>
+              <span class="op-link">→ Ver Caso #003</span>
+            </div>
+            <span class="op-desc">Kurt Blome, director del programa de armas biológicas del Reich, fue reclutado por Paperclip. Documentos desclasificados parcialmente sugieren su consultoría en los primeros años del programa de control mental de la CIA. La metodología de los experimentos de desprogramación de personalidad muestra paralelismos directos con técnicas desarrolladas en los campos de concentración.</span>
+          </div>
+
+          <div class="op-item">
+            <div>
+              <span class="op-code">Programa Apollo / NASA</span>
+            </div>
+            <span class="op-desc">Von Braun y al menos 118 ex científicos del programa de cohetes del Reich trabajaron directamente en el desarrollo del Saturn V y los vehículos de lanzamiento del programa Apollo. La carrera espacial americana fue, en una parte documentable, una operación de transferencia tecnológica del Tercer Reich.</span>
+          </div>
+
+          <div class="op-item">
+            <div>
+              <span class="op-code">Operación ODESSA</span>
+            </div>
+            <span class="op-desc">La red de escape para criminales de guerra nazis que no fueron reclutados por los americanos. La CIA tenía conocimiento de su existencia y en varios casos documentados ayudó activamente a la exfiltración de agentes como Klaus Barbie, considerando que era preferible que escaparan a que cayeran en manos soviéticas o fueran procesados en juicios que podrían revelar colaboraciones americanas.</span>
+          </div>
+
+          <div class="op-item">
+            <div>
+              <span class="op-code">Programa de armas químicas</span>
+            </div>
+            <span class="op-desc">Otto Ambros y otros químicos de IG Farben introdujeron en el programa americano el conocimiento sobre gas nervioso tabún, sarín y somán, todos desarrollados bajo el Reich. El arsenal de armas químicas americano de la Guerra Fría fue construido en parte sobre esta base. Dow Chemical contrató a Ambros directamente como asesor en los años 50.</span>
+          </div>
+
+          <div class="op-item">
+            <div>
+              <span class="op-code">Medicina aeroespacial / USAF</span>
+            </div>
+            <span class="op-desc">Hubertus Strughold y otros médicos de la Luftwaffe trasladaron al programa americano décadas de investigación sobre los límites del cuerpo humano en condiciones extremas — investigación realizada en gran parte sobre prisioneros no voluntarios en Dachau. La medicina espacial americana se construyó sobre datos obtenidos mediante tortura sistemática.</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- BLOQUE REDACTADO -->
+      <div class="redacted-block fade-in">
+        <div class="redacted-label">// EXPEDIENTES INDIVIDUALES 1.100–1.600 — PERMANECEN CLASIFICADOS //</div>
+        <div style="margin-top:1rem">
+          <div class="redacted-bar" style="width:100%"></div>
+          <div class="redacted-bar" style="width:83%"></div>
+          <div class="redacted-bar" style="width:97%"></div>
+          <div class="redacted-bar" style="width:68%"></div>
+          <div class="redacted-bar" style="width:91%"></div>
+        </div>
+      </div>
+
+      <!-- 05 — LO QUE SABEMOS. LO QUE NO. -->
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">05</span>
+          <h2 class="section-title">El precio del cohete</h2>
+        </div>
+        <div class="narrative">
+          <p>
+            El 20 de julio de 1969, Neil Armstrong pisó la Luna. Cuatrocientos mil personas habían trabajado para hacerlo posible. Entre ellas, decenas de hombres que habían supervisado el trabajo esclavo en túneles donde morían prisioneros a razón de cien por semana. El mundo vio la bandera americana. No vio los expedientes falsificados que hicieron posible ese momento.
+          </p>
+          <p>
+            La pregunta que Paperclip plantea no tiene respuesta limpia. Los americanos ganaron la carrera espacial. Desarrollaron tecnología militar que posiblemente disuadió una guerra con la URSS. El conocimiento que importaron fue real y sus aplicaciones, concretas. El precio también fue real: criminales de guerra vivieron vidas confortables en América mientras sus víctimas no habían tenido esa opción. La justicia fue selectiva por diseño.
+          </p>
+          <p>
+            Lo que <span class="highlight">sí sabemos</span>: el programa existió. Los expedientes fueron falsificados deliberadamente. Los responsables de esas falsificaciones nunca rindieron cuentas. Al menos 1.600 científicos fueron introducidos en el sistema americano bajo identidades parcialmente fabricadas.
+          </p>
+          <p>
+            Lo que <span class="highlight">no sabemos</span>: el número real de personas reclutadas. Qué ocurrió exactamente con los que no dejaron rastro en papel. En qué otros programas —además de los documentados— se usó el conocimiento importado. Y si la decisión de Truman fue realmente tan ignorada como los archivos sugieren, o si hubo una cadena de aprobación que los documentos desclasificados aún ocultan.
+          </p>
+          <blockquote>
+            "Llamamos a Von Braun héroe porque llegó al lado correcto. Si hubiera llegado al lado equivocado, lo hubiéramos colgado en Nuremberg."
+            <cite>— Arthur Rudolph, ingeniero jefe del Saturn V, entrevista años después de su deportación de EE.UU. en 1984 por crímenes de guerra</cite>
+          </blockquote>
+          <p style="font-style:italic;color:var(--text-dim);border-left:2px solid var(--border);padding-left:1rem;">
+            ✎ HUECO PARA INVESTIGACIÓN — El caso de Arthur Rudolph es especialmente relevante: diseñó el Saturn V, recibió la Medalla al Mérito de la NASA en 1969, y en 1984 fue deportado de EE.UU. al comprobarse su responsabilidad directa en las muertes de Mittelwerk. Desarrolla aquí ese arco completo.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Índice de credibilidad</div>
+        <div class="sidebar-block-body">
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Documentación oficial</span><span>95%</span></div>
+            <div class="credibility-track"><div class="credibility-fill high" style="width:95%"></div></div>
+          </div>
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Confirmación gov.</span><span>100%</span></div>
+            <div class="credibility-track"><div class="credibility-fill high" style="width:100%"></div></div>
+          </div>
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Alcance real conocido</span><span>40%</span></div>
+            <div class="credibility-track"><div class="credibility-fill" style="width:40%"></div></div>
+          </div>
+          <div class="credibility-bar">
+            <div class="credibility-label"><span>Responsabilidades</span><span>5%</span></div>
+            <div class="credibility-track"><div class="credibility-fill low" style="width:5%"></div></div>
+          </div>
+          <p style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:0.8rem;line-height:1.6;">El índice de responsabilidades es el más bajo del archivo. Ningún responsable americano fue procesado por las falsificaciones.</p>
+        </div>
+      </div>
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Cifras documentadas</div>
+        <div class="sidebar-block-body">
+          <div class="stat-row"><span>Científicos reclutados</span><strong>+1.600</strong></div>
+          <div class="stat-row"><span>Expedientes falsificados</span><strong>No cuantificado</strong></div>
+          <div class="stat-row"><span>Procesados en Nuremberg</span><strong>Ninguno del programa</strong></div>
+          <div class="stat-row"><span>Deportados después</span><strong>~16 documentados</strong></div>
+          <div class="stat-row"><span>Víctimas de Mittelwerk</span><strong>10.000–20.000</strong></div>
+          <div class="stat-row"><span>Condenas por ello</span><strong>0</strong></div>
+        </div>
+      </div>
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Casos relacionados</div>
+        <div class="sidebar-block-body">
+          <a href="mk-ultra.html" class="related-case">
+            <span>#003</span>Proyecto MK-Ultra
+          </a>
+          <a href="valiant-thor.html" class="related-case">
+            <span>#001</span>Valiant Thor
+          </a>
+          <a href="../index.html" class="related-case" style="color:var(--amber-dim)">
+            <span>+</span>Más casos próximamente
+          </a>
+        </div>
+      </div>
+
+      <div class="sidebar-block fade-in">
+        <div class="sidebar-block-title">Fuentes</div>
+        <div class="sidebar-block-body">
+          <ul class="sources-list">
+            <li>Annie Jacobsen — "Operation Paperclip", 2014</li>
+            <li>Archivos FOIA — JIOA Records, NARA (desclasificados 1999)</li>
+            <li>Audiencias del Subcomité de Seguridad Interna del Senado, 1952</li>
+            <li>Documentos del Tribunal Militar de Nuremberg — Caso IG Farben</li>
+            <li>Expediente Klaus Barbie — CIC/CIA, desclasificado 2001</li>
+            <li>Tom Bower — "The Paperclip Conspiracy", 1987</li>
+          </ul>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    <p>PROJECT DOSSIER © 2024 — <span>TODOS LOS EXPEDIENTES SON DE DOMINIO PÚBLICO O RECOPILACIÓN PROPIA</span></p>
+    <p style="margin-top:0.5rem;">Construido con curiosidad · <span>v0.1 — ALPHA</span></p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+
+</body>
+</html>

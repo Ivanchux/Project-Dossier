@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROJECT DOSSIER — Archivos Clasificados</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ===== HERO ===== */
+    .hero {
+      padding: 5rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,135,10,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(3rem, 8vw, 6rem);
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: var(--amber-bright);
+      line-height: 1;
+      text-shadow: 0 0 40px rgba(212,135,10,0.3);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      letter-spacing: 6px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-number {
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      color: var(--amber-bright);
+      display: block;
+      line-height: 1;
+    }
+
+    .hero-stat-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .hero-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+      margin-bottom: 4rem;
+    }
+
+    /* ===== FILTROS ===== */
+    .filters {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--amber);
+      color: var(--amber-bright);
+      background: var(--amber-glow);
+    }
+
+    /* ===== GRID DE CASOS ===== */
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .case-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.3s, transform 0.2s;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+
+    .case-card:hover {
+      border-color: var(--amber);
+      transform: translateY(-2px);
+    }
+
+    .case-card:hover .case-overlay {
+      opacity: 1;
+    }
+
+    .case-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(212,135,10,0.04) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    /* Línea decorativa superior */
+    .case-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--amber-dim);
+      transition: background 0.3s;
+    }
+
+    .case-card:hover::before {
+      background: var(--amber-bright);
+    }
+
+    .case-header {
+      padding: 1.2rem 1.4rem 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .case-number {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    .case-body {
+      padding: 1.2rem 1.4rem;
+    }
+
+    .case-category {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .case-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      line-height: 1.2;
+    }
+
+    .case-excerpt {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 1.2rem;
+    }
+
+    .case-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .case-date {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .case-cta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--amber);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .case-cta::after {
+      content: '→';
+      transition: transform 0.2s;
+    }
+
+    .case-card:hover .case-cta::after {
+      transform: translateX(4px);
+    }
+
+    /* ===== NIVEL DE PELIGRO ===== */
+    .danger-level {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .danger-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-right: 2px;
+    }
+
+    .danger-pip {
+      width: 8px;
+      height: 8px;
+      border: 1px solid var(--border);
+      display: inline-block;
+      transition: background 0.2s;
+    }
+
+    .danger-pip.active-1 { background: #3aaa50; border-color: #3aaa50; }
+    .danger-pip.active-2 { background: #aaaa20; border-color: #aaaa20; }
+    .danger-pip.active-3 { background: #d4870a; border-color: #d4870a; }
+    .danger-pip.active-4 { background: #cc5500; border-color: #cc5500; }
+    .danger-pip.active-5 { background: #cc2200; border-color: #cc2200; box-shadow: 0 0 4px #cc2200; }
+
+    /* Tarjeta "próximamente" */
+    .case-card.coming-soon {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .case-card.coming-soon:hover {
+      transform: none;
+      border-color: var(--border);
+    }
+
+    /* ===== BANNER INFERIOR ===== */
+    .bottom-banner {
+      border: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      background: var(--bg-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bottom-banner::before {
+      content: 'INFORMACIÓN CLASIFICADA — ACCESO RESTRINGIDO';
+      position: absolute;
+      top: 8px;
+      left: 0;
+      right: 0;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--red-dim);
+      text-align: center;
+    }
+
+    .bottom-banner p {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      line-height: 2;
+    }
+
+    .bottom-banner strong {
+      color: var(--amber);
+    }
+
+    @media (max-width: 768px) {
+      .hero { padding: 3rem 1rem 2rem; }
+      .hero-stats { gap: 2rem; }
+      .hero-stat-number { font-size: 1.5rem; }
+      .cases-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .filters { gap: 0.5rem; flex-wrap: wrap; }
+      .filter-btn { font-size: 9px; padding: 4px 10px; }
+    }
+    @media (max-width: 480px) {
+      .hero { padding: 2rem 0.8rem 1.5rem; }
+      .hero-eyebrow { font-size: 8px; letter-spacing: 2px; }
+      .hero-stats { gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+      .hero-stat { min-width: 70px; text-align: center; }
+      .hero-stat-number { font-size: 1.3rem; }
+      .cases-grid { grid-template-columns: 1fr; }
+      .case-card { width: 100%; }
+      .filters { gap: 0.4rem; }
+      .filter-btn { font-size: 8px; padding: 3px 8px; letter-spacing: 1px; }
+      .bottom-banner { padding: 1.5rem 1rem; }
+      .bottom-banner p { font-size: 9px; letter-spacing: 1px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html" class="active">Casos</a>
+        <a href="mapa.html">Mapa</a>
+        <a href="cronologia.html">Cronología</a>
+        <a href="archivo.html">Archivo</a>
+        <a href="acerca.html">Acerca de</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+            <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <p class="hero-eyebrow fade-in">// SISTEMA DE ARCHIVO ACTIVO — NIVEL DE ACCESO: PÚBLICO</p>
+    <h1 class="hero-title fade-in glitch" data-text="PROJECT DOSSIER">PROJECT DOSSIER</h1>
+    <p class="hero-subtitle fade-in">Expedientes que no deberían existir</p>
+
+    <div class="hero-stats fade-in">
+      <div class="hero-stat">
+        <span class="hero-stat-number">05</span>
+        <span class="hero-stat-label">Casos activos</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-number">??</span>
+        <span class="hero-stat-label">Sin resolver</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-number">∞</span>
+        <span class="hero-stat-label">Preguntas</span>
+      </div>
+    </div>
+
+    <div class="hero-divider"></div>
+  </section>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <main class="container">
+
+    <!-- Filtros + Buscador -->
+    <div class="filters">
+      <span class="filter-label">Filtrar:</span>
+      <button class="filter-btn active" data-filter="todos">Todos</button>
+      <button class="filter-btn" data-filter="extraterrestres">Extraterrestres</button>
+      <button class="filter-btn" data-filter="gobierno">Gobierno</button>
+      <button class="filter-btn" data-filter="bases subterráneas">Bases subterráneas</button>
+      <button class="filter-btn" data-filter="sin resolver">Sin resolver</button>
+      <div class="search-wrapper">
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar caso...">
+        <span class="search-icon">⌕</span>
+      </div>
+    </div>
+    <p id="no-results" class="no-results">// NINGÚN EXPEDIENTE COINCIDE CON LA BÚSQUEDA</p>
+
+    <!-- Grid de casos -->
+    <div class="cases-grid">
+
+      <!-- CASO 001 — VALIANT THOR -->
+      <a href="casos/valiant-thor.html" class="case-card fade-in" data-tags="extraterrestres gobierno sin resolver 1957">
+        <div class="case-overlay"></div>
+        <div class="case-header">
+          <span class="case-number">CASO #001</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="danger-level" title="Nivel de peligro: 3/5">
+              <span class="danger-label">PELIGRO</span>
+              <span class="danger-pip active-1"></span>
+              <span class="danger-pip active-2"></span>
+              <span class="danger-pip active-3"></span>
+              <span class="danger-pip"></span>
+              <span class="danger-pip"></span>
+            </div>
+            <span class="stamp stamp-open">Abierto</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p class="case-category">Extraterrestres · Gobierno · 1957</p>
+          <h2 class="case-title">Valiant Thor</h2>
+          <p class="case-excerpt">
+            Un ser de aspecto humano llega al Pentágono en 1957. Se reúne con el presidente Eisenhower. Tres años de estancia documentada. Luego... desaparece. Phil Schneider afirma haberle visto. Phil Schneider muere en circunstancias nunca aclaradas.
+          </p>
+          <div class="case-meta">
+            <span class="case-date">REG. 1957 / ACT. 2024</span>
+            <span class="case-cta">Abrir expediente</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- CASO 002 — DULCE BASE -->
+      <a href="casos/dulce-base.html" class="case-card fade-in" data-tags="bases subterráneas gobierno extraterrestres sin resolver 1970s">
+        <div class="case-overlay"></div>
+        <div class="case-header">
+          <span class="case-number">CASO #002</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="danger-level" title="Nivel de peligro: 4/5">
+              <span class="danger-label">PELIGRO</span>
+              <span class="danger-pip active-1"></span>
+              <span class="danger-pip active-2"></span>
+              <span class="danger-pip active-3"></span>
+              <span class="danger-pip active-4"></span>
+              <span class="danger-pip"></span>
+            </div>
+            <span class="stamp stamp-open">Abierto</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p class="case-category">Bases subterráneas · Gobierno</p>
+          <h2 class="case-title">Dulce Base</h2>
+          <p class="case-excerpt">
+            Instalación subterránea en Nuevo México. Siete niveles. Experimentos en humanos. Phil Schneider afirma haber trabajado allí. El hilo conecta con Valiant Thor.
+          </p>
+          <div class="case-meta">
+            <span class="case-date">REG. 1970s / ACT. 2024</span>
+            <span class="case-cta">Abrir expediente</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- CASO #003 — MK-ULTRA -->
+      <a href="casos/mk-ultra.html" class="case-card fade-in" data-tags="experimentos cia gobierno sin resolver 1953">
+        <div class="case-overlay"></div>
+        <div class="case-header">
+          <span class="case-number">CASO #003</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="danger-level" title="Nivel de peligro: 5/5">
+              <span class="danger-label">PELIGRO</span>
+              <span class="danger-pip active-1"></span>
+              <span class="danger-pip active-2"></span>
+              <span class="danger-pip active-3"></span>
+              <span class="danger-pip active-4"></span>
+              <span class="danger-pip active-5"></span>
+            </div>
+            <span class="stamp stamp-classified">Clasificado</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p class="case-category">Experimentos · CIA · 1953–1973</p>
+          <h2 class="case-title">Proyecto MK-Ultra</h2>
+          <p class="case-excerpt">
+            Programa de control mental de la CIA activo durante veinte años. Más de 150 subprogramas. Miles de víctimas sin consentimiento. Archivos destruidos en 1973. Lo que sobrevivió fue suficiente para condenar al programa ante el Congreso. El conocimiento, no.
+          </p>
+          <div class="case-meta">
+            <span class="case-date">REG. 1953 / ACT. 2024</span>
+            <span class="case-cta">Abrir expediente</span>
+          </div>
+        </div>
+      </a>
+
+
+      <!-- CASO #004 — OPERACIÓN PAPERCLIP -->
+      <a href="casos/paperclip.html" class="case-card fade-in" data-tags="operación encubierta nazis gobierno sin resolver 1945">
+        <div class="case-overlay"></div>
+        <div class="case-header">
+          <span class="case-number">CASO #004</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="danger-level" title="Nivel de peligro: 4/5">
+              <span class="danger-label">PELIGRO</span>
+              <span class="danger-pip active-1"></span>
+              <span class="danger-pip active-2"></span>
+              <span class="danger-pip active-3"></span>
+              <span class="danger-pip active-4"></span>
+              <span class="danger-pip"></span>
+            </div>
+            <span class="stamp stamp-classified">Clasificado</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p class="case-category">Operación encubierta · Nazis · 1945–1990</p>
+          <h2 class="case-title">Operación Paperclip</h2>
+          <p class="case-excerpt">
+            1.600 científicos nazis introducidos en EE.UU. con expedientes falsificados. El hombre que diseñó el cohete que llegó a la Luna supervisó campos de trabajo esclavo donde murieron 20.000 personas. Ninguno fue procesado.
+          </p>
+          <div class="case-meta">
+            <span class="case-date">REG. 1945 / ACT. 2024</span>
+            <span class="case-cta">Abrir expediente</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- CASO #005 — MAJESTIC 12 -->
+      <a href="casos/majestic-12.html" class="case-card fade-in" data-tags="extraterrestres gobierno sin resolver 1947">
+        <div class="case-overlay"></div>
+        <div class="case-header">
+          <span class="case-number">CASO #005</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="danger-level" title="Nivel de peligro: 4/5">
+              <span class="danger-label">PELIGRO</span>
+              <span class="danger-pip active-1"></span>
+              <span class="danger-pip active-2"></span>
+              <span class="danger-pip active-3"></span>
+              <span class="danger-pip active-4"></span>
+              <span class="danger-pip"></span>
+            </div>
+            <span class="stamp stamp-classified">Clasificado</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p class="case-category">Gobierno · Extraterrestres · 1947</p>
+          <h2 class="case-title">Majestic 12</h2>
+          <p class="case-excerpt">
+            Doce hombres elegidos por Truman en 1947 para gestionar el contacto extraterrestre tras Roswell. Un documento filtrado en 1984 lo confirmaba todo. El FBI lo declaró falsificado. La CIA nunca dijo nada.
+          </p>
+          <div class="case-meta">
+            <span class="case-date">REG. 1947 / ACT. 2024</span>
+            <span class="case-cta">Abrir expediente</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Banner inferior -->
+    <div class="bottom-banner fade-in">
+      <p>
+        Este archivo es un proyecto en construcción.<br>
+        Los casos se añaden de forma continua.<br>
+        <strong>La verdad no tiene fecha de caducidad.</strong>
+      </p>
+    </div>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>PROJECT DOSSIER © 2024 — <span>TODOS LOS EXPEDIENTES SON DE DOMINIO PÚBLICO O RECOPILACIÓN PROPIA</span></p>
+    <p style="margin-top:0.5rem;">Construido con curiosidad · <span>v0.1 — ALPHA</span></p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

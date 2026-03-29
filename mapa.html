@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Conexiones | PROJECT DOSSIER</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+
+    .map-page {
+      display: flex;
+      flex-direction: column;
+      height: calc(100svh - 60px);
+      overflow: hidden;
+    }
+
+    /* ===== BARRA SUPERIOR ===== */
+    .map-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .map-title-block h1 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 4px;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .map-title-block p {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    .map-legend {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .map-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .map-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .map-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber-bright);
+      background: var(--amber-glow);
+    }
+
+    /* ===== CANVAS DEL GRAFO ===== */
+    .map-canvas {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      touch-action: none;
+      overscroll-behavior: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(212,135,10,0.03) 0%, transparent 70%),
+        var(--bg-primary);
+    }
+
+    /* Grid de fondo */
+    .map-canvas::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(212,135,10,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,135,10,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    #graph-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Líneas de conexión */
+    .link {
+      stroke: rgba(212,135,10,0.25);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 4;
+      animation: dash-flow 20s linear infinite;
+    }
+
+    .link.strong {
+      stroke: rgba(212,135,10,0.5);
+      stroke-width: 2;
+      stroke-dasharray: none;
+    }
+
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -200; }
+    }
+
+    /* Nodos */
+    .node circle {
+      transition: r 0.2s, filter 0.2s;
+      cursor: pointer;
+    }
+
+    .node:hover circle {
+      filter: brightness(1.4);
+    }
+
+    .node-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      fill: rgba(200, 184, 138, 0.8);
+      letter-spacing: 1px;
+      pointer-events: none;
+      text-anchor: middle;
+    }
+
+    .node-type-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      fill: rgba(106, 95, 72, 0.7);
+      letter-spacing: 1px;
+      pointer-events: none;
+      text-anchor: middle;
+    }
+
+    /* Pulso en nodos activos */
+    .node-pulse {
+      animation: node-pulse-anim 2.5s ease-in-out infinite;
+    }
+
+    @keyframes node-pulse-anim {
+      0%, 100% { opacity: 0.15; r: 18; }
+      50% { opacity: 0.35; r: 26; }
+    }
+
+    /* ===== FICHA FLOTANTE ===== */
+    .node-tooltip {
+      position: absolute;
+      background: var(--bg-card);
+      border: 1px solid var(--border-bright);
+      padding: 1rem 1.2rem;
+      min-width: 220px;
+      max-width: 280px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 50;
+    }
+
+    .node-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tooltip-type {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .tooltip-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .tooltip-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+    }
+
+    .tooltip-link {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--amber);
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tooltip-link::after { content: '→'; }
+    .tooltip-link:hover { color: var(--amber-bright); }
+
+    .tooltip-no-link {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* ===== PANEL LATERAL DE INFO ===== */
+    .map-sidebar {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 220px;
+      z-index: 20;
+    }
+
+    .map-sidebar-block {
+      background: rgba(10,10,8,0.9);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .map-sidebar-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+
+    .map-stat {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .map-stat:last-child { border-bottom: none; }
+    .map-stat span { color: var(--amber); }
+
+    .map-hint {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      line-height: 1.8;
+    }
+
+    .map-hint strong {
+      color: var(--amber-dim);
+    }
+
+    /* ===== PANEL DE DETALLE (CLIC) ===== */
+    .detail-panel {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      width: 300px;
+      background: rgba(10,10,8,0.97);
+      border: 1px solid var(--border-bright);
+      backdrop-filter: blur(8px);
+      z-index: 30;
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    .detail-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .detail-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--amber);
+    }
+
+    .detail-close {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.8rem;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 2px 5px;
+      transition: color 0.2s;
+      z-index: 1;
+    }
+
+    .detail-close:hover { color: var(--amber); }
+
+    .detail-type {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 0.8rem 1rem 0;
+      opacity: 0.7;
+    }
+
+    .detail-name {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      padding: 0.3rem 1rem 0.6rem;
+      line-height: 1.2;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-status-row {
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-desc {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      padding: 0.8rem 1rem;
+    }
+
+    .detail-connections {
+      padding: 0 1rem 0.6rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .detail-conn-title {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      padding: 0.5rem 0 0.4rem;
+    }
+
+    .detail-conn-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .detail-conn-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .detail-conn-tag:hover {
+      border-color: var(--amber-dim);
+      color: var(--amber);
+    }
+
+    .detail-actions {
+      padding: 0.8rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+    }
+
+    .detail-btn-open {
+      flex: 1;
+      padding: 8px 12px;
+      background: rgba(212,135,10,0.1);
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+      display: block;
+    }
+
+    .detail-btn-open:hover { background: rgba(212,135,10,0.2); }
+
+    .detail-btn-pending {
+      flex: 1;
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* ===== RESPONSIVE — MAPA ===== */
+
+    /* Tablet */
+    @media (max-width: 900px) {
+      .map-page { height: calc(100svh - 54px); }
+      .map-topbar { padding: 0.6rem 1rem; gap: 0.6rem; }
+      .map-legend { display: none; }
+      .map-controls { gap: 0.4rem; }
+      .map-sidebar { width: 170px; }
+      .map-sidebar-block { padding: 0.7rem; }
+      .map-hint { display: none; }
+      .detail-panel { width: 260px; }
+    }
+
+    /* Móvil — portrait */
+    @media (max-width: 600px) {
+      .map-page { height: calc(100svh - 50px); }
+
+      /* Topbar compacta: solo controles */
+      .map-topbar {
+        padding: 0.5rem 0.8rem;
+        gap: 0.5rem;
+        justify-content: space-between;
+      }
+      .map-title-block { display: none; }
+      .map-legend { display: none; }
+      .map-controls { gap: 0.4rem; }
+      .map-btn { font-size: 9px; padding: 4px 9px; letter-spacing: 0; }
+
+      /* Sidebar: se mueve abajo-izquierda, muy compacta */
+      .map-sidebar {
+        top: auto;
+        bottom: 4rem;
+        right: auto;
+        left: 0.5rem;
+        width: 140px;
+      }
+      .map-sidebar-block { padding: 0.5rem; margin-bottom: 0.4rem; }
+      .map-sidebar-title { font-size: 8px; letter-spacing: 1px; margin-bottom: 0.4rem; }
+      .map-stat { font-size: 9px; padding: 3px 0; }
+
+      /* Panel de detalle: ocupa todo el ancho, se ancla abajo */
+      .detail-panel {
+        width: 100%;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        max-height: 55vh;
+        overflow-y: auto;
+      }
+
+      .detail-panel::before { display: none; }
+
+      /* Añadir barra de arrastre visual arriba */
+      .detail-panel::after {
+        content: '';
+        display: block;
+        width: 36px;
+        height: 3px;
+        background: var(--border-bright);
+        border-radius: 2px;
+        margin: 0.6rem auto 0;
+        order: -1;
+      }
+
+      .detail-name { font-size: 1rem; letter-spacing: 2px; }
+
+      /* Node labels más pequeños en móvil */
+      .node-label { font-size: 9px !important; }
+      .node-type-label { display: none; }
+    }
+
+    /* Muy pequeño — 380px */
+    @media (max-width: 380px) {
+      .map-sidebar { display: none; }
+      .map-btn { font-size: 8px; padding: 3px 7px; }
+    }
+  </style>
+</head>
+<body style="overscroll-behavior:none;overflow:hidden">
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html">Casos</a>
+        <a href="mapa.html" class="active">Mapa</a>
+        <a href="cronologia.html">Cronología</a>
+        <a href="archivo.html">Archivo</a>
+        <a href="acerca.html">Acerca de</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+            <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== PÁGINA DEL MAPA ===== -->
+  <div class="map-page">
+
+    <!-- Barra superior -->
+    <div class="map-topbar">
+      <div class="map-title-block">
+        <h1>Mapa de Conexiones</h1>
+        <p>// Red de casos, personas y organizaciones — arrastra, zoom, explora</p>
+      </div>
+
+      <div class="map-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#d4870a;box-shadow:0 0 6px #d4870a;"></div>
+          Caso activo
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#888;"></div>
+          Caso pendiente
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#cc2200;box-shadow:0 0 6px #cc2200;"></div>
+          Persona fallecida
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#c8b88a;"></div>
+          Persona viva / desconocida
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#2a6a8a;box-shadow:0 0 6px #2a6a8a;"></div>
+          Organización
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#3aaa50;box-shadow:0 0 6px #3aaa50;"></div>
+          Lugar
+        </div>
+      </div>
+
+      <div class="map-controls">
+        <button class="map-btn" id="btn-reset">Resetear vista</button>
+        <button class="map-btn" id="btn-center">Centrar</button>
+      </div>
+    </div>
+
+    <!-- Canvas del grafo -->
+    <div class="map-canvas" id="map-canvas">
+      <svg id="graph-svg"></svg>
+
+      <!-- Ficha flotante -->
+      <div class="node-tooltip" id="node-tooltip">
+        <div class="tooltip-type" id="tt-type"></div>
+        <div class="tooltip-name" id="tt-name"></div>
+        <div class="tooltip-desc" id="tt-desc"></div>
+        <div id="tt-link-container"></div>
+      </div>
+
+      <!-- Panel de detalle (clic) -->
+      <div class="detail-panel" id="detail-panel">
+        <button class="detail-close" id="detail-close">✕</button>
+        <div class="detail-type" id="dp-type"></div>
+        <div class="detail-name" id="dp-name"></div>
+        <div class="detail-status-row" id="dp-status-row"></div>
+        <div class="detail-desc" id="dp-desc"></div>
+        <div class="detail-connections" id="dp-connections"></div>
+        <div class="detail-actions" id="dp-actions"></div>
+      </div>
+
+      <!-- Panel lateral -->
+      <div class="map-sidebar">
+        <div class="map-sidebar-block">
+          <div class="map-sidebar-title">Estado del grafo</div>
+          <div class="map-stat">Nodos <span id="stat-nodes">—</span></div>
+          <div class="map-stat">Conexiones <span id="stat-links">—</span></div>
+          <div class="map-stat">Casos activos <span id="stat-cases">—</span></div>
+        </div>
+        <div class="map-sidebar-block">
+          <div class="map-sidebar-title">Controles</div>
+          <p class="map-hint">
+            <strong>Hover</strong> — ver ficha<br>
+            <strong>Clic</strong> — abrir expediente<br>
+            <strong>Arrastrar</strong> — mover nodo<br>
+            <strong>Scroll</strong> — zoom<br>
+            <strong>Arrastrar fondo</strong> — desplazar
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+
+  // ============================================
+  // DATOS DEL GRAFO
+  // Aquí añades nodos y conexiones cuando crees casos nuevos
+  // ============================================
+  const graphData = {
+    nodes: [
+      // CASOS
+      { id: "valiant-thor",    label: "Valiant Thor",     type: "case",    status: "active",   desc: "Ser extraterrestre supuestamente alojado en el Pentágono entre 1957 y 1960. Testigo principal: Phil Schneider.", url: "casos/valiant-thor.html" },
+      { id: "dulce-base",      label: "Dulce Base",       type: "place",   status: "active",   desc: "Instalación subterránea en Nuevo México. Siete niveles. Conexión directa con Phil Schneider y proyectos negros.", url: "casos/dulce-base.html" },
+      { id: "mk-ultra",        label: "Proyecto MK-Ultra",type: "case",    status: "active",   desc: "Programa de control mental de la CIA (1953–1973). Confirmado por documentos desclasificados. Más de 150 subprogramas. Miles de víctimas sin consentimiento.", url: "casos/mk-ultra.html" },
+      { id: "majestic12",      label: "Majestic 12",      type: "case",    status: "active",   desc: "Supuesto comité de 12 personas creado por Truman en 1947 para gestionar el contacto extraterrestre tras Roswell. Documento filtrado en 1984. Ni confirmado ni descartado.", url: "casos/majestic-12.html" },
+
+      // PERSONAS
+      { id: "phil-schneider",  label: "Phil Schneider",   type: "person",  status: "deceased", desc: "Geólogo y contratista militar. Afirmó haber trabajado en bases subterráneas clasificadas. Muerto en enero de 1996 en circunstancias no aclaradas.", url: null },
+      { id: "frank-stranges",  label: "Frank Stranges",   type: "person",  status: "deceased", desc: "Pastor evangelista. Afirmó haber conocido personalmente a Valiant Thor en el Pentágono. Autor de 'Stranger at the Pentagon' (1967).", url: null },
+      { id: "eisenhower",      label: "Eisenhower",        type: "person",  status: "deceased", desc: "34º Presidente de los EE.UU. Supuestamente se reunió con Valiant Thor en 1957. También vinculado a reuniones en Holloman AFB.", url: null },
+
+      // MAJESTIC 12 — MIEMBROS
+      { id: "vannevar-bush",   label: "Vannevar Bush",     type: "person",  status: "deceased", desc: "Director del programa científico que coordinó el Proyecto Manhattan. Supuesto MJ-2. El candidato más lógico para liderar análisis de tecnología desconocida.", url: null },
+      { id: "forrestal",       label: "James Forrestal",   type: "person",  status: "deceased", desc: "Primer Secretario de Defensa (1947-49). Supuesto impulsor de MJ-12. Internado en 1949 y muerto al caer de una ventana del hospital naval. Oficialmente: suicidio.", url: null },
+      { id: "hillenkoetter",   label: "R. Hillenkoetter",  type: "person",  status: "deceased", desc: "Primer Director de la CIA (1947-50). Supuesto MJ-1. En 1960 declaró públicamente que el gobierno ocultaba información sobre OVNIS.", url: null },
+
+      // ORGANIZACIONES / LUGARES
+      { id: "pentagono",       label: "Pentágono",         type: "place",   status: "active",   desc: "Cuartel general del Departamento de Defensa de EE.UU. Escenario central del caso Valiant Thor.", url: null },
+      { id: "cia",             label: "CIA",                type: "org",     status: "active",   desc: "Agencia Central de Inteligencia. Vinculada al Proyecto MK-Ultra y a múltiples casos de este archivo.", url: null },
+
+      // PAPERCLIP
+      { id: "paperclip",       label: "Op. Paperclip",      type: "case",    status: "active",   desc: "Programa secreto para reclutar 1.600 científicos nazis tras la WWII. Expedientes falsificados. Ninguno procesado. Conexión directa con MK-Ultra y el programa Apollo.", url: "casos/paperclip.html" },
+      { id: "von-braun",       label: "Wernher von Braun",  type: "person",  status: "deceased", desc: "SS-Sturmbannführer. Supervisó producción de V-2 con trabajo esclavo. En EE.UU.: director de la NASA y padre del Saturn V. Nunca fue procesado.", url: null },
+      { id: "otto-ambros",     label: "Otto Ambros",        type: "person",  status: "deceased", desc: "Director de planta IG Farben en Auschwitz (Zyklon B). Condenado en Nuremberg, liberado por presión americana. Contratado por DoD y Dow Chemical.", url: null },
+      { id: "nasa",            label: "NASA",               type: "org",     status: "active",   desc: "Agencia espacial americana fundada en 1958. Su programa de cohetes fue desarrollado en gran parte por ex científicos del Reich bajo Wernher von Braun.", url: null },
+
+      // MK-ULTRA
+      { id: "gottlieb",        label: "Sidney Gottlieb",    type: "person",  status: "deceased", desc: "Bioquímico. Director técnico de MK-Ultra (1953–1973). Conocido como 'el hechicero'. Ordenó la destrucción de archivos en 1973. Nunca fue procesado.", url: null },
+      { id: "richard-helms",   label: "Richard Helms",      type: "person",  status: "deceased", desc: "Director de operaciones de la CIA. Ordenó destruir los archivos de MK-Ultra. Condenado en 1977 por perjurio en caso no relacionado.", url: null },
+      { id: "frank-olson",     label: "Frank Olson",        type: "person",  status: "deceased", desc: "Bacteriólogo dosificado con LSD sin su conocimiento. Murió en 1953 en circunstancias no aclaradas. Segunda autopsia en 1994 apunta a homicidio.", url: null },
+      { id: "ewen-cameron",    label: "Dr. Ewen Cameron",   type: "person",  status: "deceased", desc: "Psiquiatra que realizó experimentos de depatterning en Montreal financiado encubiertamente por la CIA.", url: null },
+    ],
+
+    links: [
+      { source: "valiant-thor",   target: "phil-schneider",  type: "strong" },
+      { source: "valiant-thor",   target: "frank-stranges",  type: "strong" },
+      { source: "valiant-thor",   target: "eisenhower",      type: "strong" },
+      { source: "valiant-thor",   target: "pentagono",       type: "strong" },
+      { source: "valiant-thor",   target: "majestic12",      type: "normal" },
+      { source: "phil-schneider", target: "dulce-base",      type: "strong" },
+      { source: "phil-schneider", target: "majestic12",      type: "normal" },
+      { source: "eisenhower",     target: "majestic12",      type: "normal" },
+      { source: "majestic12",     target: "vannevar-bush",   type: "strong" },
+      { source: "majestic12",     target: "forrestal",       type: "strong" },
+      { source: "majestic12",     target: "hillenkoetter",   type: "strong" },
+      { source: "hillenkoetter",  target: "cia",             type: "strong" },
+      { source: "majestic12",     target: "paperclip",       type: "normal" },
+      { source: "eisenhower",     target: "pentagono",       type: "normal" },
+      { source: "mk-ultra",       target: "cia",             type: "strong" },
+      { source: "majestic12",     target: "cia",             type: "normal" },
+      { source: "mk-ultra",       target: "gottlieb",        type: "strong" },
+      { source: "mk-ultra",       target: "richard-helms",   type: "strong" },
+      { source: "mk-ultra",       target: "frank-olson",     type: "strong" },
+      { source: "mk-ultra",       target: "ewen-cameron",    type: "strong" },
+      { source: "gottlieb",       target: "cia",             type: "strong" },
+      { source: "paperclip",      target: "von-braun",       type: "strong" },
+      { source: "paperclip",      target: "otto-ambros",     type: "strong" },
+      { source: "paperclip",      target: "nasa",            type: "strong" },
+      { source: "paperclip",      target: "mk-ultra",        type: "normal" },
+      { source: "von-braun",      target: "nasa",            type: "strong" },
+      { source: "otto-ambros",    target: "cia",             type: "normal" },
+      { source: "richard-helms",  target: "cia",             type: "strong" },
+      { source: "dulce-base",     target: "pentagono",       type: "normal" },
+    ]
+  };
+
+  // ============================================
+  // COLORES POR TIPO Y ESTADO
+  // ============================================
+  function nodeColor(d) {
+    if (d.type === "case")   return d.status === "active" ? "#d4870a" : "#555";
+    if (d.type === "person") return d.status === "deceased" ? "#cc2200" : "#c8b88a";
+    if (d.type === "org")    return "#2a6a8a";
+    if (d.type === "place")  return "#3aaa50";
+    return "#888";
+  }
+
+  function nodeSize(d) {
+    if (d.type === "case" && d.status === "active") return 20;
+    if (d.type === "case") return 16;
+    if (d.type === "org")  return 18;
+    return 14;
+  }
+
+  function typeLabel(d) {
+    const labels = { case: "CASO", person: "PERSONA", org: "ORGANIZACIÓN", place: "LUGAR" };
+    return labels[d.type] || d.type.toUpperCase();
+  }
+
+  // ============================================
+  // INICIALIZAR D3
+  // ============================================
+  const canvas = document.getElementById("map-canvas");
+  const svg = d3.select("#graph-svg");
+  const tooltip = document.getElementById("node-tooltip");
+
+  // Actualizar stats
+  document.getElementById("stat-nodes").textContent = graphData.nodes.length;
+  document.getElementById("stat-links").textContent = graphData.links.length;
+  document.getElementById("stat-cases").textContent = graphData.nodes.filter(n => n.type === "case" && n.status === "active").length;
+
+  const width  = canvas.clientWidth  || 900;
+  const height = canvas.clientHeight || 600;
+
+  // Contenedor zoomable
+  const g = svg.append("g").attr("class", "graph-root");
+
+  // Zoom
+  const zoom = d3.zoom()
+    .scaleExtent([0.3, 3])
+    .on("zoom", (event) => {
+      g.attr("transform", event.transform);
+    });
+
+  svg.call(zoom);
+
+  // Simulación de fuerzas
+  const simulation = d3.forceSimulation(graphData.nodes)
+    .force("link",   d3.forceLink(graphData.links).id(d => d.id).distance(130))
+    .force("charge", d3.forceManyBody().strength(-350))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("collision", d3.forceCollide(40));
+
+  // Definir marcador de flecha
+  svg.append("defs").append("marker")
+    .attr("id", "arrowhead")
+    .attr("viewBox", "0 -4 8 8")
+    .attr("refX", 22)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-4L8,0L0,4")
+    .attr("fill", "rgba(212,135,10,0.4)");
+
+  // Links
+  const link = g.append("g").selectAll("line")
+    .data(graphData.links)
+    .enter().append("line")
+    .attr("class", d => `link ${d.type === "strong" ? "strong" : ""}`)
+    .attr("marker-end", "url(#arrowhead)");
+
+  // Grupos de nodos
+  const node = g.append("g").selectAll(".node")
+    .data(graphData.nodes)
+    .enter().append("g")
+    .attr("class", "node")
+    .call(d3.drag()
+      .on("start", (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on("drag", (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on("end", (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null; d.fy = null;
+      })
+    );
+
+  // Halo de pulso para nodos activos
+  node.filter(d => d.status === "active")
+    .append("circle")
+    .attr("class", "node-pulse")
+    .attr("r", 20)
+    .attr("fill", d => nodeColor(d))
+    .style("opacity", 0.15);
+
+  // Círculo principal
+  node.append("circle")
+    .attr("r", d => nodeSize(d))
+    .attr("fill", d => nodeColor(d))
+    .attr("fill-opacity", d => d.status === "pending" ? 0.4 : 0.85)
+    .attr("stroke", d => nodeColor(d))
+    .attr("stroke-width", 1.5)
+    .attr("stroke-opacity", 0.6)
+    .style("filter", d => d.status === "active" ? `drop-shadow(0 0 6px ${nodeColor(d)})` : "none");
+
+  // Iniciales dentro del nodo
+  node.append("text")
+    .attr("dy", "0.35em")
+    .attr("text-anchor", "middle")
+    .style("font-family", "var(--font-mono)")
+    .style("font-size", "8px")
+    .style("fill", "#0a0a08")
+    .style("font-weight", "bold")
+    .style("pointer-events", "none")
+    .text(d => d.label.split(" ").map(w => w[0]).join("").slice(0,3).toUpperCase());
+
+  // Etiqueta del nombre (debajo)
+  node.append("text")
+    .attr("class", "node-label")
+    .attr("dy", d => nodeSize(d) + 14)
+    .text(d => d.label.length > 16 ? d.label.slice(0,15) + "…" : d.label);
+
+  // Etiqueta del tipo (más abajo)
+  node.append("text")
+    .attr("class", "node-type-label")
+    .attr("dy", d => nodeSize(d) + 24)
+    .text(d => typeLabel(d));
+
+  // ===== DETECCIÓN TÁCTIL =====
+  const isTouchDevice = () => window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+
+  // ===== TOOLTIP (solo desktop) =====
+  node.on("mouseenter", function(event, d) {
+      if (isTouchDevice()) return;
+      const rect = canvas.getBoundingClientRect();
+      let x = event.clientX - rect.left + 16;
+      let y = event.clientY - rect.top + 16;
+
+      // Evitar que salga por la derecha
+      if (x + 290 > canvas.clientWidth) x = event.clientX - rect.left - 290;
+
+      tooltip.style.left = x + "px";
+      tooltip.style.top  = y + "px";
+
+      document.getElementById("tt-type").textContent = typeLabel(d);
+      document.getElementById("tt-type").style.color = nodeColor(d);
+      document.getElementById("tt-name").textContent = d.label;
+      document.getElementById("tt-desc").textContent = d.desc;
+
+      const linkContainer = document.getElementById("tt-link-container");
+      if (d.url) {
+        linkContainer.innerHTML = `<a href="${d.url}" class="tooltip-link">Abrir expediente</a>`;
+      } else {
+        linkContainer.innerHTML = `<span class="tooltip-no-link">Expediente en preparación</span>`;
+      }
+
+      tooltip.classList.add("visible");
+    })
+    .on("mousemove", function(event) {
+      if (isTouchDevice()) return;
+      const rect = canvas.getBoundingClientRect();
+      let x = event.clientX - rect.left + 16;
+      let y = event.clientY - rect.top + 16;
+      if (x + 290 > canvas.clientWidth) x = event.clientX - rect.left - 290;
+      tooltip.style.left = x + "px";
+      tooltip.style.top  = y + "px";
+    })
+    .on("mouseleave", function() {
+      if (isTouchDevice()) return;
+      tooltip.classList.remove("visible");
+    })
+    .on("click", function(event, d) {
+      // Desktop: abre panel al hacer click
+      if (!isTouchDevice()) {
+        event.stopPropagation();
+        openDetailPanel(d);
+      }
+    });
+
+  // ===== TOUCH — panel táctil =====
+  // En móvil usamos touchend directamente sobre los círculos
+  // para evitar el caos de eventos sintéticos de D3
+  let touchStartPos = null;
+
+  node.selectAll("circle")
+    .on("touchstart", function(event) {
+      const t = event.touches[0];
+      touchStartPos = { x: t.clientX, y: t.clientY };
+    }, { passive: true })
+    .on("touchend", function(event, d) {
+      // Solo abrir panel si fue un tap (sin arrastrar más de 10px)
+      if (touchStartPos) {
+        const t = event.changedTouches[0];
+        const dx = Math.abs(t.clientX - touchStartPos.x);
+        const dy = Math.abs(t.clientY - touchStartPos.y);
+        if (dx > 10 || dy > 10) { touchStartPos = null; return; }
+      }
+      touchStartPos = null;
+      event.preventDefault();
+      event.stopPropagation();
+      tooltip.classList.remove("visible");
+      openDetailPanel(d);
+    }, { passive: false });
+
+  // ===== TICK =====
+  simulation.on("tick", () => {
+    link
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y);
+
+    node.attr("transform", d => `translate(${d.x},${d.y})`);
+  });
+
+  // ===== CONTROLES =====
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    svg.transition().duration(600).call(
+      zoom.transform,
+      d3.zoomIdentity
+    );
+  });
+
+  document.getElementById("btn-center").addEventListener("click", () => {
+    const cx = canvas.clientWidth / 2;
+    const cy = canvas.clientHeight / 2;
+    svg.transition().duration(600).call(
+      zoom.transform,
+      d3.zoomIdentity.translate(0, 0).scale(1)
+    );
+    simulation.force("center", d3.forceCenter(cx, cy));
+    simulation.alpha(0.3).restart();
+  });
+
+  // Resize
+  window.addEventListener("resize", () => {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    simulation.force("center", d3.forceCenter(w / 2, h / 2));
+    simulation.alpha(0.1).restart();
+  });
+
+  // ===== PANEL DE DETALLE =====
+  const detailPanel = document.getElementById("detail-panel");
+  const detailClose = document.getElementById("detail-close");
+
+  function statusLabel(d) {
+    if (d.type === "person") {
+      if (d.status === "deceased") return { text: "Fallecido", color: "var(--red-classified)" };
+      return { text: "Activo", color: "var(--green-bright)" };
+    }
+    if (d.status === "active")  return { text: "Activo", color: "var(--green-bright)" };
+    if (d.status === "pending") return { text: "Pendiente", color: "var(--amber-dim)" };
+    return { text: d.status, color: "var(--text-dim)" };
+  }
+
+  function openDetailPanel(d) {
+    const color = nodeColor(d);
+    const st = statusLabel(d);
+
+    document.getElementById("dp-type").textContent = typeLabel(d);
+    document.getElementById("dp-type").style.color = color;
+
+    document.getElementById("dp-name").textContent = d.label;
+
+    const statusRow = document.getElementById("dp-status-row");
+    statusRow.innerHTML = `
+      <span style="display:inline-block;width:8px;height:8px;background:${st.color};flex-shrink:0"></span>
+      <span style="font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:${st.color};text-transform:uppercase">${st.text}</span>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-left:auto">${d.type.toUpperCase()}</span>
+    `;
+
+    document.getElementById("dp-desc").textContent = d.desc;
+
+    // Conexiones del nodo
+    const connEl = document.getElementById("dp-connections");
+    const connected = graphData.links
+      .filter(l => l.source.id === d.id || l.target.id === d.id)
+      .map(l => l.source.id === d.id ? l.target : l.source)
+      .filter((v, i, arr) => arr.findIndex(x => x.id === v.id) === i);
+
+    if (connected.length > 0) {
+      connEl.innerHTML = `
+        <div class="detail-conn-title">Conexiones (${connected.length})</div>
+        <div class="detail-conn-list">
+          ${connected.map(c => `<span class="detail-conn-tag" onclick="openDetailPanel(graphData.nodes.find(n=>n.id==='${c.id}'))">${c.label}</span>`).join("")}
+        </div>
+      `;
+    } else {
+      connEl.innerHTML = "";
+    }
+
+    // Acciones
+    const actEl = document.getElementById("dp-actions");
+    if (d.url) {
+      actEl.innerHTML = `<a href="${d.url}" class="detail-btn-open">Abrir expediente →</a>`;
+    } else {
+      actEl.innerHTML = `<div class="detail-btn-pending">Expediente en preparación</div>`;
+    }
+
+    detailPanel.classList.add("visible");
+    panelOpenedAt = Date.now();
+  }
+
+  function closeDetailPanel() {
+    detailPanel.classList.remove("visible");
+  }
+
+  detailClose.addEventListener("click", closeDetailPanel);
+  detailClose.addEventListener("touchend", function(e) {
+    e.preventDefault();
+    closeDetailPanel();
+  });
+
+  // Timestamp para evitar cierre inmediato tras abrir
+  let panelOpenedAt = 0;
+
+  // Cerrar al hacer clic/toque en el fondo del canvas
+  const svgEl = document.getElementById("graph-svg");
+
+  svgEl.addEventListener("click", function(event) {
+    if (Date.now() - panelOpenedAt < 300) return;
+    if (event.target === this || event.target.tagName === "svg") {
+      closeDetailPanel();
+    }
+  });
+
+  svgEl.addEventListener("touchend", function(event) {
+    if (Date.now() - panelOpenedAt < 300) return;
+    if (event.target === this || event.target.tagName === "svg") {
+      closeDetailPanel();
+    }
+  });
+
+  </script>

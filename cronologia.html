@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cronología | PROJECT DOSSIER</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+
+    .crono-hero {
+      padding: 4rem 2rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .crono-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,135,10,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .crono-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .crono-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: 6px;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .crono-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+    }
+
+    /* ===== LAYOUT ===== */
+    .crono-container {
+      max-width: 900px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+    }
+
+    /* ===== DÉCADA ===== */
+    .decade-block {
+      margin-bottom: 3rem;
+    }
+
+    .decade-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 2.5rem;
+      letter-spacing: 6px;
+      color: rgba(212,135,10,0.12);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      padding-left: 2.5rem;
+      line-height: 1;
+    }
+
+    /* ===== LÍNEA DE TIEMPO ===== */
+    .timeline-global {
+      position: relative;
+      padding-left: 2.5rem;
+      border-left: 1px dashed rgba(212,135,10,0.3);
+    }
+
+    .crono-item {
+      position: relative;
+      padding: 0 0 2rem 1.5rem;
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* Nodo en la línea */
+    .crono-item::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 10px;
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--amber-dim);
+      background: var(--bg-primary);
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .crono-item:hover::before {
+      background: var(--amber);
+      box-shadow: 0 0 10px var(--amber);
+    }
+
+    /* Nodo destacado para eventos clave */
+    .crono-item.key::before {
+      border-color: var(--amber);
+      background: var(--amber-dim);
+      width: 11px;
+      height: 11px;
+      left: -6px;
+    }
+
+    .crono-item.danger::before {
+      border-color: var(--red-classified);
+      background: var(--red-dim);
+      box-shadow: 0 0 6px rgba(204,34,0,0.4);
+    }
+
+    /* Fecha */
+    .crono-date {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--amber-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding-top: 2px;
+      text-align: right;
+    }
+
+    /* Contenido */
+    .crono-content {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 0.8rem 1rem;
+      transition: border-color 0.2s;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+
+    .crono-content:hover {
+      border-color: var(--amber-dim);
+    }
+
+    a.crono-content:hover {
+      border-color: var(--amber);
+    }
+
+    .crono-case-tag {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--amber-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .crono-event-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .crono-event-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .crono-link-hint {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--amber-dim);
+      letter-spacing: 1px;
+      margin-top: 6px;
+    }
+
+    a.crono-content .crono-link-hint::after {
+      content: ' →';
+    }
+
+    /* Evento sin caso asociado */
+    .crono-item.standalone .crono-content {
+      border-style: dashed;
+      opacity: 0.6;
+    }
+
+    /* ===== LEYENDA ===== */
+    .crono-legend {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .legend-node {
+      width: 10px;
+      height: 10px;
+      border: 1px solid;
+      flex-shrink: 0;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .crono-item {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+      }
+      .crono-date {
+        text-align: left;
+      }
+      .decade-label {
+        font-size: 1.8rem;
+        padding-left: 1.5rem;
+      }
+      .timeline-global {
+        padding-left: 1.5rem;
+      }
+      .crono-item {
+        padding-left: 1rem;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html">Casos</a>
+        <a href="mapa.html">Mapa</a>
+        <a href="cronologia.html" class="active">Cronología</a>
+        <a href="archivo.html">Archivo</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+            <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="crono-hero">
+    <p class="crono-eyebrow">// REGISTRO TEMPORAL — TODOS LOS CASOS</p>
+    <h1 class="crono-title glitch" data-text="Cronología">Cronología</h1>
+    <p class="crono-subtitle">Línea de tiempo global · Orden cronológico de sucesos</p>
+  </section>
+
+  <!-- ===== CONTENIDO ===== -->
+  <div class="crono-container">
+
+    <!-- Leyenda -->
+    <div class="crono-legend">
+      <div class="legend-item">
+        <div class="legend-node" style="border-color:var(--amber-dim);background:var(--amber-dim);"></div>
+        Evento clave
+      </div>
+      <div class="legend-item">
+        <div class="legend-node" style="border-color:var(--red-classified);background:var(--red-dim);"></div>
+        Muerte / Incidente grave
+      </div>
+      <div class="legend-item">
+        <div class="legend-node" style="border-color:var(--border);background:var(--bg-primary);"></div>
+        Evento secundario
+      </div>
+      <div class="legend-item">
+        <div class="legend-node" style="border-color:var(--border);background:transparent;border-style:dashed;"></div>
+        Sin caso asociado
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 1930s ===== -->
+    <div class="decade-block">
+      <div class="decade-label">1930s</div>
+      <div class="timeline-global">
+
+        <div class="crono-item standalone">
+          <span class="crono-date">1930s</span>
+          <div class="crono-content">
+            <p class="crono-case-tag">// Dulce Base — contexto</p>
+            <p class="crono-event-title">Primeras leyendas Jicarilla Apache</p>
+            <p class="crono-event-desc">Relatos de los nativos Jicarilla Apache describen luces bajo Archuleta Mesa y sonidos mecánicos procedentes de las profundidades.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 1940s ===== -->
+    <div class="decade-block">
+      <div class="decade-label">1940s</div>
+      <div class="timeline-global">
+
+        <div class="crono-item key">
+          <span class="crono-date">1945</span>
+          <a href="casos/paperclip.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #004 — Operación Paperclip</p>
+            <p class="crono-event-title">Inicio de la Operación Paperclip</p>
+            <p class="crono-event-desc">El gobierno de EE.UU. comienza a reclutar científicos nazis con expedientes falsificados. 1.600 científicos serán introducidos en el país a lo largo de décadas.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item key">
+          <span class="crono-date">Jul. 1947</span>
+          <a href="casos/majestic-12.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #005 — Majestic 12</p>
+            <p class="crono-event-title">Incidente Roswell — Creación del MJ-12</p>
+            <p class="crono-event-desc">Truman firma la orden ejecutiva para crear el grupo Majestic 12 tras el incidente de Roswell. Doce hombres elegidos para gestionar el contacto extraterrestre en secreto.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 1950s ===== -->
+    <div class="decade-block">
+      <div class="decade-label">1950s</div>
+      <div class="timeline-global">
+
+        <div class="crono-item key">
+          <span class="crono-date">1953</span>
+          <a href="casos/mk-ultra.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #003 — MK-Ultra</p>
+            <p class="crono-event-title">Arranque oficial del Proyecto MK-Ultra</p>
+            <p class="crono-event-desc">La CIA aprueba el programa de control mental bajo la dirección de Sidney Gottlieb. Más de 150 subprogramas en universidades, hospitales y prisiones de EE.UU. y Canadá.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item key">
+          <span class="crono-date">Mar. 1957</span>
+          <a href="casos/valiant-thor.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #001 — Valiant Thor</p>
+            <p class="crono-event-title">Valiant Thor llega al Pentágono</p>
+            <p class="crono-event-desc">Ser de aspecto humano se presenta en las puertas del Pentágono. Según Frank Stranges, es recibido oficialmente y reunido con el presidente Eisenhower.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item">
+          <span class="crono-date">Abr. 1957</span>
+          <a href="casos/valiant-thor.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #001 — Valiant Thor</p>
+            <p class="crono-event-title">Reunión con Eisenhower y Nixon</p>
+            <p class="crono-event-desc">Thor ofrece tecnología avanzada. El gobierno rechaza la oferta por presión de lobbies industriales.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item">
+          <span class="crono-date">1957–1960</span>
+          <a href="casos/valiant-thor.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #001 — Valiant Thor</p>
+            <p class="crono-event-title">Residencia en instalaciones militares</p>
+            <p class="crono-event-desc">Valiant Thor permanece tres años en el complejo del Pentágono antes de desaparecer sin documentación de su partida.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 1960s ===== -->
+    <div class="decade-block">
+      <div class="decade-label">1960s</div>
+      <div class="timeline-global">
+
+        <div class="crono-item">
+          <span class="crono-date">1967</span>
+          <a href="casos/valiant-thor.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #001 — Valiant Thor</p>
+            <p class="crono-event-title">Frank Stranges publica "Stranger at the Pentagon"</p>
+            <p class="crono-event-desc">Primera versión pública del caso. El libro se convierte en referencia dentro de los círculos ufológicos de la época.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 1970s ===== -->
+    <div class="decade-block">
+      <div class="decade-label">1970s</div>
+      <div class="timeline-global">
+
+        <div class="crono-item key">
+          <span class="crono-date">1973</span>
+          <a href="casos/mk-ultra.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #003 — MK-Ultra</p>
+            <p class="crono-event-title">Destrucción de archivos MK-Ultra</p>
+            <p class="crono-event-desc">Richard Helms, director de la CIA, ordena la destrucción de todos los archivos del programa. Miles de documentos desaparecen. Lo que sobrevivió fue suficiente para condenar el programa ante el Congreso.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item">
+          <span class="crono-date">1976</span>
+          <a href="casos/dulce-base.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #002 — Dulce Base</p>
+            <p class="crono-event-title">Gabriel Valdez investiga mutilaciones</p>
+            <p class="crono-event-desc">El agente de policía estatal documenta decenas de mutilaciones de ganado en ranchos cerca de Dulce. Incisiones quirúrgicas, sin sangre, huellas de helicópteros sin matrícula.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item key danger">
+          <span class="crono-date">1979</span>
+          <a href="casos/dulce-base.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #002 — Dulce Base</p>
+            <p class="crono-event-title" style="color:var(--red-classified);">La Batalla de Dulce</p>
+            <p class="crono-event-desc">Phil Schneider afirma que su equipo de perforación conectó con una caverna habitada. Enfrentamiento armado con alienígenas grises. 66 muertos entre militares y contratistas según su testimonio.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 1980s ===== -->
+    <div class="decade-block">
+      <div class="decade-label">1980s</div>
+      <div class="timeline-global">
+
+        <div class="crono-item">
+          <span class="crono-date">1984</span>
+          <a href="casos/majestic-12.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #005 — Majestic 12</p>
+            <p class="crono-event-title">Filtración del documento MJ-12</p>
+            <p class="crono-event-desc">Un rollo de película llega anónimamente al investigador Jaime Shandera. Contiene el supuesto briefing de Eisenhower sobre el grupo Majestic 12. El FBI lo declara falsificado. La CIA no comenta.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item key">
+          <span class="crono-date">1988</span>
+          <a href="casos/dulce-base.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #002 — Dulce Base</p>
+            <p class="crono-event-title">Paul Bennewitz publica "Project Beta"</p>
+            <p class="crono-event-desc">Documento técnico describiendo la estructura de siete niveles de Dulce Base. Bennewitz afirma estar interceptando comunicaciones electrónicas procedentes de la instalación.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 1990s ===== -->
+    <div class="decade-block">
+      <div class="decade-label">1990s</div>
+      <div class="timeline-global">
+
+        <div class="crono-item">
+          <span class="crono-date">1990s</span>
+          <a href="casos/dulce-base.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #002 — Dulce Base</p>
+            <p class="crono-event-title">Los Dulce Papers — Thomas Costello</p>
+            <p class="crono-event-desc">Un hombre que se identifica como guardia de seguridad de la base filtra documentos y fotografías. Desaparece poco después. Su identidad nunca fue verificada.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item key">
+          <span class="crono-date">1993–1995</span>
+          <a href="casos/valiant-thor.html" class="crono-content">
+            <p class="crono-case-tag">// Casos #001 y #002</p>
+            <p class="crono-event-title">Conferencias de Phil Schneider</p>
+            <p class="crono-event-desc">Schneider ofrece conferencias públicas describiendo Dulce Base, la Batalla de 1979 y su conocimiento del caso Valiant Thor. Sus palabras circulan en los primeros foros de internet.</p>
+            <p class="crono-link-hint">Ver casos relacionados</p>
+          </a>
+        </div>
+
+        <div class="crono-item danger">
+          <span class="crono-date">Ene. 1996</span>
+          <a href="casos/valiant-thor.html" class="crono-content">
+            <p class="crono-case-tag">// Casos #001 y #002 — Testigo clave</p>
+            <p class="crono-event-title" style="color:var(--red-classified);">Muerte de Phil Schneider</p>
+            <p class="crono-event-desc">Schneider aparece muerto en Wilsonville, Oregon. Causa oficial: suicidio. Sus allegados denuncian asesinato. Todas sus pertenencias y documentos desaparecen del apartamento.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DÉCADA 2000s+ ===== -->
+    <div class="decade-block">
+      <div class="decade-label">2000s+</div>
+      <div class="timeline-global">
+
+        <div class="crono-item danger">
+          <span class="crono-date">Nov. 2008</span>
+          <a href="casos/valiant-thor.html" class="crono-content">
+            <p class="crono-case-tag">// Caso #001 — Valiant Thor</p>
+            <p class="crono-event-title" style="color:var(--red-classified);">Muerte de Frank Stranges</p>
+            <p class="crono-event-desc">El pastor y autor de "Stranger at the Pentagon" fallece. Último testigo directo del caso Valiant Thor. Mantuvo su testimonio sin cambios hasta el final.</p>
+            <p class="crono-link-hint">Abrir expediente</p>
+          </a>
+        </div>
+
+        <div class="crono-item standalone">
+          <span class="crono-date">2016</span>
+          <div class="crono-content">
+            <p class="crono-case-tag">// Dulce Base — contexto</p>
+            <p class="crono-event-title">Primera Dulce Base UFO Conference</p>
+            <p class="crono-event-desc">El pueblo de Dulce celebra su primera conferencia anual sobre el caso en el casino hotel local. El turismo conspiratorio llega a Nuevo México.</p>
+          </div>
+        </div>
+
+        <div class="crono-item standalone" style="opacity:0.4;">
+          <span class="crono-date">✎ AÑADIR</span>
+          <div class="crono-content" style="border-style:dashed;">
+            <p class="crono-case-tag">// Hueco para tu investigación</p>
+            <p class="crono-event-title">Nuevo evento</p>
+            <p class="crono-event-desc">Añade aquí eventos de tus casos en curso. Copia el bloque .crono-item y rellena fecha, caso, título y descripción.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>PROJECT DOSSIER © 2024 — <span>TODOS LOS EXPEDIENTES SON DE DOMINIO PÚBLICO O RECOPILACIÓN PROPIA</span></p>
+    <p style="margin-top:0.5rem;"><a href="index.html" style="color:var(--amber-dim);text-decoration:none;">← Volver a todos los casos</a></p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -21,6 +21,6 @@ LIMITACIÓN DE RESPONSABILIDAD
 En la medida máxima permitida por la ley, Iván Brihuega Crespo, no será responsable de ningún daño directo, indirecto, incidental, consecuente o punitivo derivado del uso del proyecto.
 
 CONTENIDO DE TERCEROS
-Cualquier material de terceros incluido en Project Dossier se usa bajo el principio de uso justo (fair use) con fines de comentario, crítica e investigación. Si eres titular de derechos y consideras que algún contenido infringe tu propiedad intelectual, contacta a tu-ivanchu8888@gmail.com para su retirada.
+Cualquier material de terceros incluido en Project Dossier se usa bajo el principio de uso justo (fair use) con fines de comentario, crítica e investigación. Si eres titular de derechos y consideras que algún contenido infringe tu propiedad intelectual, contacta a ivanchu8888@gmail.com para su retirada.
 
 Texto legal completo: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode

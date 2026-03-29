@@ -27,10 +27,10 @@ Todo el contenido:
 Todas las aportaciones serán revisadas antes de publicarse.
 
 ## Licencia
-Código y contenido bajo **CC BY-NC-ND 4.0** — ver [LICENSE.md](LICENSE.md).
+Código y contenido bajo **CC BY-NC-ND 4.0** — ver [LICENSE](LICENSE.md).
 
 ## Política de privacidad
-Ver [POLICY.md](POLICY.md)
+Ver [POLICY](POLICY.md)
 
 ## Contacto
 Para reportar contenido problemático o solicitar la retirada de material: ivanchu8888@gmail.com

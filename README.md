@@ -30,7 +30,7 @@ Todas las aportaciones serán revisadas antes de publicarse.
 Código y contenido bajo **CC BY-NC-ND 4.0** — ver [LICENSE](LICENSE).
 
 ## Política de privacidad
-Ver [POLICY.md](POLICY.md)
+Ver [policy.md](policy.md)
 
 ## Contacto
 Para reportar contenido problemático o solicitar la retirada de material: ivanchu8888@gmail.com

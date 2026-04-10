@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAV EDITOR — Project Dossier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a0a08;--bg2:#0f0f0b;--bgc:#111109;
+      --a:#d4870a;--ab:#f0a020;--ad:#8a5a08;--ag:rgba(212,135,10,0.15);
+      --r:#cc2200;--rd:#7a1500;--g:#3aaa50;--gd:#2a7a3a;
+      --t:#c8b88a;--td:#6a5f48;--tb:#e8d8a0;
+      --b:rgba(212,135,10,0.2);--bb:rgba(212,135,10,0.5);
+      --fd:'Oswald',sans-serif;--fb:'Special Elite',cursive;--fm:'Share Tech Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--t);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
+
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,8,.96);border-bottom:1px solid var(--bb);backdrop-filter:blur(4px);padding:0 2rem}
+    .hi{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+    .logo{font-family:var(--fd);font-weight:700;font-size:1rem;letter-spacing:4px;color:var(--ab);text-transform:uppercase;text-decoration:none}
+    .logo span{color:var(--td);font-weight:300}
+    .hl{display:flex;gap:1.5rem}
+    .hl a{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--td);text-decoration:none;text-transform:uppercase;transition:color .2s}
+    .hl a:hover{color:var(--ab)}
+
+    .wrap{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+
+    .pt{font-family:var(--fm);font-size:9px;letter-spacing:3px;color:var(--ad);text-transform:uppercase;margin-bottom:1.2rem;display:flex;align-items:center;gap:10px}
+    .pt::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bb),transparent)}
+
+    label{display:block;font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--ad);text-transform:uppercase;margin-bottom:5px}
+    input[type=text],select{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--b);color:var(--tb);font-family:var(--fm);font-size:12px;padding:7px 10px;outline:none;transition:border-color .2s;appearance:none}
+    input[type=text]:focus,select:focus{border-color:var(--a)}
+    select option{background:#111;color:var(--tb)}
+
+    .sep{height:1px;background:var(--b);margin:1.2rem 0}
+    .fr{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    .ff{margin-bottom:.8rem}
+    .note{font-family:var(--fm);font-size:10px;color:var(--td);letter-spacing:1px;padding:8px 12px;border-left:2px solid var(--ad);background:rgba(212,135,10,.04);margin-bottom:1rem;line-height:1.6}
+
+    /* ===== LOGO EDITOR ===== */
+    .logo-panel{background:var(--bgc);border:1px solid var(--b);padding:1.4rem;margin-bottom:1.5rem}
+    .logo-preview{display:flex;align-items:center;gap:12px;padding:1rem;background:rgba(0,0,0,.3);border:1px solid var(--b);margin-top:.8rem}
+    .lp-icon{width:36px;height:36px;border:2px solid var(--a);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:14px;color:var(--ab);flex-shrink:0}
+    .lp-text{font-family:var(--fd);font-weight:700;font-size:18px;letter-spacing:4px;color:var(--ab);text-transform:uppercase}
+    .lp-sub{font-family:var(--fm);font-size:9px;color:var(--ad);letter-spacing:2px;display:block;line-height:1}
+
+    /* ===== NAV ITEMS ===== */
+    .nav-panel{background:var(--bgc);border:1px solid var(--b);padding:1.4rem;margin-bottom:1.5rem}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid var(--b);margin-bottom:6px;transition:border-color .2s}
+    .nav-item:hover{border-color:var(--ad)}
+    .nav-drag{font-family:var(--fm);font-size:14px;color:var(--td);cursor:grab;user-select:none;min-width:16px}
+    .nav-item-fields{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .nav-item-fields input{padding:5px 8px;font-size:11px}
+    .nav-del{background:none;border:1px solid var(--rd);color:var(--rd);cursor:pointer;padding:4px 8px;font-family:var(--fm);font-size:10px;transition:all .2s;flex-shrink:0;text-transform:uppercase}
+    .nav-del:hover{border-color:var(--r);color:var(--r)}
+    .nav-up,.nav-dn{background:none;border:1px solid var(--b);color:var(--td);cursor:pointer;padding:4px 6px;font-size:11px;transition:all .2s;flex-shrink:0}
+    .nav-up:hover,.nav-dn:hover{border-color:var(--ad);color:var(--ad)}
+
+    .add-nav{width:100%;padding:9px;background:transparent;border:1px dashed var(--bb);color:var(--ad);font-family:var(--fm);font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:.5rem}
+    .add-nav:hover{background:var(--ag);border-color:var(--a);color:var(--ab)}
+
+    /* ===== PAGE TYPE TABS ===== */
+    .page-tabs{display:flex;gap:0;margin-bottom:1rem}
+    .ptab{font-family:var(--fm);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;background:transparent;border:1px solid var(--b);color:var(--td);cursor:pointer;transition:all .2s;margin-right:-1px;flex:1;text-align:center}
+    .ptab.active{background:var(--bgc);border-color:var(--a);color:var(--ab)}
+
+    /* ===== OUTPUT ===== */
+    .out-box{background:#060604;border:1px solid var(--b);overflow:auto;margin-bottom:1rem}
+    .out-box pre{font-family:var(--fm);font-size:11px;color:#7a9a6a;line-height:1.7;padding:1.2rem;white-space:pre-wrap;word-break:break-all}
+    .out-acts{display:flex;gap:8px}
+    .bgen{flex:1;padding:11px;background:rgba(212,135,10,.1);border:1px solid var(--a);color:var(--ab);font-family:var(--fm);font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .bgen:hover{background:rgba(212,135,10,.2)}
+    .bcopy{padding:11px 16px;background:transparent;border:1px solid var(--b);color:var(--td);font-family:var(--fm);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .bcopy:hover{border-color:var(--td);color:var(--t)}
+
+    /* Nav preview */
+    .nav-preview-box{background:rgba(10,10,8,.96);border:1px solid var(--bb);padding:0 2rem;margin-bottom:1rem}
+    .nav-preview-inner{max-width:100%;display:flex;align-items:center;justify-content:space-between;height:60px;gap:2rem}
+    .np-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .np-icon{width:28px;height:28px;border:2px solid var(--a);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;color:var(--ab);flex-shrink:0}
+    .np-links{display:flex;gap:1.5rem;align-items:center}
+    .np-link{font-family:var(--fm);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--td);text-decoration:none;position:relative;cursor:default}
+    .np-link.active-link{color:var(--ab)}
+    .np-link.active-link::after{content:'';position:absolute;bottom:-2px;left:0;width:100%;height:1px;background:var(--a)}
+    .np-status{font-family:var(--fm);font-size:10px;color:var(--g);display:flex;align-items:center;gap:5px}
+    .np-dot{width:5px;height:5px;border-radius:50%;background:var(--g);animation:blink 2s step-end infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+    .toast{position:fixed;bottom:2rem;right:2rem;z-index:10000;background:var(--bgc);border:1px solid var(--a);color:var(--ab);font-family:var(--fm);font-size:11px;letter-spacing:2px;padding:10px 20px;text-transform:uppercase;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    @media(max-width:768px){
+      header{padding:0 1rem}
+      .hi,.header-inner{height:50px}
+      .hl,.header-links{gap:0.8rem}
+      .hl a,.header-links a{font-size:9px;letter-spacing:1px}
+      .logo,.logo-text-el{font-size:0.85rem;letter-spacing:2px}
+    }
+    @media(max-width:480px){
+      .hl,.header-links{display:none}
+      header{padding:0 0.8rem}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="hi">
+    <a href="../index.html" class="logo">Project <span>Dossier</span> · Nav Editor</a>
+    <div class="hl">
+      <a href="index.html">Hub</a>
+      <a href="index-manager.html">Index Manager</a>
+      <a href="case-editor.html">Case Editor</a>
+      <a href="../index.html">← Sitio</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== COLUMNA IZQUIERDA ===== -->
+  <div>
+
+    <!-- LOGO -->
+    <div class="pt">// Logo del sitio</div>
+    <div class="logo-panel">
+      <div class="fr">
+        <div class="ff">
+          <label>Texto principal</label>
+          <input type="text" id="logo-text" value="Project Dossier" oninput="updateLogoPreview()">
+        </div>
+        <div class="ff">
+          <label>Subtexto (bajo el logo)</label>
+          <input type="text" id="logo-sub" value="Archivos Sin Clasificar" oninput="updateLogoPreview()">
+        </div>
+      </div>
+      <div class="ff">
+        <label>Símbolo del icono</label>
+        <input type="text" id="logo-icon" value="✦" maxlength="4" oninput="updateLogoPreview()">
+      </div>
+      <label style="margin-top:.5rem">Preview del logo</label>
+      <div class="logo-preview">
+        <div class="lp-icon" id="lp-icon">✦</div>
+        <div>
+          <span class="lp-text" id="lp-text">Project Dossier</span>
+          <span class="lp-sub" id="lp-sub">Archivos Sin Clasificar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENLACES NAV -->
+    <div class="pt">// Elementos de navegación</div>
+    <div class="note">El primer enlace se marca como "activo" según la página. El orden aquí es el orden en el menú.</div>
+    <div class="nav-panel">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;padding:0 10px">
+        <span style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--ad);text-transform:uppercase">Texto visible</span>
+        <span style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--ad);text-transform:uppercase">URL (relativa a la página)</span>
+      </div>
+      <div id="nav-items"></div>
+      <button class="add-nav" onclick="addNavItem()">+ Añadir enlace</button>
+    </div>
+
+  </div>
+
+  <!-- ===== COLUMNA DERECHA ===== -->
+  <div>
+    <div class="pt">// Preview de la navegación</div>
+    <div class="nav-preview-box">
+      <div class="nav-preview-inner">
+        <div class="np-logo">
+          <div class="np-icon" id="np-icon">✦</div>
+          <div>
+            <span style="font-family:var(--fd);font-weight:700;font-size:14px;letter-spacing:3px;color:var(--ab);text-transform:uppercase" id="np-text">Project Dossier</span>
+            <span style="font-family:var(--fm);font-size:8px;color:var(--ad);letter-spacing:2px;display:block" id="np-sub">Archivos Sin Clasificar</span>
+          </div>
+        </div>
+        <div class="np-links" id="np-links"></div>
+        <div class="np-status"><div class="np-dot"></div><span>00:00:00</span></div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- GENERAR POR TIPO DE PÁGINA -->
+    <div class="pt">// Generar bloque nav</div>
+    <div class="note">Selecciona para qué tipo de página quieres generar el bloque. La URL activa y las rutas relativas cambian según la ubicación del archivo.</div>
+
+    <div class="page-tabs">
+      <button class="ptab active" onclick="setPageType('root',this)">Raíz (/)</button>
+      <button class="ptab" onclick="setPageType('caso',this)">Caso (/casos/)</button>
+      <button class="ptab" onclick="setPageType('tool',this)">Tool (/tools/)</button>
+    </div>
+
+    <div class="ff">
+      <label>Página activa (la que se marca en el menú)</label>
+      <select id="active-page">
+        <option value="">— Ninguna activa —</option>
+      </select>
+    </div>
+
+    <div class="out-acts" style="margin-bottom:1rem">
+      <button class="bgen" onclick="generateNav()">▶ Generar</button>
+      <button class="bcopy" onclick="copyNav()">⎘ Copiar bloque</button>
+    </div>
+
+    <div class="out-box" style="max-height:320px"><pre id="out-pre">// Configura los enlaces y pulsa Generar</pre></div>
+
+    <div class="sep"></div>
+
+    <!-- INSTRUCCIONES -->
+    <div class="pt">// Cómo reemplazar en los archivos</div>
+    <div style="background:var(--bgc);border:1px solid var(--b);padding:1.2rem">
+      <p style="font-family:var(--fm);font-size:10px;color:var(--td);line-height:1.9;letter-spacing:1px">
+        1. Genera el bloque para el tipo de página correcto<br>
+        2. Copia con el botón ⎘<br>
+        3. En el archivo .html, busca el bloque <code style="color:var(--ab)">&lt;header class="site-header"&gt;</code><br>
+        4. Reemplaza todo hasta <code style="color:var(--ab)">&lt;/header&gt;</code><br>
+        <br>
+        Para raíz: <code style="color:var(--a)">index.html, mapa.html</code><br>
+        Para casos: <code style="color:var(--a)">casos/*.html</code><br>
+        Para tools: <code style="color:var(--a)">tools/*.html</code> (no necesario, tienen su propio nav)
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====================================================
+// ESTADO
+// ====================================================
+let navItems = [
+  { id: 0, text: 'Casos',       url: 'index.html' },
+  { id: 1, text: 'Mapa',        url: 'mapa.html' },
+  { id: 2, text: 'Archivo',     url: '#' },
+  { id: 3, text: 'Acerca de',   url: '#' }
+];
+let navId = 4;
+let pageType = 'root'; // root | caso | tool
+
+// ====================================================
+// LOGO PREVIEW
+// ====================================================
+function updateLogoPreview() {
+  const text = document.getElementById('logo-text').value;
+  const sub = document.getElementById('logo-sub').value;
+  const icon = document.getElementById('logo-icon').value;
+  document.getElementById('lp-text').textContent = text;
+  document.getElementById('lp-sub').textContent = sub;
+  document.getElementById('lp-icon').textContent = icon;
+  document.getElementById('np-text').textContent = text;
+  document.getElementById('np-sub').textContent = sub;
+  document.getElementById('np-icon').textContent = icon;
+}
+
+// ====================================================
+// NAV ITEMS
+// ====================================================
+function renderNavItems() {
+  const el = document.getElementById('nav-items');
+  el.innerHTML = '';
+  navItems.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'nav-item';
+    div.innerHTML = `
+      <span class="nav-drag">⠿</span>
+      <div class="nav-item-fields">
+        <input type="text" value="${esc(item.text)}" placeholder="Texto visible" oninput="updNav(${item.id},'text',this.value)">
+        <input type="text" value="${esc(item.url)}" placeholder="URL" oninput="updNav(${item.id},'url',this.value)">
+      </div>
+      <div style="display:flex;gap:4px">
+        ${i > 0 ? `<button class="nav-up" onclick="moveNav(${item.id},-1)">↑</button>` : ''}
+        ${i < navItems.length-1 ? `<button class="nav-dn" onclick="moveNav(${item.id},1)">↓</button>` : ''}
+        <button class="nav-del" onclick="delNav(${item.id})">✕</button>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+
+  // Update active page selector
+  const sel = document.getElementById('active-page');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Ninguna activa —</option>';
+  navItems.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.id;
+    opt.textContent = item.text;
+    sel.appendChild(opt);
+  });
+  sel.value = prev;
+
+  updateNavPreview();
+}
+
+function updNav(id, key, val) {
+  const item = navItems.find(n => n.id === id);
+  if (item) item[key] = val;
+  updateNavPreview();
+}
+
+function addNavItem() {
+  navItems.push({ id: navId++, text: 'Nueva página', url: '#' });
+  renderNavItems();
+}
+
+function delNav(id) {
+  if (navItems.length <= 1) { showToast('Debe haber al menos un enlace'); return; }
+  navItems = navItems.filter(n => n.id !== id);
+  renderNavItems();
+}
+
+function moveNav(id, dir) {
+  const idx = navItems.findIndex(n => n.id === id);
+  const n = idx + dir;
+  if (n < 0 || n >= navItems.length) return;
+  [navItems[idx], navItems[n]] = [navItems[n], navItems[idx]];
+  renderNavItems();
+}
+
+function updateNavPreview() {
+  const el = document.getElementById('np-links');
+  const activeId = parseInt(document.getElementById('active-page')?.value);
+  el.innerHTML = navItems.map(item => {
+    const isActive = item.id === activeId;
+    return `<span class="np-link${isActive ? ' active-link' : ''}">${esc(item.text)}</span>`;
+  }).join('');
+}
+
+// ====================================================
+// PAGE TYPE
+// ====================================================
+function setPageType(type, btn) {
+  pageType = type;
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Convierte URL base según el tipo de página
+function resolveURL(url, type) {
+  if (url === '#' || url === '') return '#';
+  if (type === 'root') return url;
+  if (type === 'caso') {
+    // desde /casos/ hay que subir un nivel
+    if (url.startsWith('casos/')) return url; // link a otro caso
+    return '../' + url;
+  }
+  if (type === 'tool') {
+    if (url.startsWith('tools/')) return url;
+    return '../' + url;
+  }
+  return url;
+}
+
+// ====================================================
+// GENERAR
+// ====================================================
+function generateNav() {
+  const logoText = document.getElementById('logo-text').value;
+  const logoSub = document.getElementById('logo-sub').value;
+  const logoIcon = document.getElementById('logo-icon').value;
+  const activeId = parseInt(document.getElementById('active-page').value);
+
+  // URL del logo (apunta siempre al index)
+  const logoHref = pageType === 'root' ? 'index.html' : '../index.html';
+
+  const links = navItems.map(item => {
+    const url = resolveURL(item.url, pageType);
+    const isActive = item.id === activeId;
+    return `        <a href="${esc(url)}"${isActive ? ' class="active"' : ''}>${esc(item.text)}</a>`;
+  }).join('\n');
+
+  const output = `  <header class="site-header">
+    <div class="header-inner">
+      <a href="${logoHref}" class="site-logo">
+        <div class="logo-icon">${esc(logoIcon)}</div>
+        <div>
+          <span class="logo-text">${esc(logoText)}</span>
+          <span class="logo-sub">${esc(logoSub)}</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+${links}
+      </nav>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>`;
+
+  document.getElementById('out-pre').textContent = output;
+  showToast('Nav generado para ' + pageType + ' ✓');
+}
+
+function copyNav() {
+  const text = document.getElementById('out-pre').textContent;
+  if (text.startsWith('//')) { showToast('Genera primero'); return; }
+  navigator.clipboard.writeText(text).then(() => showToast('Copiado ✓'));
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Sync active-page selector with preview
+document.addEventListener('change', e => {
+  if (e.target.id === 'active-page') updateNavPreview();
+});
+
+// Init
+renderNavItems();
+</script>
+</body>
+</html>

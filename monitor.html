@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor Global | PROJECT DOSSIER</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    /* ── MONITOR: variables bridge (mapea vars del monitor a las de Dossier) ── */
+    :root {
+      --bg: var(--bg-primary);
+      --surface: var(--bg-secondary);
+      --surface2: var(--bg-card);
+      --surface3: #161209;
+      --accent: var(--amber);
+      --accent2: var(--red-classified);
+      --accent3: var(--amber-bright);
+      --accent4: var(--green-bright);
+      --text: var(--text-primary);
+      --text-dim: var(--text-dim);
+      --text-bright: var(--text-bright);
+      --border: var(--border);
+      --border-bright: var(--border-bright);
+      --mono: var(--font-mono);
+      --cond: 'Barlow Condensed', var(--font-display);
+      --body: var(--font-body);
+      --threat-critical: var(--red-classified);
+      --threat-high: #c85000;
+      --threat-med: var(--amber);
+      --threat-low: var(--green-bright);
+      --panel-w: 272px;
+    }
+
+    /* ── LAYOUT RAÍZ: debajo del site-header de Dossier (60px) ── */
+    .monitor-root {
+      display: flex;
+      flex-direction: column;
+      height: calc(100svh - 60px);
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* ── SUBHEADER DEL MONITOR ── */
+    .mon-header {
+      height: 44px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-bright);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 16px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 200;
+    }
+    .mon-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), var(--accent), transparent);
+      opacity: 0.4;
+    }
+    .mon-logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 5px;
+      color: var(--amber-bright);
+      text-shadow: 0 0 16px rgba(212,135,10,0.4);
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .mon-logo span { color: var(--red-classified); }
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: nowrap;
+      min-width: 0;
+    }
+    .hstat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .hstat-val {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--amber);
+      line-height: 1;
+    }
+    .hstat-val.red { color: var(--red-classified); }
+    .hstat-val.gold { color: var(--amber-bright); }
+    .hstat-val.green { color: var(--green-bright); }
+    .hstat-label {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .header-controls {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .ctrl-btn {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid var(--border-bright);
+      color: var(--text-dim);
+      border-radius: 2px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .ctrl-btn:hover, .ctrl-btn.active {
+      border-color: var(--amber);
+      color: var(--amber-bright);
+      background: var(--amber-glow);
+    }
+    .ctrl-btn.danger {
+      border-color: rgba(204,34,0,0.4);
+      color: var(--red-classified);
+    }
+    .ctrl-btn.danger:hover {
+      border-color: var(--red-classified);
+      background: rgba(204,34,0,0.08);
+    }
+
+    /* ── APP BODY ── */
+    .app-body {
+      display: flex;
+      height: calc(100% - 44px - 32px);
+      position: relative;
+    }
+
+    /* ── SIDE PANELS ── */
+    .side-panel {
+      width: var(--panel-w);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      transition: width 0.25s ease, opacity 0.25s ease;
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+    .side-panel.right { border-right: none; border-left: 1px solid var(--border); }
+    .side-panel.collapsed { width: 32px; }
+    .side-panel.hidden-panel { width: 0; opacity: 0; pointer-events: none; border: none; }
+    .panel-toggle-strip {
+      position: absolute; top: 0; right: 0; bottom: 0; width: 32px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      background: var(--surface2); border-left: 1px solid var(--border); cursor: pointer; z-index: 20;
+    }
+    .side-panel.right .panel-toggle-strip { left: 0; right: auto; border-left: none; border-right: 1px solid var(--border); }
+    .panel-toggle-strip:hover { background: var(--amber-glow); }
+    .panel-toggle-icon { font-size: 0.6rem; color: var(--text-dim); writing-mode: vertical-rl; letter-spacing: 2px; font-family: var(--font-mono); text-transform: uppercase; }
+    .panel-toggle-arrow { font-size: 0.8rem; color: var(--amber); }
+    .side-panel.collapsed .panel-content { opacity: 0; pointer-events: none; }
+    .side-panel.collapsed .panel-toggle-strip { width: 32px; left: 0; border-left: none; right: auto; }
+    .side-panel.right.collapsed .panel-toggle-strip { right: 0; left: auto; border-right: none; border-left: 1px solid var(--border); }
+    .panel-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-right: 32px; min-width: calc(var(--panel-w) - 32px); }
+    .side-panel.right .panel-content { padding-right: 0; padding-left: 32px; }
+    .panel-section { border-bottom: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+    .panel-section.collapsible-section .panel-header { cursor: pointer; user-select: none; }
+    .panel-section.collapsible-section .panel-header:hover { background: var(--surface3); }
+    .section-body { overflow: hidden; transition: max-height 0.3s ease; }
+    .section-body.collapsed { max-height: 0 !important; }
+    .section-body.grow { flex: 1; overflow-y: auto; }
+    .section-body::-webkit-scrollbar { width: 3px; }
+    .section-body::-webkit-scrollbar-thumb { background: var(--border-bright); }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; flex-shrink: 0;
+    }
+    .panel-title {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+    .panel-collapse-icon { font-size: 0.65rem; color: var(--text-dim); transition: transform 0.2s; }
+    .section-body.collapsed ~ .panel-header .panel-collapse-icon,
+    .panel-header[aria-expanded="false"] .panel-collapse-icon { transform: rotate(-90deg); }
+
+    /* ── THREAT METER ── */
+    .threat-meter { padding: 10px; }
+    .threat-level-display { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .threat-value { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--red-classified); text-shadow: 0 0 20px rgba(204,34,0,0.5); line-height: 1; }
+    .threat-label-block { display: flex; flex-direction: column; }
+    .threat-label { font-family: var(--font-display); font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase; color: var(--amber-bright); font-weight: 600; }
+    .threat-sublabel { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); letter-spacing: 2px; }
+    .threat-bar-container { display: flex; gap: 2px; height: 6px; }
+    .threat-bar-seg { flex: 1; border-radius: 1px; opacity: 0.3; transition: opacity 0.5s; }
+    .threat-bar-seg.active { opacity: 1; }
+    .threat-indicators { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; }
+    .threat-ind { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-dim); letter-spacing: 1px; }
+    .threat-ind-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── EVENT LIST ── */
+    .event-list { display: flex; flex-direction: column; }
+    .event-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 7px 10px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .event-item:hover { background: var(--amber-glow); }
+    .event-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .event-info { flex: 1; min-width: 0; }
+    .event-title { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; color: var(--text-bright); line-height: 1.3; margin-bottom: 1px; }
+    .event-meta { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px; }
+    .event-level { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; padding: 1px 5px; border: 1px solid; border-radius: 1px; }
+    .level-critical { color: var(--threat-critical); border-color: var(--threat-critical); }
+    .level-high { color: var(--threat-high); border-color: var(--threat-high); }
+    .level-med { color: var(--threat-med); border-color: var(--threat-med); }
+    .level-low { color: var(--threat-low); border-color: var(--threat-low); }
+
+    /* ── ALERTS PANEL ── */
+    .alert-item { padding: 6px 10px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; align-items: flex-start; }
+    .alert-icon { font-size: 0.7rem; flex-shrink: 0; margin-top: 2px; }
+    .alert-text { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-primary); line-height: 1.4; }
+    .alert-time { font-family: var(--font-mono); font-size: 0.52rem; color: var(--text-dim); letter-spacing: 1px; margin-top: 2px; }
+
+    /* ── CENTRO: MAPA ── */
+    .map-center { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; min-width: 0; }
+    .map-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+    .map-tab { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; padding: 7px 14px; cursor: pointer; color: var(--text-dim); border-right: 1px solid var(--border); transition: all 0.2s; border-bottom: 2px solid transparent; }
+    .map-tab:hover { color: var(--amber); background: var(--amber-glow); }
+    .map-tab.active { color: var(--amber-bright); border-bottom-color: var(--amber-bright); background: var(--amber-glow); }
+    .map-view { flex: 1; position: relative; display: none; }
+    .map-view.active { display: flex; flex-direction: column; }
+    #map2d { flex: 1; }
+    #globe-canvas { width: 100%; height: 100%; display: block; }
+    .map-overlay-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 28px;
+      background: rgba(10,10,8,0.85); border-top: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 12px; gap: 20px; z-index: 10;
+    }
+    .map-coord { font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-dim); letter-spacing: 1px; }
+    .map-tag { font-family: var(--font-mono); font-size: 0.58rem; color: var(--amber-dim); letter-spacing: 2px; }
+    .map-time-display { font-family: var(--font-mono); font-size: 0.58rem; color: var(--amber); letter-spacing: 1px; margin-left: auto; }
+
+    /* Leaflet overrides */
+    .leaflet-container { background: var(--bg-primary) !important; }
+    .leaflet-control-zoom { display: none; }
+    .leaflet-control-attribution { background: rgba(10,10,8,0.7)!important; color: var(--text-dim)!important; font-size: 8px!important; }
+    .leaflet-control-attribution a { color: var(--text-dim)!important; }
+
+    /* ── FIRE LEGEND ── */
+    .fire-legend { position: absolute; bottom: 32px; right: 8px; background: rgba(10,10,8,0.88); border: 1px solid var(--border); padding: 6px 10px; z-index: 10; }
+    .fire-legend-title { font-family: var(--font-mono); font-size: 0.48rem; color: var(--amber); letter-spacing: 2px; margin-bottom: 4px; }
+    .fire-legend-row { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+    .fire-swatch { width: 10px; height: 6px; border-radius: 1px; }
+    .fire-legend-label { font-family: var(--font-mono); font-size: 0.46rem; color: var(--text-dim); letter-spacing: 1px; }
+
+    /* ── PANELS DERECHO ── */
+    .news-item { padding: 7px 10px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+    .news-item:hover { background: var(--amber-glow); }
+    .news-title { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-bright); line-height: 1.3; margin-bottom: 2px; }
+    .news-source { font-family: var(--font-mono); font-size: 0.52rem; color: var(--amber-dim); letter-spacing: 1px; }
+
+    .ai-panel { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .ai-readout { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-primary); line-height: 1.5; }
+    .ai-readout span { color: var(--amber); }
+    .ai-btn { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 2px; padding: 5px 10px; background: var(--amber-glow); border: 1px solid var(--amber-dim); color: var(--amber); cursor: pointer; transition: all 0.2s; text-transform: uppercase; align-self: flex-start; }
+    .ai-btn:hover { border-color: var(--amber-bright); color: var(--amber-bright); }
+
+    .market-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid var(--border); }
+    .market-name { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-dim); letter-spacing: 1px; }
+    .market-val { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-bright); }
+    .market-chg { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 1px; }
+    .market-chg.up { color: var(--green-bright); }
+    .market-chg.down { color: var(--red-classified); }
+
+    .ops-item { padding: 6px 10px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-start; }
+    .ops-code { font-family: var(--font-mono); font-size: 0.58rem; color: var(--amber); letter-spacing: 1px; flex-shrink: 0; }
+    .ops-desc { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-dim); line-height: 1.4; }
+
+    .seis-item { padding: 5px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .seis-mag { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--amber); min-width: 32px; }
+    .seis-info { flex: 1; }
+    .seis-loc { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-primary); }
+    .seis-time { font-family: var(--font-mono); font-size: 0.52rem; color: var(--text-dim); letter-spacing: 1px; }
+
+    .region-bar { display: flex; gap: 4px; padding: 8px 10px; flex-wrap: wrap; }
+    .reg-chip { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; padding: 3px 7px; border: 1px solid var(--border); color: var(--text-dim); border-radius: 1px; cursor: pointer; transition: all 0.15s; }
+    .reg-chip:hover, .reg-chip.active { border-color: var(--amber); color: var(--amber-bright); background: var(--amber-glow); }
+    .reg-chip.alert { border-color: var(--red-classified); color: var(--red-classified); animation: blink-chip 1.5s infinite; }
+    @keyframes blink-chip { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      height: 32px; background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 12px; gap: 16px;
+      flex-shrink: 0; position: relative; z-index: 200;
+      font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 1px;
+    }
+    .sb-item { color: var(--text-dim); display: flex; align-items: center; gap: 4px; }
+    .sb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green-bright); animation: pulse-dot 2s infinite; flex-shrink: 0; }
+    .sb-dot.red { background: var(--red-classified); }
+    .sb-dot.amber { background: var(--amber); }
+    .sb-val { color: var(--amber); }
+    .sb-sep { color: var(--border-bright); }
+    .sb-right { margin-left: auto; display: flex; gap: 16px; }
+
+    /* ── MODAL ANÁLISIS AI ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+    .modal-overlay.open { display: flex; animation: fadeIn 0.15s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-box { background: var(--bg-secondary); border: 1px solid var(--amber-dim); width: 520px; max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: modalUp 0.15s ease; }
+    @keyframes modalUp { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .modal-title { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; letter-spacing: 3px; color: var(--amber-bright); text-transform: uppercase; }
+    .modal-close { font-family: var(--font-mono); font-size: 0.6rem; padding: 4px 8px; background: transparent; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+    .modal-close:hover { border-color: var(--red-classified); color: var(--red-classified); }
+    .modal-body { padding: 14px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-primary); line-height: 1.7; flex: 1; }
+    .modal-body::-webkit-scrollbar { width: 4px; }
+    .modal-body::-webkit-scrollbar-thumb { background: var(--amber-dim); }
+
+    /* ── SCANLINES overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .side-panel.right { display: none; }
+      :root { --panel-w: 220px; }
+    }
+    @media (max-width: 600px) {
+      .side-panel { display: none; }
+      .header-stats { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER GLOBAL DE PROJECT DOSSIER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html">Casos</a>
+        <a href="mapa.html">Mapa</a>
+        <a href="cronologia.html">Cronología</a>
+        <a href="monitor.html" class="active">Monitor</a>
+        <a href="archivo.html">Archivo</a>
+        <a href="tablon.html">Tablón</a>
+        <a href="acerca.html">Acerca de</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Menú"><span></span><span></span><span></span></button>
+      <div class="theme-picker" title="Cambiar tema">
+        <span class="theme-dot active" data-theme="amber"></span>
+        <span class="theme-dot" data-theme="phosphor"></span>
+        <span class="theme-dot" data-theme="paper"></span>
+        <span class="theme-dot" data-theme="blood"></span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="monitor-root">
+
+    <!-- SUBHEADER SENTINEL -->
+    <div class="mon-header">
+      <div class="mon-logo">SENTINEL<span>//</span>INTEL</div>
+      <div class="header-stats">
+        <div class="hstat"><span class="hstat-val red" id="hstat-conflictos">8</span><span class="hstat-label">Conflictos</span></div>
+        <div class="hstat"><span class="hstat-val gold" id="hstat-sismos">--</span><span class="hstat-label">Sismos 24h</span></div>
+        <div class="hstat"><span class="hstat-val green" id="hstat-mercados">--</span><span class="hstat-label">S&P 500</span></div>
+        <div class="hstat"><span class="hstat-val" id="hstat-alertas">7</span><span class="hstat-label">Alertas</span></div>
+        <div class="hstat"><span class="hstat-val" id="hstat-hora">--:--:--</span><span class="hstat-label">UTC</span></div>
+      </div>
+      <div class="header-controls">
+        <button class="ctrl-btn active" onclick="setView('geopolitica',this)">Geopolítica</button>
+        <button class="ctrl-btn" onclick="setView('militar',this)">Militar</button>
+        <button class="ctrl-btn" onclick="setView('mercados',this)">Mercados</button>
+        <button class="ctrl-btn" onclick="setView('desastres',this)">Desastres</button>
+        <button class="ctrl-btn danger">⚠ ALERTAS</button>
+      </div>
+    </div>
+
+    <div class="app-body">
+
+      <!-- PANEL IZQUIERDO -->
+      <div class="side-panel" id="panel-left">
+        <div class="panel-toggle-strip" onclick="togglePanel('panel-left')">
+          <span class="panel-toggle-icon">ESTADO</span>
+          <span class="panel-toggle-arrow">‹</span>
+        </div>
+        <div class="panel-content">
+
+          <!-- Nivel Amenaza -->
+          <div class="panel-section collapsible-section">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Nivel Amenaza</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body" style="max-height:160px">
+              <div class="threat-meter">
+                <div class="threat-level-display">
+                  <div class="threat-value" id="threat-num">73</div>
+                  <div class="threat-label-block">
+                    <span class="threat-label">ELEVADO</span>
+                    <span class="threat-sublabel">INDICE GLOBAL // SENTINEL</span>
+                  </div>
+                </div>
+                <div class="threat-bar-container" id="threat-bars"></div>
+                <div class="threat-indicators">
+                  <div class="threat-ind"><span class="threat-ind-dot" style="background:var(--red-classified)"></span>Conflictos armados activos</div>
+                  <div class="threat-ind"><span class="threat-ind-dot" style="background:var(--threat-high)"></span>Tensión geopolítica alta</div>
+                  <div class="threat-ind"><span class="threat-ind-dot" style="background:var(--amber)"></span>Volatilidad económica</div>
+                  <div class="threat-ind"><span class="threat-ind-dot" style="background:var(--green-bright)"></span>Sistemas SENTINEL: nominal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eventos activos -->
+          <div class="panel-section collapsible-section" style="flex:1;min-height:0">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Eventos activos</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body grow" style="max-height:9999px">
+              <div class="event-list">
+                <div class="event-item"><div class="event-dot" style="background:var(--red-classified)"></div><div class="event-info"><div class="event-title">Bombardeos en zona norte de Gaza</div><div class="event-meta">Oriente Medio · hace 12 min</div></div><span class="event-level level-critical">CRIT</span></div>
+                <div class="event-item"><div class="event-dot" style="background:var(--red-classified)"></div><div class="event-info"><div class="event-title">Ejercicios navales OTAN — Mar Negro</div><div class="event-meta">Europa Este · hace 34 min</div></div><span class="event-level level-critical">CRIT</span></div>
+                <div class="event-item"><div class="event-dot" style="background:var(--threat-high)"></div><div class="event-info"><div class="event-title">Op. SHADOWNET — Filtración parcial</div><div class="event-meta">Ciberseguridad · hace 1h</div></div><span class="event-level level-high">ALTO</span></div>
+                <div class="event-item"><div class="event-dot" style="background:var(--threat-high)"></div><div class="event-info"><div class="event-title">Interferencia GPS — Báltico</div><div class="event-meta">Europa Norte · hace 2h</div></div><span class="event-level level-high">ALTO</span></div>
+                <div class="event-item"><div class="event-dot" style="background:var(--amber)"></div><div class="event-info"><div class="event-title">Convoy blindado — Frontera bielorrusa</div><div class="event-meta">Europa Este · hace 3h</div></div><span class="event-level level-med">MED</span></div>
+                <div class="event-item"><div class="event-dot" style="background:var(--amber)"></div><div class="event-info"><div class="event-title">Ataques drones Huthi — Mar Rojo</div><div class="event-meta">Yemen · hace 4h</div></div><span class="event-level level-med">MED</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alertas -->
+          <div class="panel-section collapsible-section">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Alertas en mapa</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body" style="max-height:160px">
+              <div class="alert-item"><span class="alert-icon">🔴</span><div><div class="alert-text">Actividad sísmica M6.1 — Turquía central</div><div class="alert-time">hace 22 min</div></div></div>
+              <div class="alert-item"><span class="alert-icon">🟠</span><div><div class="alert-text">Alerta marítima — Estrecho de Ormuz</div><div class="alert-time">hace 45 min</div></div></div>
+              <div class="alert-item"><span class="alert-icon">🟡</span><div><div class="alert-text">Erupción volcánica menor — Islandia</div><div class="alert-time">hace 1h 10min</div></div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CENTRO: MAPA -->
+      <div class="map-center">
+        <div class="map-tabs">
+          <div class="map-tab active" onclick="switchMapTab('map-2d', this)">// MAPA 2D</div>
+          <div class="map-tab" onclick="switchMapTab('map-globe', this)">// GLOBO 3D</div>
+        </div>
+
+        <div class="map-view active" id="map-2d">
+          <div id="map2d"></div>
+          <div class="map-overlay-bar">
+            <span class="map-coord" id="coord-display">LAT 0.00 LON 0.00</span>
+            <span class="sb-sep">|</span>
+            <span class="map-tag">// DOSSIER·SENTINEL MAP</span>
+            <span class="map-time-display" id="map-time-display">UTC --:--:--</span>
+          </div>
+          <div class="fire-legend">
+            <div class="fire-legend-title">NASA FIRMS // INCENDIOS</div>
+            <div class="fire-legend-row"><div class="fire-swatch" style="background:#ff2200"></div><span class="fire-legend-label">MUY ALTO</span></div>
+            <div class="fire-legend-row"><div class="fire-swatch" style="background:#ff6600"></div><span class="fire-legend-label">ALTO</span></div>
+            <div class="fire-legend-row"><div class="fire-swatch" style="background:#ffaa00"></div><span class="fire-legend-label">MEDIO</span></div>
+            <div class="fire-legend-row"><div class="fire-swatch" style="background:#ffdd88"></div><span class="fire-legend-label">BAJO</span></div>
+          </div>
+        </div>
+
+        <div class="map-view" id="map-globe">
+          <canvas id="globe-canvas"></canvas>
+          <div class="map-overlay-bar">
+            <span class="map-tag">// SENTINEL GLOBE 3D</span>
+            <span class="map-time-display" id="map-time-display-globe">UTC --:--:--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <div class="side-panel right" id="panel-right">
+        <div class="panel-toggle-strip" onclick="togglePanel('panel-right')">
+          <span class="panel-toggle-icon">INTEL</span>
+          <span class="panel-toggle-arrow">›</span>
+        </div>
+        <div class="panel-content">
+
+          <!-- Noticias -->
+          <div class="panel-section collapsible-section">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Noticias globales</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body" style="max-height:160px">
+              <div class="news-item"><div class="news-title">OTAN refuerza flanco este con nuevas brigadas</div><div class="news-source">Reuters · hace 18 min</div></div>
+              <div class="news-item"><div class="news-title">Colapso del yuan ante tensiones comerciales</div><div class="news-source">Bloomberg · hace 35 min</div></div>
+              <div class="news-item"><div class="news-title">Cumbre G7 de emergencia por ciberataques</div><div class="news-source">AP · hace 1h</div></div>
+              <div class="news-item"><div class="news-title">Misiles balísticos en prueba — Corea del Norte</div><div class="news-source">Yonhap · hace 2h</div></div>
+            </div>
+          </div>
+
+          <!-- Análisis AI -->
+          <div class="panel-section collapsible-section">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Análisis SENTINEL·AI</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body" style="max-height:140px">
+              <div class="ai-panel">
+                <div class="ai-readout">Estado: <span>ELEVADO</span>. Múltiples vectores de escalada. Correlación de <span>3 eventos</span> sugiere patrón coordinado en franja horaria 02:00–06:00 UTC.</div>
+                <button class="ai-btn" onclick="openAiModal()">⟶ Informe completo</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mercados -->
+          <div class="panel-section collapsible-section">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Mercados en vivo</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body" style="max-height:140px">
+              <div class="market-row"><span class="market-name">S&P 500</span><span class="market-val" id="m-sp">--</span><span class="market-chg up" id="m-sp-c">--</span></div>
+              <div class="market-row"><span class="market-name">NASDAQ</span><span class="market-val" id="m-nq">--</span><span class="market-chg down" id="m-nq-c">--</span></div>
+              <div class="market-row"><span class="market-name">BRENT</span><span class="market-val" id="m-br">--</span><span class="market-chg up" id="m-br-c">--</span></div>
+              <div class="market-row"><span class="market-name">GOLD</span><span class="market-val" id="m-go">--</span><span class="market-chg up" id="m-go-c">--</span></div>
+              <div class="market-row"><span class="market-name">BTC</span><span class="market-val" id="m-bt">--</span><span class="market-chg down" id="m-bt-c">--</span></div>
+            </div>
+          </div>
+
+          <!-- Ops discretas -->
+          <div class="panel-section collapsible-section">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Ops. discretas</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body" style="max-height:120px">
+              <div class="ops-item"><span class="ops-code">[OP-17]</span><div class="ops-desc">Movimiento de activos — Zona C. Confirmado por 2 fuentes HUMINT.</div></div>
+              <div class="ops-item"><span class="ops-code">[OP-22]</span><div class="ops-desc">Intercepción señales — Frecuencia 432MHz. Análisis pendiente.</div></div>
+              <div class="ops-item"><span class="ops-code">[OP-31]</span><div class="ops-desc">Reunión no programada — Actores nivel A. Localización: Ginebra.</div></div>
+            </div>
+          </div>
+
+          <!-- Sismos -->
+          <div class="panel-section collapsible-section">
+            <div class="panel-header" onclick="toggleSection(this)">
+              <span class="panel-title">// Sismos recientes</span>
+              <span class="panel-collapse-icon">▾</span>
+            </div>
+            <div class="section-body" style="max-height:120px" id="seis-list">
+              <div class="seis-item"><span class="seis-mag">M6.1</span><div class="seis-info"><div class="seis-loc">Turquía central</div><div class="seis-time">hace 22 min · prof. 12km</div></div></div>
+              <div class="seis-item"><span class="seis-mag">M5.4</span><div class="seis-info"><div class="seis-loc">Islas Kuriles</div><div class="seis-time">hace 1h 8min · prof. 35km</div></div></div>
+              <div class="seis-item"><span class="seis-mag">M4.8</span><div class="seis-info"><div class="seis-loc">Chile norte</div><div class="seis-time">hace 3h · prof. 70km</div></div></div>
+            </div>
+          </div>
+
+          <!-- Amenaza regional -->
+          <div class="panel-section">
+            <div class="panel-header">
+              <span class="panel-title">// Amenaza regional</span>
+            </div>
+            <div class="region-bar">
+              <span class="reg-chip alert">Oriente M.</span>
+              <span class="reg-chip active">Europa E.</span>
+              <span class="reg-chip">Sahel</span>
+              <span class="reg-chip">Asia Pac.</span>
+              <span class="reg-chip">Latinoam.</span>
+              <span class="reg-chip">Ártico</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <div class="sb-item"><span class="sb-dot"></span>SENTINEL·FEED ACTIVO</div>
+      <div class="sb-item sb-sep">|</div>
+      <div class="sb-item">NODOS: <span class="sb-val">247</span></div>
+      <div class="sb-item">ALERTAS: <span class="sb-val" id="sb-alertas">7</span></div>
+      <div class="sb-item">LATENCIA: <span class="sb-val" id="sb-latencia">--ms</span></div>
+      <div class="sb-right">
+        <div class="sb-item"><span class="sb-dot amber"></span>CIFRADO TLS·AES256</div>
+        <div class="sb-item"><span class="sb-dot red"></span>NIVEL·AMENAZA: <span class="sb-val">ELEVADO</span></div>
+      </div>
+    </div>
+
+  </div><!-- /.monitor-root -->
+
+  <!-- MODAL ANÁLISIS AI -->
+  <div class="modal-overlay" id="ai-modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">// Análisis SENTINEL·AI — Informe Completo</span>
+        <button class="modal-close" onclick="closeModal()">✕ CERRAR</button>
+      </div>
+      <div class="modal-body" id="modal-body-content">Cargando análisis...</div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+  // ══════════════════════════════════════════
+  // DOSSIER SENTINEL — Monitor integrado v1
+  // ══════════════════════════════════════════
+
+  // ── RELOJ UTC ──
+  function updateClock() {
+    const utc = new Date().toUTCString().split(' ')[4];
+    document.getElementById('hstat-hora').textContent = utc;
+    const mtd = document.getElementById('map-time-display');
+    if (mtd) mtd.textContent = 'UTC ' + utc;
+    const mtdg = document.getElementById('map-time-display-globe');
+    if (mtdg) mtdg.textContent = 'UTC ' + utc;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── MAPA 2D LEAFLET ──
+  const map = L.map('map2d', { center:[20,10], zoom:2, zoomControl:false, attributionControl:true });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'© SENTINEL | CartoDB', subdomains:'abcd', maxZoom:19
+  }).addTo(map);
+
+  map.on('mousemove', e => {
+    document.getElementById('coord-display').textContent =
+      'LAT ' + e.latlng.lat.toFixed(2) + ' LON ' + e.latlng.lng.toFixed(2);
+  });
+
+  // ── MARCADORES DE CONFLICTO ──
+  const conflicts = [
+    { lat:31.5, lng:34.8, title:'Gaza — Conflicto activo', desc:'Bombardeos reportados. Alto nivel de hostilidades.', level:'critical' },
+    { lat:48.9, lng:31.2, title:'Ucrania — Línea de frente', desc:'Avances en sector Kherson. Artillería activa.', level:'critical' },
+    { lat:15.5, lng:32.5, title:'Sudán — Guerra civil', desc:'RSF vs SAF. Crisis humanitaria grave.', level:'high' },
+    { lat:13.5, lng:2.1,  title:'Sahel — Operaciones yihadistas', desc:'Ataques JNIM en Mali y Burkina Faso.', level:'high' },
+    { lat:15.2, lng:44.2, title:'Yemen — Ataques Huthi', desc:'Misiles contra buques en Mar Rojo.', level:'high' },
+    { lat:33.3, lng:44.4, title:'Iraq — Milicias proiraníes', desc:'Ataques con drones contra bases USA.', level:'med' },
+    { lat:35.9, lng:14.5, title:'Mediterráneo — Flujos migratorios', desc:'Crisis humanitaria en ruta central.', level:'med' },
+    { lat:55.0, lng:24.0, title:'Báltico — Interferencia GPS', desc:'Jamming detectado en región báltica.', level:'med' },
+  ];
+
+  const colMap = { critical:'#cc2200', high:'#c85000', med:'#d4870a', low:'#3aaa50' };
+
+  conflicts.forEach(c => {
+    const color = colMap[c.level] || '#d4870a';
+    const circle = L.circleMarker([c.lat, c.lng], {
+      radius: c.level==='critical' ? 10 : c.level==='high' ? 8 : 6,
+      color, fillColor: color, fillOpacity: 0.35, weight: 2
+    }).addTo(map);
+    circle.bindPopup(`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#d4870a;background:#0a0a08;border:1px solid rgba(212,135,10,0.4);padding:8px;max-width:200px"><b style="color:#f0a020">${c.title}</b><br><span style="color:#6a5f48">${c.desc}</span></div>`, { className:'sentinel-popup' });
+    // Pulso animado SVG
+    const pulse = L.circleMarker([c.lat, c.lng], { radius:18, color, fillColor:'transparent', weight:1, opacity:0.2 }).addTo(map);
+  });
+
+  // ── GLOBO 3D THREE.JS ──
+  let globeRenderer, globeScene, globeCamera, globeMesh, globeAnimId;
+  function initGlobe() {
+    const canvas = document.getElementById('globe-canvas');
+    const wrap = document.getElementById('map-globe');
+    const W = wrap.clientWidth, H = wrap.clientHeight - 32;
+    globeRenderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+    globeRenderer.setSize(W, H);
+    globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    globeScene = new THREE.Scene();
+    globeCamera = new THREE.PerspectiveCamera(45, W/H, 0.1, 1000);
+    globeCamera.position.z = 2.5;
+
+    // Esfera principal
+    const geo = new THREE.SphereGeometry(1, 64, 64);
+    const mat = new THREE.MeshPhongMaterial({
+      color: 0x0a0a08,
+      emissive: 0x0d0900,
+      specular: 0xd4870a,
+      shininess: 8,
+      wireframe: false,
+    });
+    globeMesh = new THREE.Mesh(geo, mat);
+    globeScene.add(globeMesh);
+
+    // Wireframe ámbar
+    const wfGeo = new THREE.SphereGeometry(1.002, 24, 16);
+    const wfMat = new THREE.MeshBasicMaterial({ color: 0xd4870a, wireframe: true, opacity: 0.08, transparent: true });
+    globeScene.add(new THREE.Mesh(wfGeo, wfMat));
+
+    // Atmósfera
+    const atmGeo = new THREE.SphereGeometry(1.08, 32, 32);
+    const atmMat = new THREE.MeshPhongMaterial({ color: 0xd4870a, transparent: true, opacity: 0.05, side: THREE.FrontSide });
+    globeScene.add(new THREE.Mesh(atmGeo, atmMat));
+
+    // Puntos de conflicto
+    conflicts.forEach(c => {
+      const phi = (90 - c.lat) * Math.PI / 180;
+      const theta = (c.lng + 180) * Math.PI / 180;
+      const x = -Math.sin(phi) * Math.cos(theta);
+      const y = Math.cos(phi);
+      const z = Math.sin(phi) * Math.sin(theta);
+      const dotGeo = new THREE.SphereGeometry(0.018, 8, 8);
+      const dotMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(colMap[c.level]) });
+      const dot = new THREE.Mesh(dotGeo, dotMat);
+      dot.position.set(x, y, z);
+      globeScene.add(dot);
+    });
+
+    // Luces
+    globeScene.add(new THREE.AmbientLight(0xd4870a, 0.3));
+    const dLight = new THREE.DirectionalLight(0xf0a020, 1.2);
+    dLight.position.set(5, 3, 5);
+    globeScene.add(dLight);
+
+    // Interacción ratón
+    let isDragging = false, prevMouse = {x:0, y:0};
+    canvas.addEventListener('mousedown', e => { isDragging = true; prevMouse = {x:e.clientX, y:e.clientY}; });
+    window.addEventListener('mouseup', () => isDragging = false);
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      globeMesh.rotation.y += (e.clientX - prevMouse.x) * 0.005;
+      globeMesh.rotation.x += (e.clientY - prevMouse.y) * 0.005;
+      prevMouse = {x:e.clientX, y:e.clientY};
+    });
+    canvas.addEventListener('touchstart', e => { prevMouse = {x:e.touches[0].clientX, y:e.touches[0].clientY}; }, {passive:true});
+    canvas.addEventListener('touchmove', e => {
+      globeMesh.rotation.y += (e.touches[0].clientX - prevMouse.x) * 0.005;
+      globeMesh.rotation.x += (e.touches[0].clientY - prevMouse.y) * 0.005;
+      prevMouse = {x:e.touches[0].clientX, y:e.touches[0].clientY};
+    }, {passive:true});
+
+    animateGlobe();
+  }
+
+  function animateGlobe() {
+    globeAnimId = requestAnimationFrame(animateGlobe);
+    globeMesh.rotation.y += 0.001;
+    globeRenderer.render(globeScene, globeCamera);
+  }
+
+  // ── TABS DE MAPA ──
+  function switchMapTab(viewId, btn) {
+    document.querySelectorAll('.map-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.map-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    btn.classList.add('active');
+    if (viewId === 'map-globe' && !globeRenderer) {
+      setTimeout(initGlobe, 50);
+    }
+    if (viewId === 'map-2d') {
+      setTimeout(() => map.invalidateSize(), 100);
+    }
+  }
+
+  // ── THREAT BARS ──
+  function buildThreatBars() {
+    const val = 73;
+    const container = document.getElementById('threat-bars');
+    container.innerHTML = '';
+    const colors = ['#3aaa50','#3aaa50','#d4870a','#d4870a','#d4870a','#c85000','#c85000','#cc2200','#cc2200','#cc2200'];
+    const active = Math.round(val / 10);
+    colors.forEach((c, i) => {
+      const seg = document.createElement('div');
+      seg.className = 'threat-bar-seg' + (i < active ? ' active' : '');
+      seg.style.background = c;
+      container.appendChild(seg);
+    });
+  }
+  buildThreatBars();
+
+  // ── MERCADOS (simulados) ──
+  const marketData = {
+    sp: { base:5823, chg:+0.42 },
+    nq: { base:21450, chg:-0.18 },
+    br: { base:87.4, chg:+1.1 },
+    go: { base:3120, chg:+0.8 },
+    bt: { base:83200, chg:-2.3 }
+  };
+
+  function renderMarkets() {
+    for (const [key, d] of Object.entries(marketData)) {
+      const jitter = (Math.random()-0.5) * 0.5;
+      const val = d.base + jitter;
+      const chg = d.chg + (Math.random()-0.5)*0.1;
+      const isUp = chg >= 0;
+      const el = document.getElementById('m-'+key.substring(0,2));
+      const elc = document.getElementById('m-'+key.substring(0,2)+'-c');
+      if (el) el.textContent = val.toLocaleString('es', {maximumFractionDigits:1});
+      if (elc) {
+        elc.textContent = (isUp?'+':'')+chg.toFixed(2)+'%';
+        elc.className = 'market-chg ' + (isUp?'up':'down');
+      }
+    }
+    // S&P en header
+    const sp = document.getElementById('hstat-mercados');
+    if (sp) sp.textContent = marketData.sp.base.toLocaleString('es');
+  }
+  renderMarkets();
+  setInterval(renderMarkets, 8000);
+
+  // ── LATENCIA ──
+  function updateLatencia() {
+    const ms = 40 + Math.floor(Math.random() * 80);
+    document.getElementById('sb-latencia').textContent = ms + 'ms';
+  }
+  setInterval(updateLatencia, 3000);
+  updateLatencia();
+
+  // ── SISMOS (USGS API) ──
+  async function loadSismos() {
+    try {
+      const res = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson');
+      const data = await res.json();
+      document.getElementById('hstat-sismos').textContent = data.metadata.count;
+      const list = document.getElementById('seis-list');
+      list.innerHTML = '';
+      const top = data.features.slice(0, 6);
+      top.forEach(f => {
+        const p = f.properties;
+        const mag = p.mag.toFixed(1);
+        const place = p.place.replace('of ', '').substring(0, 30);
+        const dt = new Date(p.time);
+        const diff = Math.round((Date.now()-dt)/60000);
+        const timeStr = diff < 60 ? `hace ${diff} min` : `hace ${Math.round(diff/60)}h`;
+        const div = document.createElement('div');
+        div.className = 'seis-item';
+        div.innerHTML = `<span class="seis-mag" style="color:${mag>=6?'var(--red-classified)':mag>=5?'var(--threat-high)':'var(--amber)'}">M${mag}</span><div class="seis-info"><div class="seis-loc">${place}</div><div class="seis-time">${timeStr}</div></div>`;
+        list.appendChild(div);
+
+        // Pin en mapa
+        const coords = f.geometry.coordinates;
+        const color = mag>=6?'#cc2200':mag>=5?'#c85000':'#d4870a';
+        L.circleMarker([coords[1], coords[0]], {
+          radius: mag >= 6 ? 8 : 5,
+          color, fillColor:color, fillOpacity:0.4, weight:1.5, dashArray:'4 2'
+        }).addTo(map).bindPopup(`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#d4870a;background:#0a0a08;border:1px solid rgba(212,135,10,0.4);padding:6px">M${mag} — ${place}</div>`);
+      });
+    } catch(e) { console.warn('USGS no disponible'); }
+  }
+  loadSismos();
+
+  // ── VISTA MODES ──
+  const viewPanels = {
+    geopolitica: ['panel-left', 'panel-right'],
+    militar: ['panel-left'],
+    mercados: ['panel-right'],
+    desastres: ['panel-right'],
+  };
+  function setView(mode, btn) {
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Por ahora solo cambia visualmente el botón activo
+  }
+
+  // ── PANEL TOGGLE ──
+  function togglePanel(id) {
+    const panel = document.getElementById(id);
+    panel.classList.toggle('collapsed');
+  }
+
+  // ── SECTION TOGGLE ──
+  function toggleSection(header) {
+    const body = header.nextElementSibling;
+    body.classList.toggle('collapsed');
+  }
+
+  // ── MODAL AI ──
+  const aiReport = `
+<b style="color:var(--amber-bright)">EVALUACIÓN SENTINEL·AI // NIVEL ELEVADO</b>
+<br><br>
+Basado en correlación de 47 señales en las últimas 12 horas, el sistema identifica los siguientes patrones de riesgo elevado:
+<br><br>
+<b style="color:var(--amber)">► VECTOR 1: Sincronización temporal</b><br>
+Tres eventos distintos (ejercicios OTAN, convoy bielorruso, interferencia GPS Báltico) ocurrieron en una ventana de 6 horas. Probabilidad de coincidencia: 3.2%. Patrón coherente con protocolo de ensayo de escalada controlada.
+<br><br>
+<b style="color:var(--amber)">► VECTOR 2: Presión económica coordinada</b><br>
+Volatilidad simultánea en mercados de energía (+4.7% Brent) y commodities agrícolas sugiere presión sobre economías dependientes de importaciones. Países en zona de riesgo: 12 identificados.
+<br><br>
+<b style="color:var(--amber)">► VECTOR 3: Operación SHADOWNET</b><br>
+La filtración parcial del protocolo de comunicaciones interceptado apunta a un actor con recursos de nivel estatal. Firma técnica compatible con APT conocidos. Análisis forense en curso.
+<br><br>
+<b style="color:var(--red-classified)">⚠ PROYECCIÓN 48h:</b> Probabilidad de escalada significativa en teatro Oriente Medio: 67%. Recomendación: vigilancia aumentada en canales diplomáticos y tráfico marítimo estrecho de Ormuz.
+<br><br>
+<span style="color:var(--text-dim);font-size:0.9em">— Generado por SENTINEL·AI v3.1 | Clasificación: CONFIDENCIAL | No distribuir —</span>
+  `;
+
+  function openAiModal() {
+    document.getElementById('modal-body-content').innerHTML = aiReport;
+    document.getElementById('ai-modal').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('ai-modal').classList.remove('open');
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  </script>
+</body>
+</html>

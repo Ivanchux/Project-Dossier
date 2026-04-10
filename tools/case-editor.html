@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CASE EDITOR — Project Dossier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a0a08;--bg2:#0f0f0b;--bgc:#111109;
+      --a:#d4870a;--ab:#f0a020;--ad:#8a5a08;--ag:rgba(212,135,10,0.15);
+      --r:#cc2200;--rd:#7a1500;--g:#3aaa50;--gd:#2a7a3a;
+      --t:#c8b88a;--td:#6a5f48;--tb:#e8d8a0;
+      --b:rgba(212,135,10,0.2);--bb:rgba(212,135,10,0.5);
+      --fd:'Oswald',sans-serif;--fb:'Special Elite',cursive;--fm:'Share Tech Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--t);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
+
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,8,.96);border-bottom:1px solid var(--bb);backdrop-filter:blur(4px);padding:0 2rem}
+    .hi{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+    .logo{font-family:var(--fd);font-weight:700;font-size:1rem;letter-spacing:4px;color:var(--ab);text-transform:uppercase;text-decoration:none}
+    .logo span{color:var(--td);font-weight:300}
+    .hl{display:flex;gap:1.5rem}
+    .hl a{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--td);text-decoration:none;text-transform:uppercase;transition:color .2s}
+    .hl a:hover{color:var(--ab)}
+
+    .wrap{max-width:1400px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 460px;gap:2rem}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+
+    .pt{font-family:var(--fm);font-size:9px;letter-spacing:3px;color:var(--ad);text-transform:uppercase;margin-bottom:1.2rem;display:flex;align-items:center;gap:10px}
+    .pt::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bb),transparent)}
+
+    label{display:block;font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--ad);text-transform:uppercase;margin-bottom:5px}
+    input[type=text],textarea,select{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--b);color:var(--tb);font-family:var(--fm);font-size:12px;padding:7px 10px;outline:none;transition:border-color .2s;appearance:none}
+    input[type=text]:focus,textarea:focus,select:focus{border-color:var(--a)}
+    textarea{resize:vertical;min-height:70px;line-height:1.6}
+    select option{background:#111;color:var(--tb)}
+
+    .sep{height:1px;background:var(--b);margin:1.2rem 0}
+    .fr{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    .ff{margin-bottom:.8rem}
+    .note{font-family:var(--fm);font-size:10px;color:var(--td);letter-spacing:1px;padding:8px 12px;border-left:2px solid var(--ad);background:rgba(212,135,10,.04);margin-bottom:1rem;line-height:1.6}
+
+    /* ===== LOAD PANEL ===== */
+    .load-panel{background:var(--bgc);border:1px solid var(--b);padding:1.4rem;margin-bottom:1.5rem}
+    .load-panel textarea{min-height:120px;font-size:11px}
+
+    /* ===== META PANEL ===== */
+    .meta-panel{background:var(--bgc);border:1px solid var(--b);padding:1.4rem;margin-bottom:1.5rem}
+
+    .pip{width:13px;height:13px;border:1px solid var(--b);cursor:pointer;transition:all .15s;flex-shrink:0}
+    .pip.l1{background:#3aaa50;border-color:#3aaa50}
+    .pip.l2{background:#aaaa20;border-color:#aaaa20}
+    .pip.l3{background:#d4870a;border-color:#d4870a}
+    .pip.l4{background:#cc5500;border-color:#cc5500}
+    .pip.l5{background:#cc2200;border-color:#cc2200;box-shadow:0 0 4px #cc2200}
+    .prow{display:flex;align-items:center;gap:8px;margin-top:5px}
+    .pval{font-family:var(--fm);font-size:11px;color:var(--a);min-width:25px}
+
+    .srow{display:flex;gap:6px}
+    .sopt{font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:4px 10px;border:1px solid var(--b);cursor:pointer;text-transform:uppercase;color:var(--td);transition:all .2s;background:transparent;flex:1;text-align:center}
+    .sopt:hover{border-color:var(--ad);color:var(--ad)}
+    .so{background:rgba(42,122,58,.2);border-color:var(--g);color:var(--g)}
+    .sc{background:rgba(122,21,0,.2);border-color:var(--r);color:var(--r)}
+    .sp{background:rgba(212,135,10,.1);border-color:var(--a);color:var(--ab)}
+
+    /* ===== BLOCKS ===== */
+    .blocks-area{margin-bottom:1.5rem}
+    .block{background:rgba(0,0,0,.3);border:1px solid var(--b);padding:1rem 1.2rem;margin-bottom:.8rem;transition:border-color .2s}
+    .block:hover{border-color:var(--ad)}
+    .block-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;cursor:default}
+    .block-type{font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--ad);text-transform:uppercase}
+    .block-acts{display:flex;gap:6px}
+    .bup,.bdn{background:none;border:1px solid var(--b);color:var(--td);font-size:11px;padding:3px 8px;cursor:pointer;transition:all .2s}
+    .bup:hover,.bdn:hover{border-color:var(--ad);color:var(--ad)}
+    .bdel{background:none;border:1px solid var(--rd);color:var(--rd);font-family:var(--fm);font-size:9px;letter-spacing:1px;padding:3px 8px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+    .bdel:hover{border-color:var(--r);color:var(--r)}
+
+    .tl-events{display:flex;flex-direction:column;gap:6px}
+    .tl-ev{display:grid;grid-template-columns:80px 1fr auto;gap:6px}
+    .tl-ev input{padding:5px 8px}
+    .tl-ev button{background:none;border:1px solid var(--b);color:var(--td);cursor:pointer;padding:0 8px;font-size:11px;transition:all .2s}
+    .tl-ev button:hover{border-color:var(--rd);color:var(--rd)}
+    .add-ev{background:none;border:1px dashed var(--b);color:var(--td);font-family:var(--fm);font-size:10px;padding:4px 10px;cursor:pointer;margin-top:4px;text-transform:uppercase;letter-spacing:1px;transition:all .2s;width:100%}
+    .add-ev:hover{border-color:var(--ad);color:var(--ad)}
+
+    .add-block-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem}
+    .ab{background:transparent;border:1px dashed var(--bb);color:var(--ad);font-family:var(--fm);font-size:10px;letter-spacing:1px;padding:5px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+    .ab:hover{border-color:var(--a);color:var(--ab);background:var(--ag)}
+
+    /* ===== OUTPUT ===== */
+    .out-panel{position:sticky;top:80px;height:fit-content}
+    .out-tabs{display:flex;margin-bottom:0}
+    .tab{font-family:var(--fm);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:transparent;border:1px solid var(--b);color:var(--td);cursor:pointer;transition:all .2s;margin-right:-1px}
+    .tab.active{background:var(--bgc);border-color:var(--a);color:var(--ab)}
+    .out-frame{width:100%;height:460px;border:1px solid var(--b);border-top:none;background:var(--bg)}
+    .out-code{display:none;height:460px;overflow:auto;background:#060604;border:1px solid var(--b);border-top:none}
+    .out-code pre{font-family:var(--fm);font-size:11px;color:#7a9a6a;line-height:1.7;padding:1.2rem;white-space:pre-wrap;word-break:break-all}
+    .out-acts{display:flex;gap:8px;margin-top:1rem}
+    .bgen{flex:1;padding:11px;background:rgba(212,135,10,.1);border:1px solid var(--a);color:var(--ab);font-family:var(--fm);font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .bgen:hover{background:rgba(212,135,10,.2)}
+    .bcopy{padding:11px 16px;background:transparent;border:1px solid var(--b);color:var(--td);font-family:var(--fm);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .bcopy:hover{border-color:var(--td);color:var(--t)}
+    .bdl{padding:11px 16px;background:transparent;border:1px solid var(--gd);color:var(--g);font-family:var(--fm);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .bdl:hover{background:rgba(42,122,58,.15)}
+
+    .toast{position:fixed;bottom:2rem;right:2rem;z-index:10000;background:var(--bgc);border:1px solid var(--a);color:var(--ab);font-family:var(--fm);font-size:11px;letter-spacing:2px;padding:10px 20px;text-transform:uppercase;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    @media(max-width:768px){
+      header{padding:0 1rem}
+      .hi,.header-inner{height:50px}
+      .hl,.header-links{gap:0.8rem}
+      .hl a,.header-links a{font-size:9px;letter-spacing:1px}
+      .logo,.logo-text-el{font-size:0.85rem;letter-spacing:2px}
+    }
+    @media(max-width:480px){
+      .hl,.header-links{display:none}
+      header{padding:0 0.8rem}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="hi">
+    <a href="../index.html" class="logo">Project <span>Dossier</span> · Case Editor</a>
+    <div class="hl">
+      <a href="index.html">Hub</a>
+      <a href="case-editor.html">Case Editor</a>
+      <a href="index-manager.html">Index Manager</a>
+      <a href="../index.html">← Sitio</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== COLUMNA IZQUIERDA ===== -->
+  <div>
+
+    <!-- PASO 1: CARGAR HTML -->
+    <div class="pt">// Paso 1 — cargar expediente existente</div>
+    <div class="load-panel">
+      <div class="note">Pega aquí el contenido completo del archivo .html del expediente que quieres editar. La herramienta extrae automáticamente todos los datos.</div>
+      <div class="ff">
+        <label>HTML del expediente (pega el archivo completo)</label>
+        <textarea id="raw-html" placeholder="Pega aquí el contenido del archivo .html...&#10;&#10;También puedes empezar desde cero dejando esto vacío y rellenando los campos manualmente."></textarea>
+      </div>
+      <button class="bgen" style="width:100%" onclick="parseHTML()">⬆ Cargar y extraer datos</button>
+    </div>
+
+    <!-- META -->
+    <div class="pt">// Paso 2 — datos del expediente</div>
+    <div class="meta-panel">
+      <div class="fr">
+        <div class="ff">
+          <label>Número de caso</label>
+          <input type="text" id="m-num" placeholder="002">
+        </div>
+        <div class="ff">
+          <label>Nombre archivo (sin .html)</label>
+          <input type="text" id="m-file" placeholder="dulce-base">
+        </div>
+      </div>
+      <div class="ff">
+        <label>Título</label>
+        <input type="text" id="m-title" placeholder="Dulce Base">
+      </div>
+      <div class="ff">
+        <label>Subtítulo</label>
+        <input type="text" id="m-subtitle" placeholder="La base bajo Archuleta Mesa · Caso #002">
+      </div>
+      <div class="fr">
+        <div class="ff">
+          <label>Estado</label>
+          <div class="srow">
+            <div class="sopt so" data-v="open" onclick="setSt('open')">Abierto</div>
+            <div class="sopt" data-v="classified" onclick="setSt('classified')">Clasificado</div>
+            <div class="sopt" data-v="pending" onclick="setSt('pending')">Pendiente</div>
+          </div>
+        </div>
+        <div class="ff">
+          <label>Nivel de peligro</label>
+          <div class="prow" id="pips"></div>
+        </div>
+      </div>
+      <div class="ff">
+        <label>Tags (separados por coma)</label>
+        <input type="text" id="m-tags" placeholder="Bases subterráneas, Gobierno EE.UU., Extraterrestres, 1970s">
+      </div>
+      <div class="fr">
+        <div class="ff">
+          <label>Clasificación</label>
+          <select id="m-class">
+            <option value="TOP SECRET">TOP SECRET</option>
+            <option value="SECRET">SECRET</option>
+            <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+            <option value="RESTRICTED">RESTRICTED</option>
+            <option value="UNCLASSIFIED" selected>UNCLASSIFIED</option>
+          </select>
+        </div>
+        <div class="ff">
+          <label>Categorías del caso</label>
+          <input type="text" id="m-cats" placeholder="Bases subterráneas · Gobierno">
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUES -->
+    <div class="pt">// Paso 3 — contenido del expediente</div>
+    <div class="blocks-area" id="blocks-area"></div>
+    <div class="add-block-row">
+      <button class="ab" onclick="addBlock('narrative')">+ Narrativa</button>
+      <button class="ab" onclick="addBlock('section')">+ Sección</button>
+      <button class="ab" onclick="addBlock('timeline')">+ Timeline</button>
+      <button class="ab" onclick="addBlock('quote')">+ Cita</button>
+      <button class="ab" onclick="addBlock('redacted')">+ Redactado</button>
+    </div>
+
+  </div>
+
+  <!-- ===== COLUMNA DERECHA ===== -->
+  <div class="out-panel">
+    <div class="pt">// Paso 4 — exportar</div>
+    <div class="out-tabs">
+      <button class="tab active" onclick="switchTab('preview',this)">Preview</button>
+      <button class="tab" onclick="switchTab('code',this)">HTML</button>
+    </div>
+    <iframe class="out-frame" id="out-frame" title="Preview"></iframe>
+    <div class="out-code" id="out-code"><pre id="out-pre">// Genera para ver el HTML</pre></div>
+    <div class="out-acts">
+      <button class="bgen" onclick="generate()">▶ Generar</button>
+      <button class="bcopy" onclick="copyHTML()">⎘ Copiar</button>
+      <button class="bdl" onclick="downloadHTML()">↓ .html</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====================================================
+// ESTADO
+// ====================================================
+let danger = 3;
+let status = 'open';
+let blocks = [];
+let bid = 0;
+let generatedHTML = '';
+
+// ====================================================
+// PIPS
+// ====================================================
+function buildPips() {
+  const el = document.getElementById('pips');
+  el.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const p = document.createElement('div');
+    p.className = 'pip' + (i <= danger ? ' l' + i : '');
+    p.onclick = () => { danger = i; buildPips(); };
+    el.appendChild(p);
+  }
+  const v = document.createElement('span');
+  v.className = 'pval';
+  v.textContent = danger + '/5';
+  el.appendChild(v);
+}
+buildPips();
+
+// ====================================================
+// STATUS
+// ====================================================
+function setSt(v) {
+  status = v;
+  document.querySelectorAll('.sopt').forEach(o => {
+    o.className = 'sopt';
+    if (o.dataset.v === v) o.classList.add(v === 'open' ? 'so' : v === 'classified' ? 'sc' : 'sp');
+  });
+}
+
+// ====================================================
+// PARSE HTML PEGADO
+// ====================================================
+function parseHTML() {
+  const raw = document.getElementById('raw-html').value.trim();
+  if (!raw) { showToast('Pega el HTML primero'); return; }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(raw, 'text/html');
+
+  // Título
+  const titleEl = doc.querySelector('.case-hero-title, h1');
+  if (titleEl) document.getElementById('m-title').value = titleEl.textContent.trim();
+
+  // Subtítulo
+  const subEl = doc.querySelector('.case-hero-subtitle');
+  if (subEl) document.getElementById('m-subtitle').value = subEl.textContent.trim();
+
+  // Número de caso
+  const breadEl = doc.querySelector('.breadcrumb span:last-child');
+  if (breadEl) {
+    const m = breadEl.textContent.match(/\d+/);
+    if (m) document.getElementById('m-num').value = m[0].padStart(3, '0');
+  }
+
+  // Tags
+  const tagEls = doc.querySelectorAll('.case-meta-top .tag');
+  if (tagEls.length) document.getElementById('m-tags').value = [...tagEls].map(t => t.textContent.trim()).join(', ');
+
+  // Status desde stamp
+  const stampEl = doc.querySelector('.case-meta-top .stamp');
+  if (stampEl) {
+    if (stampEl.classList.contains('stamp-open')) setSt('open');
+    else if (stampEl.classList.contains('stamp-classified')) setSt('classified');
+    else if (stampEl.classList.contains('stamp-pending')) setSt('pending');
+  }
+
+  // Danger desde pips activos
+  const activePips = doc.querySelectorAll('.hero-danger-pip[class*="p"]');
+  if (activePips.length) { danger = activePips.length; buildPips(); }
+
+  // Clasificación
+  const stampRotated = doc.querySelector('.case-stamp-rotated');
+
+  // Nombre de archivo desde title tag
+  const titleTag = doc.querySelector('title');
+  if (titleTag) {
+    const parts = titleTag.textContent.split('—');
+    if (parts.length > 1) {
+      // intenta extraer el nombre de archivo de los links internos
+    }
+  }
+
+  // Extraer bloques de contenido
+  blocks = [];
+  doc.querySelectorAll('section.section, section.fade-in').forEach(sec => {
+    const titleEl = sec.querySelector('.section-title');
+    const sectionTitle = titleEl ? titleEl.textContent.trim() : '';
+
+    // Timeline
+    const tlItems = sec.querySelectorAll('.timeline-item');
+    if (tlItems.length) {
+      const events = [...tlItems].map(item => ({
+        date: item.querySelector('.timeline-date')?.textContent.trim() || '',
+        event: item.querySelector('.timeline-event')?.textContent.trim() || '',
+        detail: item.querySelector('.timeline-detail')?.textContent.trim() || ''
+      }));
+      blocks.push({ id: bid++, type: 'timeline', title: sectionTitle, events });
+      return;
+    }
+
+    // Narrativa
+    const narr = sec.querySelector('.narrative');
+    if (narr) {
+      // Extraer párrafos y blockquotes
+      let content = '';
+      narr.querySelectorAll('p, blockquote').forEach(el => {
+        if (el.tagName === 'BLOCKQUOTE') {
+          const text = el.querySelector('p, :not(cite)')?.textContent?.trim() || el.textContent.trim();
+          const cite = el.querySelector('cite')?.textContent?.trim() || '';
+          content += `[CITA: ${text}]\n[FUENTE: ${cite}]\n\n`;
+        } else {
+          content += el.textContent.trim() + '\n\n';
+        }
+      });
+      blocks.push({ id: bid++, type: 'narrative', title: sectionTitle, content: content.trim() });
+      return;
+    }
+
+    // Sección genérica con texto
+    const paras = [...sec.querySelectorAll('p')].map(p => p.textContent.trim()).join('\n\n');
+    if (paras && sectionTitle) {
+      blocks.push({ id: bid++, type: 'section', title: sectionTitle, content: paras });
+    }
+  });
+
+  renderBlocks();
+  showToast('Datos extraídos ✓ — Revisa y ajusta');
+}
+
+// ====================================================
+// BLOQUES
+// ====================================================
+function addBlock(type) {
+  const defaults = {
+    narrative: { title: 'El Expediente', content: '' },
+    section: { title: 'Nueva sección', content: '' },
+    timeline: { title: 'Cronología', events: [{ date: '', event: '', detail: '' }] },
+    quote: { quote: '', author: '', year: '' },
+    redacted: { label: 'INFORMACIÓN REDACTADA' }
+  };
+  blocks.push({ id: bid++, type, ...defaults[type] });
+  renderBlocks();
+  showToast('Bloque añadido');
+}
+
+function removeBlock(id) {
+  blocks = blocks.filter(b => b.id !== id);
+  renderBlocks();
+}
+
+function moveBlock(id, dir) {
+  const idx = blocks.findIndex(b => b.id === id);
+  const n = idx + dir;
+  if (n < 0 || n >= blocks.length) return;
+  [blocks[idx], blocks[n]] = [blocks[n], blocks[idx]];
+  renderBlocks();
+}
+
+function upd(id, key, val) {
+  const b = blocks.find(b => b.id === id);
+  if (b) b[key] = val;
+}
+
+function updTL(bid, idx, key, val) {
+  const b = blocks.find(b => b.id === bid);
+  if (b) b.events[idx][key] = val;
+}
+
+function addTLEvent(bid) {
+  const b = blocks.find(b => b.id === bid);
+  if (b) { b.events.push({ date: '', event: '', detail: '' }); renderBlocks(); }
+}
+
+function removeTLEvent(bid, idx) {
+  const b = blocks.find(b => b.id === bid);
+  if (b && b.events.length > 1) { b.events.splice(idx, 1); renderBlocks(); }
+}
+
+const BLOCK_LABELS = { narrative:'Narrativa principal', section:'Sección', timeline:'Timeline', quote:'Cita/Testimonio', redacted:'Bloque redactado' };
+
+function renderBlocks() {
+  const area = document.getElementById('blocks-area');
+  area.innerHTML = '';
+  blocks.forEach((bl, i) => {
+    const div = document.createElement('div');
+    div.className = 'block';
+    div.innerHTML = `
+      <div class="block-hdr">
+        <span class="block-type">${BLOCK_LABELS[bl.type] || bl.type}</span>
+        <div class="block-acts">
+          ${i > 0 ? `<button class="bup" onclick="moveBlock(${bl.id},-1)">↑</button>` : ''}
+          ${i < blocks.length-1 ? `<button class="bdn" onclick="moveBlock(${bl.id},1)">↓</button>` : ''}
+          <button class="bdel" onclick="removeBlock(${bl.id})">✕ Eliminar</button>
+        </div>
+      </div>
+      ${renderBlockFields(bl)}
+    `;
+    area.appendChild(div);
+  });
+}
+
+function renderBlockFields(bl) {
+  const id = bl.id;
+  if (bl.type === 'narrative' || bl.type === 'section') {
+    const hint = bl.type === 'narrative'
+      ? 'Texto libre. Para citas usa: [CITA: texto] en línea nueva, [FUENTE: autor]'
+      : 'Contenido de esta sección';
+    return `
+      <div class="ff"><label>Título de sección</label>
+        <input type="text" value="${esc(bl.title)}" oninput="upd(${id},'title',this.value)">
+      </div>
+      <div class="ff"><label>Contenido</label>
+        <textarea style="min-height:120px" oninput="upd(${id},'content',this.value)" placeholder="${hint}">${esc(bl.content)}</textarea>
+      </div>`;
+  }
+  if (bl.type === 'timeline') {
+    const rows = bl.events.map((ev, i) => `
+      <div class="tl-ev">
+        <input type="text" placeholder="Fecha" value="${esc(ev.date)}" oninput="updTL(${id},${i},'date',this.value)">
+        <input type="text" placeholder="Evento" value="${esc(ev.event)}" oninput="updTL(${id},${i},'event',this.value)">
+        <button onclick="removeTLEvent(${id},${i})">✕</button>
+      </div>
+      <div class="ff" style="margin-bottom:8px;margin-left:86px">
+        <textarea style="min-height:50px" placeholder="Detalle expandible..." oninput="updTL(${id},${i},'detail',this.value)">${esc(ev.detail)}</textarea>
+      </div>`).join('');
+    return `
+      <div class="ff"><label>Título de sección</label>
+        <input type="text" value="${esc(bl.title)}" oninput="upd(${id},'title',this.value)">
+      </div>
+      <div class="tl-events">${rows}</div>
+      <button class="add-ev" onclick="addTLEvent(${id})">+ Añadir evento</button>`;
+  }
+  if (bl.type === 'quote') {
+    return `
+      <div class="ff"><label>Cita / Testimonio</label>
+        <textarea oninput="upd(${id},'quote',this.value)" placeholder="Texto de la cita...">${esc(bl.quote)}</textarea>
+      </div>
+      <div class="fr">
+        <div class="ff"><label>Autor / Fuente</label>
+          <input type="text" value="${esc(bl.author)}" oninput="upd(${id},'author',this.value)" placeholder="Gabriel Valdez">
+        </div>
+        <div class="ff"><label>Año / contexto</label>
+          <input type="text" value="${esc(bl.year)}" oninput="upd(${id},'year',this.value)" placeholder="1970s">
+        </div>
+      </div>`;
+  }
+  if (bl.type === 'redacted') {
+    return `<div class="ff"><label>Etiqueta del bloque</label>
+      <input type="text" value="${esc(bl.label)}" oninput="upd(${id},'label',this.value)">
+    </div>`;
+  }
+  return '';
+}
+
+// ====================================================
+// GENERAR HTML
+// ====================================================
+function generate() {
+  const num = document.getElementById('m-num').value || '000';
+  const title = document.getElementById('m-title').value || 'Caso sin título';
+  const subtitle = document.getElementById('m-subtitle').value || '';
+  const tagsRaw = document.getElementById('m-tags').value || '';
+  const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+  const classification = document.getElementById('m-class').value || 'UNCLASSIFIED';
+  const cats = document.getElementById('m-cats').value || '';
+  const filename = document.getElementById('m-file').value || 'caso';
+
+  const stampClass = status === 'open' ? 'stamp-open' : status === 'classified' ? 'stamp-classified' : 'stamp-pending';
+  const stampText = status === 'open' ? 'Abierto' : status === 'classified' ? 'Clasificado' : 'Pendiente';
+  const stampRotColor = status === 'open' ? 'rgba(58,170,80,0.55)' : status === 'classified' ? 'rgba(204,34,0,0.55)' : 'rgba(212,135,10,0.55)';
+  const stampRotBorder = status === 'open' ? 'rgba(58,170,80,0.45)' : status === 'classified' ? 'rgba(204,34,0,0.45)' : 'rgba(212,135,10,0.45)';
+
+  const tagsHTML = tags.map(t => `          <span class="tag">${esc(t)}</span>`).join('\n');
+  const pipColors = ['p1','p2','p3','p4','p5'];
+  const pipsHTML = Array.from({length:5},(_,i) =>
+    `            <span class="hero-danger-pip${i < danger ? ' '+pipColors[i] : ''}"></span>`
+  ).join('\n');
+
+  // Bloques de contenido
+  let sectionNum = 0;
+  const sectionsHTML = blocks.map(bl => {
+    sectionNum++;
+    const n = String(sectionNum).padStart(2,'0');
+    if (bl.type === 'narrative' || bl.type === 'section') {
+      // Procesar contenido: [CITA: ...] y [FUENTE: ...] → blockquote
+      let html = '';
+      const lines = (bl.content || '').split('\n');
+      let i = 0;
+      while (i < lines.length) {
+        const line = lines[i].trim();
+        if (line.startsWith('[CITA:')) {
+          const quoteText = line.replace('[CITA:', '').replace(']', '').trim();
+          let source = '';
+          if (i+1 < lines.length && lines[i+1].trim().startsWith('[FUENTE:')) {
+            source = lines[i+1].trim().replace('[FUENTE:', '').replace(']', '').trim();
+            i++;
+          }
+          html += `          <blockquote>\n            "${esc(quoteText)}"\n            ${source ? `<cite>— ${esc(source)}</cite>` : ''}\n          </blockquote>\n`;
+        } else if (line) {
+          html += `          <p>${esc(line)}</p>\n`;
+        }
+        i++;
+      }
+      return `
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">${n}</span>
+          <h2 class="section-title">${esc(bl.title)}</h2>
+        </div>
+        <div class="narrative">
+${html}        </div>
+      </section>`;
+    }
+    if (bl.type === 'timeline') {
+      const items = bl.events.map(ev => `
+          <div class="timeline-item">
+            <p class="timeline-date">${esc(ev.date)}</p>
+            <p class="timeline-event">${esc(ev.event)}</p>
+            <p class="expand-hint">↓ clic para expandir</p>
+            <p class="timeline-detail">${esc(ev.detail)}</p>
+          </div>`).join('');
+      return `
+      <section class="section fade-in">
+        <div class="section-header">
+          <span class="section-number">${n}</span>
+          <h2 class="section-title">${esc(bl.title)}</h2>
+        </div>
+        <div class="timeline">${items}
+        </div>
+      </section>`;
+    }
+    if (bl.type === 'quote') {
+      return `
+      <section class="section fade-in">
+        <div class="testimony">
+          <p>"${esc(bl.quote)}"</p>
+          <div class="testimony-author">— ${esc(bl.author)}${bl.year ? ', '+esc(bl.year) : ''}</div>
+        </div>
+      </section>`;
+    }
+    if (bl.type === 'redacted') {
+      sectionNum--; // no cuenta como sección numerada
+      return `
+      <div class="redacted-block">
+        <div class="redacted-label">// ${esc(bl.label)} //</div>
+        <div class="redacted-bars">
+          <div class="redacted-bar" style="width:100%"></div>
+          <div class="redacted-bar" style="width:88%"></div>
+          <div class="redacted-bar" style="width:93%"></div>
+          <div class="redacted-bar" style="width:76%"></div>
+        </div>
+      </div>`;
+    }
+    return '';
+  }).join('\n');
+
+  generatedHTML = buildCaseHTML({
+    num, title, subtitle, tags: tagsHTML, stampClass, stampText,
+    stampRotColor, stampRotBorder, pips: pipsHTML,
+    classification, cats, sections: sectionsHTML, filename
+  });
+
+  document.getElementById('out-pre').textContent = generatedHTML;
+  document.getElementById('out-frame').srcdoc = generatedHTML;
+  showToast('Expediente generado ✓');
+}
+
+function buildCaseHTML(d) {
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CASO #${d.num} — ${d.title.toUpperCase()} · Project Dossier</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .case-hero{padding:4rem 2rem 2rem;border-bottom:1px solid var(--border-bright);position:relative;overflow:hidden}
+    .case-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 0%,rgba(212,135,10,0.06),transparent 70%);pointer-events:none}
+    .case-stamp-rotated{position:absolute;top:2.5rem;right:2rem;font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:8px;text-transform:uppercase;transform:rotate(-8deg);opacity:0.15;pointer-events:none;border:3px solid;padding:.3rem 1rem;color:${d.stampRotColor};border-color:${d.stampRotBorder}}
+    .breadcrumb{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:1.2rem;display:flex;align-items:center;gap:8px}
+    .breadcrumb a{color:var(--text-dim);text-decoration:none;transition:color .2s}
+    .breadcrumb a:hover{color:var(--amber)}
+    .case-meta-top{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+    .case-hero-title{font-family:var(--font-display);font-weight:700;font-size:clamp(2.5rem,6vw,4.5rem);letter-spacing:5px;color:var(--amber-bright);text-transform:uppercase;line-height:1;margin-bottom:.8rem}
+    .hero-danger{display:flex;align-items:center;gap:5px}
+    .hero-danger-label{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-right:4px}
+    .hero-danger-pip{width:10px;height:10px;border:1px solid var(--border);display:inline-block}
+    .hero-danger-pip.p1{background:#3aaa50;border-color:#3aaa50}
+    .hero-danger-pip.p2{background:#aaaa20;border-color:#aaaa20}
+    .hero-danger-pip.p3{background:#d4870a;border-color:#d4870a}
+    .hero-danger-pip.p4{background:#cc5500;border-color:#cc5500}
+    .hero-danger-pip.p5{background:#cc2200;border-color:#cc2200;box-shadow:0 0 4px #cc2200}
+    .case-hero-subtitle{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:1.5rem}
+    .case-layout{max-width:900px;margin:0 auto;padding:3rem 2rem}
+    .section{margin-bottom:3rem}
+    .section-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.5rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)}
+    .section-number{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;color:var(--amber-dim)}
+    .section-title{font-family:var(--font-display);font-weight:600;font-size:1.3rem;letter-spacing:3px;color:var(--amber-bright);text-transform:uppercase}
+    .narrative p{font-size:.95rem;line-height:1.9;color:var(--text-primary);margin-bottom:1.2rem}
+    .narrative .highlight{color:var(--amber-bright);font-weight:normal}
+    .narrative blockquote{border-left:3px solid var(--amber-dim);padding:1rem 1.5rem;margin:1.5rem 0;background:rgba(212,135,10,.04);font-style:italic;color:var(--text-bright)}
+    .narrative blockquote cite{display:block;margin-top:.6rem;font-style:normal;font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px}
+    .timeline{position:relative;padding-left:2rem}
+    .timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--border)}
+    .timeline-item{position:relative;margin-bottom:1.5rem;padding:.8rem 1rem;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;transition:border-color .2s}
+    .timeline-item::before{content:'';position:absolute;left:-2.35rem;top:1.1rem;width:8px;height:8px;background:var(--amber-dim);border:1px solid var(--amber)}
+    .timeline-item:hover::before,.timeline-item.expanded::before{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+    .timeline-item:hover,.timeline-item.expanded{border-color:var(--amber-dim)}
+    .timeline-date{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--amber-dim);text-transform:uppercase;margin-bottom:.3rem}
+    .timeline-event{font-family:var(--font-display);font-size:1rem;letter-spacing:2px;color:var(--text-bright);text-transform:uppercase;margin-bottom:.4rem}
+    .timeline-detail{font-size:.85rem;color:var(--text-dim);line-height:1.7;display:none;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border)}
+    .timeline-item.expanded .timeline-detail{display:block}
+    .expand-hint{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;opacity:.6}
+    .testimony{border-left:3px solid var(--amber-dim);padding:1rem 1.5rem;margin:1.5rem 0;background:rgba(212,135,10,.04)}
+    .testimony p{font-style:italic;color:var(--text-bright);font-size:.95rem;line-height:1.7;margin-bottom:.5rem}
+    .testimony-author{font-family:var(--font-mono);font-size:10px;color:var(--amber-dim);letter-spacing:2px}
+    .redacted-block{background:rgba(0,0,0,.5);border:1px solid var(--red-dim);padding:1.5rem;margin:1.5rem 0;text-align:center}
+    .redacted-label{font-family:var(--font-mono);font-size:10px;letter-spacing:4px;color:var(--red-classified);text-transform:uppercase}
+    .redacted-bar{height:12px;background:var(--red-dim);margin-bottom:8px;opacity:.6}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">
+        <div class="logo-icon">✦</div>
+        <div>
+          <span class="logo-text">Project Dossier</span>
+          <span class="logo-sub">Archivos Sin Clasificar</span>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="../index.html">Casos</a>
+        <a href="../mapa.html">Mapa</a>
+        <a href="#">Archivo</a>
+        <a href="#">Acerca de</a>
+      </nav>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="case-hero">
+    <div class="case-stamp-rotated" style="color:${d.stampRotColor};border-color:${d.stampRotBorder}">${d.stampText}</div>
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="../index.html">Casos</a>
+        <span>/</span>
+        <span>Caso #${d.num}</span>
+      </div>
+      <div class="case-meta-top">
+        <span class="stamp ${d.stampClass}">${d.stampText}</span>
+${d.tags}
+      </div>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+        <h1 class="case-hero-title fade-in" style="margin-bottom:0">${esc(d.title)}</h1>
+        <div class="hero-danger fade-in">
+          <span class="hero-danger-label">Peligro</span>
+${d.pips}
+        </div>
+      </div>
+      <p class="case-hero-subtitle">${esc(d.subtitle)}</p>
+    </div>
+  </section>
+
+  <div class="case-layout">
+${d.sections}
+  </div>
+
+  <footer class="site-footer">
+    <p>PROJECT DOSSIER © 2024 — <span>TODOS LOS EXPEDIENTES SON DE DOMINIO PÚBLICO O RECOPILACIÓN PROPIA</span></p>
+  </footer>
+
+  <script src="../js/main.js"><\/script>
+<\/body>
+<\/html>`;
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyHTML() {
+  if (!generatedHTML) { showToast('Genera primero'); return; }
+  navigator.clipboard.writeText(generatedHTML).then(() => showToast('HTML copiado ✓'));
+}
+
+function downloadHTML() {
+  if (!generatedHTML) { showToast('Genera primero'); return; }
+  const filename = document.getElementById('m-file').value || 'caso';
+  const blob = new Blob([generatedHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename + '.html';
+  a.click();
+  showToast('Descargando ' + filename + '.html ✓');
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const frame = document.getElementById('out-frame');
+  const code = document.getElementById('out-code');
+  if (tab === 'preview') { frame.style.display='block'; code.style.display='none'; }
+  else { frame.style.display='none'; code.style.display='block'; }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>

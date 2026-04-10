@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS EDITOR — Project Dossier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary:#0a0a08; --bg-secondary:#0f0f0b; --bg-card:#111109;
+      --amber:#d4870a; --amber-bright:#f0a020; --amber-dim:#8a5a08;
+      --amber-glow:rgba(212,135,10,0.15);
+      --red:#cc2200; --red-dim:#7a1500;
+      --green:#3aaa50; --green-dim:#2a7a3a;
+      --text:#c8b88a; --text-dim:#6a5f48; --text-bright:#e8d8a0;
+      --border:rgba(212,135,10,0.2); --border-bright:rgba(212,135,10,0.5);
+      --font-d:'Oswald',sans-serif; --font-b:'Special Elite',cursive; --font-m:'Share Tech Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg-primary);color:var(--text);font-family:var(--font-b);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
+
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,8,0.96);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(4px);padding:0 2rem}
+    .header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+    .logo{font-family:var(--font-d);font-weight:700;font-size:1rem;letter-spacing:4px;color:var(--amber-bright);text-transform:uppercase;text-decoration:none}
+    .logo span{color:var(--text-dim);font-weight:300}
+    .header-links{display:flex;gap:1.5rem}
+    .header-links a{font-family:var(--font-m);font-size:10px;letter-spacing:2px;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s}
+    .header-links a:hover{color:var(--amber-bright)}
+
+    .workspace{max-width:1400px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:380px 1fr;gap:2rem}
+    @media(max-width:1000px){.workspace{grid-template-columns:1fr}}
+
+    .panel-title{font-family:var(--font-m);font-size:9px;letter-spacing:3px;color:var(--amber-dim);text-transform:uppercase;margin-bottom:1.2rem;display:flex;align-items:center;gap:10px}
+    .panel-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border-bright),transparent)}
+
+    /* ===== CONTROL PANEL ===== */
+    .controls-panel{background:var(--bg-card);border:1px solid var(--border);padding:1.6rem;height:fit-content}
+    .section-sep{height:1px;background:var(--border);margin:1.2rem 0}
+
+    .var-group{margin-bottom:1.4rem}
+    .var-group-title{font-family:var(--font-m);font-size:9px;letter-spacing:3px;color:var(--amber-dim);text-transform:uppercase;margin-bottom:0.8rem;opacity:0.7}
+
+    .var-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .var-label{font-family:var(--font-m);font-size:10px;color:var(--text-dim);letter-spacing:1px;min-width:130px;flex-shrink:0}
+    .color-input-wrap{position:relative;width:32px;height:32px;flex-shrink:0;border:1px solid var(--border);cursor:pointer;overflow:hidden}
+    .color-input-wrap input[type=color]{position:absolute;inset:-4px;width:calc(100%+8px);height:calc(100%+8px);border:none;cursor:pointer;padding:0;opacity:1}
+    .hex-input{font-family:var(--font-m);font-size:11px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text-bright);padding:5px 8px;outline:none;width:90px;flex-shrink:0;transition:border-color .2s}
+    .hex-input:focus{border-color:var(--amber)}
+
+    /* Font selectors */
+    select.font-sel{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text-bright);font-family:var(--font-m);font-size:11px;padding:7px 10px;outline:none;appearance:none;transition:border-color .2s;cursor:pointer}
+    select.font-sel:focus{border-color:var(--amber)}
+    select.font-sel option{background:#111;color:var(--text-bright)}
+    .font-row{margin-bottom:10px}
+    .font-row label{display:block;font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--amber-dim);text-transform:uppercase;margin-bottom:5px}
+
+    /* Reset btn */
+    .btn-reset{width:100%;padding:10px;background:transparent;border:1px solid var(--red-dim);color:var(--red-dim);font-family:var(--font-m);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:1rem}
+    .btn-reset:hover{border-color:var(--red);color:var(--red)}
+
+    /* ===== PREVIEW PANEL ===== */
+    .preview-panel{}
+    .preview-tabs{display:flex;gap:0;margin-bottom:0}
+    .tab-btn{font-family:var(--font-m);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:transparent;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;transition:all .2s;margin-right:-1px}
+    .tab-btn.active{background:var(--bg-card);border-color:var(--amber);color:var(--amber-bright)}
+
+    .preview-frame{width:100%;height:500px;border:1px solid var(--border);border-top:none;background:var(--bg-primary)}
+
+    .code-view{display:none;height:500px;overflow:auto;background:#060604;border:1px solid var(--border);border-top:none}
+    .code-view pre{font-family:var(--font-m);font-size:11px;color:#7a9a6a;line-height:1.7;padding:1.5rem;white-space:pre-wrap;word-break:break-all}
+
+    /* Live preview boxes */
+    .live-preview{padding:1.5rem;background:var(--bg-card);border:1px solid var(--border);border-top:none;display:none}
+    .live-preview.active{display:block}
+    .preview-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem;align-items:center}
+
+    /* Output actions */
+    .output-actions{display:flex;gap:8px;margin-top:1rem}
+    .btn-gen{flex:1;padding:11px;background:rgba(212,135,10,.1);border:1px solid var(--amber);color:var(--amber-bright);font-family:var(--font-m);font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .btn-gen:hover{background:rgba(212,135,10,.2)}
+    .btn-copy{padding:11px 16px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--font-m);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .btn-copy:hover{border-color:var(--text-dim);color:var(--text-primary)}
+
+    .toast{position:fixed;bottom:2rem;right:2rem;z-index:10000;background:var(--bg-card);border:1px solid var(--amber);color:var(--amber-bright);font-family:var(--font-m);font-size:11px;letter-spacing:2px;padding:10px 20px;text-transform:uppercase;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    .info-note{font-family:var(--font-m);font-size:10px;color:var(--text-dim);letter-spacing:1px;padding:8px 12px;border-left:2px solid var(--amber-dim);background:rgba(212,135,10,.04);margin-bottom:1rem;line-height:1.6}
+
+    @media(max-width:768px){
+      header{padding:0 1rem}
+      .hi,.header-inner{height:50px}
+      .hl,.header-links{gap:0.8rem}
+      .hl a,.header-links a{font-size:9px;letter-spacing:1px}
+      .logo,.logo-text-el{font-size:0.85rem;letter-spacing:2px}
+    }
+    @media(max-width:480px){
+      .hl,.header-links{display:none}
+      header{padding:0 0.8rem}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo">Project <span>Dossier</span> · CSS Editor</a>
+    <div class="header-links">
+      <a href="index-manager.html">Index Manager</a>
+      <a href="../case-builder.html">Case Builder</a>
+      <a href="map-editor.html">Map Editor</a>
+      <a href="index.html">Hub</a>
+      <a href="../index.html">← Sitio</a>
+    </div>
+  </div>
+</header>
+
+<div class="workspace">
+
+  <!-- ===== CONTROLES ===== -->
+  <div class="controls-panel">
+    <div class="panel-title">// Variables de color</div>
+    <div class="info-note">Los cambios se previsualizan en tiempo real. Genera el CSS cuando termines.</div>
+
+    <!-- FONDO -->
+    <div class="var-group">
+      <div class="var-group-title">Fondos</div>
+      <div class="var-row"><span class="var-label">--bg-primary</span><div class="color-input-wrap"><input type="color" id="v-bg-primary" value="#0a0a08" oninput="syncColor(this,'bg-primary')"></div><input class="hex-input" id="h-bg-primary" value="#0a0a08" oninput="syncHex(this,'bg-primary')"></div>
+      <div class="var-row"><span class="var-label">--bg-secondary</span><div class="color-input-wrap"><input type="color" id="v-bg-secondary" value="#0f0f0b" oninput="syncColor(this,'bg-secondary')"></div><input class="hex-input" id="h-bg-secondary" value="#0f0f0b" oninput="syncHex(this,'bg-secondary')"></div>
+      <div class="var-row"><span class="var-label">--bg-card</span><div class="color-input-wrap"><input type="color" id="v-bg-card" value="#111109" oninput="syncColor(this,'bg-card')"></div><input class="hex-input" id="h-bg-card" value="#111109" oninput="syncHex(this,'bg-card')"></div>
+    </div>
+    <div class="section-sep"></div>
+
+    <!-- AMBER -->
+    <div class="var-group">
+      <div class="var-group-title">Color principal (amber)</div>
+      <div class="var-row"><span class="var-label">--amber</span><div class="color-input-wrap"><input type="color" id="v-amber" value="#d4870a" oninput="syncColor(this,'amber')"></div><input class="hex-input" id="h-amber" value="#d4870a" oninput="syncHex(this,'amber')"></div>
+      <div class="var-row"><span class="var-label">--amber-bright</span><div class="color-input-wrap"><input type="color" id="v-amber-bright" value="#f0a020" oninput="syncColor(this,'amber-bright')"></div><input class="hex-input" id="h-amber-bright" value="#f0a020" oninput="syncHex(this,'amber-bright')"></div>
+      <div class="var-row"><span class="var-label">--amber-dim</span><div class="color-input-wrap"><input type="color" id="v-amber-dim" value="#8a5a08" oninput="syncColor(this,'amber-dim')"></div><input class="hex-input" id="h-amber-dim" value="#8a5a08" oninput="syncHex(this,'amber-dim')"></div>
+    </div>
+    <div class="section-sep"></div>
+
+    <!-- ROJO / VERDE -->
+    <div class="var-group">
+      <div class="var-group-title">Stamps</div>
+      <div class="var-row"><span class="var-label">--red-classified</span><div class="color-input-wrap"><input type="color" id="v-red-classified" value="#cc2200" oninput="syncColor(this,'red-classified')"></div><input class="hex-input" id="h-red-classified" value="#cc2200" oninput="syncHex(this,'red-classified')"></div>
+      <div class="var-row"><span class="var-label">--red-dim</span><div class="color-input-wrap"><input type="color" id="v-red-dim" value="#7a1500" oninput="syncColor(this,'red-dim')"></div><input class="hex-input" id="h-red-dim" value="#7a1500" oninput="syncHex(this,'red-dim')"></div>
+      <div class="var-row"><span class="var-label">--green-open</span><div class="color-input-wrap"><input type="color" id="v-green-open" value="#2a7a3a" oninput="syncColor(this,'green-open')"></div><input class="hex-input" id="h-green-open" value="#2a7a3a" oninput="syncHex(this,'green-open')"></div>
+      <div class="var-row"><span class="var-label">--green-bright</span><div class="color-input-wrap"><input type="color" id="v-green-bright" value="#3aaa50" oninput="syncColor(this,'green-bright')"></div><input class="hex-input" id="h-green-bright" value="#3aaa50" oninput="syncHex(this,'green-bright')"></div>
+    </div>
+    <div class="section-sep"></div>
+
+    <!-- TEXTO -->
+    <div class="var-group">
+      <div class="var-group-title">Texto</div>
+      <div class="var-row"><span class="var-label">--text-primary</span><div class="color-input-wrap"><input type="color" id="v-text-primary" value="#c8b88a" oninput="syncColor(this,'text-primary')"></div><input class="hex-input" id="h-text-primary" value="#c8b88a" oninput="syncHex(this,'text-primary')"></div>
+      <div class="var-row"><span class="var-label">--text-dim</span><div class="color-input-wrap"><input type="color" id="v-text-dim" value="#6a5f48" oninput="syncColor(this,'text-dim')"></div><input class="hex-input" id="h-text-dim" value="#6a5f48" oninput="syncHex(this,'text-dim')"></div>
+      <div class="var-row"><span class="var-label">--text-bright</span><div class="color-input-wrap"><input type="color" id="v-text-bright" value="#e8d8a0" oninput="syncColor(this,'text-bright')"></div><input class="hex-input" id="h-text-bright" value="#e8d8a0" oninput="syncHex(this,'text-bright')"></div>
+    </div>
+    <div class="section-sep"></div>
+
+    <!-- FUENTES -->
+    <div class="panel-title" style="margin-top:.5rem">// Tipografía</div>
+    <div class="font-row">
+      <label>Fuente display (títulos)</label>
+      <select class="font-sel" id="f-display" onchange="updateFont()">
+        <option value="'Oswald', sans-serif" selected>Oswald</option>
+        <option value="'Bebas Neue', cursive">Bebas Neue</option>
+        <option value="'Rajdhani', sans-serif">Rajdhani</option>
+        <option value="'Orbitron', monospace">Orbitron</option>
+        <option value="'Antonio', sans-serif">Antonio</option>
+        <option value="'Barlow Condensed', sans-serif">Barlow Condensed</option>
+      </select>
+    </div>
+    <div class="font-row">
+      <label>Fuente body (texto)</label>
+      <select class="font-sel" id="f-body" onchange="updateFont()">
+        <option value="'Special Elite', cursive" selected>Special Elite</option>
+        <option value="'Courier Prime', monospace">Courier Prime</option>
+        <option value="'IBM Plex Serif', serif">IBM Plex Serif</option>
+        <option value="'Libre Baskerville', serif">Libre Baskerville</option>
+        <option value="'Playfair Display', serif">Playfair Display</option>
+      </select>
+    </div>
+    <div class="font-row">
+      <label>Fuente mono (labels, código)</label>
+      <select class="font-sel" id="f-mono" onchange="updateFont()">
+        <option value="'Share Tech Mono', monospace" selected>Share Tech Mono</option>
+        <option value="'Space Mono', monospace">Space Mono</option>
+        <option value="'Fira Code', monospace">Fira Code</option>
+        <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+        <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
+        <option value="'Roboto Mono', monospace">Roboto Mono</option>
+      </select>
+    </div>
+
+    <button class="btn-reset" onclick="resetDefaults()">↺ Restaurar valores originales</button>
+  </div>
+
+  <!-- ===== PREVIEW PANEL ===== -->
+  <div class="preview-panel">
+    <div class="panel-title">// Vista previa y exportación</div>
+    <div class="preview-tabs">
+      <button class="tab-btn active" onclick="switchTab('preview',this)">Preview</button>
+      <button class="tab-btn" onclick="switchTab('code',this)">CSS Output</button>
+    </div>
+
+    <iframe class="preview-frame" id="preview-frame" title="Preview"></iframe>
+    <div class="code-view" id="code-view"><pre id="code-pre">// Genera para ver el CSS aquí</pre></div>
+
+    <div class="output-actions">
+      <button class="btn-gen" onclick="generateCSS()">▶ Generar CSS completo</button>
+      <button class="btn-copy" onclick="copyCSS()">⎘ Copiar :root</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// VALORES POR DEFECTO
+// =============================================
+const DEFAULTS = {
+  'bg-primary':'#0a0a08','bg-secondary':'#0f0f0b','bg-card':'#111109',
+  'amber':'#d4870a','amber-bright':'#f0a020','amber-dim':'#8a5a08',
+  'red-classified':'#cc2200','red-dim':'#7a1500',
+  'green-open':'#2a7a3a','green-bright':'#3aaa50',
+  'text-primary':'#c8b88a','text-dim':'#6a5f48','text-bright':'#e8d8a0'
+};
+
+// Estado actual
+let colors = {...DEFAULTS};
+let fonts = {
+  display:"'Oswald', sans-serif",
+  body:"'Special Elite', cursive",
+  mono:"'Share Tech Mono', monospace"
+};
+
+// =============================================
+// SYNC COLOR <-> HEX INPUT
+// =============================================
+function syncColor(input, key) {
+  const hex = input.value;
+  colors[key] = hex;
+  const hexEl = document.getElementById('h-'+key);
+  if (hexEl) hexEl.value = hex;
+  updatePreview();
+}
+
+function syncHex(input, key) {
+  let v = input.value.trim();
+  if (!v.startsWith('#')) v = '#'+v;
+  // Solo actualizar si es hex válido
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    colors[key] = v;
+    const colorEl = document.getElementById('v-'+key);
+    if (colorEl) colorEl.value = v;
+    updatePreview();
+  }
+}
+
+function updateFont() {
+  fonts.display = document.getElementById('f-display').value;
+  fonts.body = document.getElementById('f-body').value;
+  fonts.mono = document.getElementById('f-mono').value;
+  updatePreview();
+}
+
+// =============================================
+// PREVIEW EN TIEMPO REAL
+// =============================================
+function buildRootBlock() {
+  const c = colors;
+  return `:root {
+  --bg-primary: ${c['bg-primary']};
+  --bg-secondary: ${c['bg-secondary']};
+  --bg-card: ${c['bg-card']};
+  --amber: ${c['amber']};
+  --amber-bright: ${c['amber-bright']};
+  --amber-dim: ${c['amber-dim']};
+  --amber-glow: ${hexToRgba(c['amber'], 0.15)};
+  --red-classified: ${c['red-classified']};
+  --red-dim: ${c['red-dim']};
+  --green-open: ${c['green-open']};
+  --green-bright: ${c['green-bright']};
+  --text-primary: ${c['text-primary']};
+  --text-dim: ${c['text-dim']};
+  --text-bright: ${c['text-bright']};
+  --border: ${hexToRgba(c['amber'], 0.2)};
+  --border-bright: ${hexToRgba(c['amber'], 0.5)};
+  --font-display: ${fonts.display};
+  --font-body: ${fonts.body};
+  --font-mono: ${fonts.mono};
+}`;
+}
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function updatePreview() {
+  const root = buildRootBlock();
+  const iframe = document.getElementById('preview-frame');
+  const previewHTML = buildPreviewHTML(root);
+  iframe.srcdoc = previewHTML;
+}
+
+function buildPreviewHTML(rootCSS) {
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@300;400;600;700&family=Bebas+Neue&family=Orbitron:wght@400;700&family=Space+Mono:wght@400;700&family=Fira+Code&family=JetBrains+Mono&family=IBM+Plex+Mono&family=IBM+Plex+Serif&family=Courier+Prime&family=Playfair+Display&family=Rajdhani:wght@400;600&family=Barlow+Condensed:wght@400;600&family=Antonio&display=swap" rel="stylesheet">
+<style>
+${rootCSS}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-body);padding:2rem;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none}
+.section{margin-bottom:2rem;padding:1.2rem;background:var(--bg-card);border:1px solid var(--border)}
+.section-title{font-family:var(--font-mono);font-size:9px;letter-spacing:3px;color:var(--amber-dim);text-transform:uppercase;margin-bottom:1rem}
+h1{font-family:var(--font-display);font-size:2rem;letter-spacing:6px;color:var(--amber-bright);text-transform:uppercase;margin-bottom:.5rem}
+h2{font-family:var(--font-display);font-size:1.1rem;letter-spacing:3px;color:var(--text-bright);text-transform:uppercase;margin-bottom:.5rem}
+p{font-size:.9rem;color:var(--text-primary);line-height:1.7;margin-bottom:.5rem}
+.mono{font-family:var(--font-mono);font-size:.8rem;color:var(--text-dim);letter-spacing:2px}
+.stamp{display:inline-block;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:3px 10px;border:2px solid currentColor;transform:rotate(-2deg);margin-right:8px}
+.stamp-c{color:var(--red-classified);border-color:var(--red-classified)}
+.stamp-o{color:var(--green-bright);border-color:var(--green-bright)}
+.card{background:var(--bg-card);border:1px solid var(--border);padding:1rem;margin-bottom:.8rem;position:relative}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber-dim)}
+.pip{width:8px;height:8px;border:1px solid var(--border);display:inline-block;margin-right:3px}
+.pip.a1{background:#3aaa50;border-color:#3aaa50}
+.pip.a2{background:#aaaa20;border-color:#aaaa20}
+.pip.a3{background:var(--amber);border-color:var(--amber)}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border-bright),transparent);margin:1.5rem 0}
+</style></head><body>
+<div class="section">
+  <div class="section-title">// Tipografía y títulos</div>
+  <h1>PROJECT DOSSIER</h1>
+  <h2>Valiant Thor — Caso #001</h2>
+  <p>Un ser de aspecto humano llega al Pentágono en 1957. Se reúne con el presidente Eisenhower.</p>
+  <p class="mono">REG. 1957 / ACT. 2024 · NIVEL: TOP SECRET</p>
+</div>
+<div class="divider"></div>
+<div class="section">
+  <div class="section-title">// Stamps y peligro</div>
+  <span class="stamp stamp-c">Clasificado</span>
+  <span class="stamp stamp-o">Abierto</span>
+  <br><br>
+  <span class="pip a1"></span><span class="pip a2"></span><span class="pip a3"></span><span class="pip"></span><span class="pip"></span>
+  <span class="mono" style="margin-left:8px">PELIGRO 3/5</span>
+</div>
+<div class="divider"></div>
+<div class="card">
+  <p class="mono" style="color:var(--amber-dim);margin-bottom:.5rem">CASO #002 · BASES SUBTERRÁNEAS</p>
+  <h2>Dulce Base</h2>
+  <p>Instalación subterránea en Nuevo México. Siete niveles. Experimentos en humanos.</p>
+</div>
+<\/body><\/html>`;
+}
+
+// =============================================
+// TABS
+// =============================================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const frame = document.getElementById('preview-frame');
+  const codeView = document.getElementById('code-view');
+  if (tab === 'preview') {
+    frame.style.display = 'block'; codeView.style.display = 'none';
+  } else {
+    frame.style.display = 'none'; codeView.style.display = 'block';
+  }
+}
+
+// =============================================
+// GENERAR CSS COMPLETO
+// =============================================
+function generateCSS() {
+  const root = buildRootBlock();
+  // El CSS completo es el :root actualizado + el resto del style.css
+  const fullCSS = generateFullCSS(root);
+  document.getElementById('code-pre').textContent = fullCSS;
+  showToast('CSS generado ✓');
+}
+
+function generateFullCSS(rootBlock) {
+  const fontNames = extractFontNames();
+  return `@import url('https://fonts.googleapis.com/css2?${fontNames}&display=swap');
+
+${rootBlock}
+
+/* ============================================
+   RESET Y BASE
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  min-height: 100vh;
+  cursor: default;
+  overflow-x: hidden;
+}
+
+/* Textura de ruido sobre todo */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.6;
+}
+
+/* Scanlines sutiles */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ============================================
+   HEADER / NAVBAR
+   ============================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 8, 0.95);
+  border-bottom: 1px solid var(--border-bright);
+  backdrop-filter: blur(4px);
+  padding: 0 2rem;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+.site-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--amber-bright);
+  position: relative;
+  animation: logo-pulse 3s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+  0%, 100% { box-shadow: 0 0 6px var(--amber-dim); }
+  50% { box-shadow: 0 0 16px var(--amber), 0 0 30px var(--amber-dim); }
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: var(--amber-bright);
+  text-transform: uppercase;
+}
+
+.logo-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--amber-dim);
+  letter-spacing: 2px;
+  display: block;
+  line-height: 1;
+}
+
+.site-nav { display: flex; gap: 2rem; align-items: center; }
+
+.site-nav a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.site-nav a:hover, .site-nav a.active { color: var(--amber-bright); }
+
+.site-nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 1px;
+  background: var(--amber);
+  transition: width 0.3s;
+}
+
+.site-nav a:hover::after, .site-nav a.active::after { width: 100%; }
+
+.nav-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--green-bright);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-bright);
+  animation: blink 2s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ============================================
+   UTILIDADES COMUNES
+   ============================================ */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+.stamp {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 2px solid currentColor;
+  transform: rotate(-2deg);
+}
+
+.stamp-classified { color: var(--red-classified); border-color: var(--red-classified); text-shadow: 0 0 8px rgba(204, 34, 0, 0.5); }
+.stamp-open { color: var(--green-bright); border-color: var(--green-bright); }
+.stamp-pending { color: var(--amber); border-color: var(--amber); }
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  background: var(--amber-glow);
+  border: 1px solid var(--border);
+  color: var(--amber-dim);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-top: 6rem;
+}
+
+.site-footer span { color: var(--amber-dim); }
+
+/* ============================================
+   ANIMACIONES DE ENTRADA
+   ============================================ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+.fade-in:nth-child(5) { animation-delay: 0.5s; }
+.fade-in:nth-child(6) { animation-delay: 0.6s; }
+
+/* ============================================
+   GLITCH EFFECT
+   ============================================ */
+.glitch { position: relative; }
+
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+}
+
+.glitch:hover::before {
+  color: var(--amber-bright);
+  animation: glitch-1 0.3s step-end 1;
+  clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+  transform: translateX(-2px);
+}
+
+.glitch:hover::after {
+  color: var(--red-classified);
+  animation: glitch-2 0.3s step-end 1;
+  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+  transform: translateX(2px);
+}
+
+@keyframes glitch-1 { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 0.8; } }
+@keyframes glitch-2 { 0%, 100% { opacity: 0; } 40%, 60% { opacity: 0.8; } }
+
+/* ============================================
+   SCROLLBAR CUSTOM
+   ============================================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--amber-dim); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+/* ============================================
+   SELECTION
+   ============================================ */
+::selection { background: var(--amber); color: var(--bg-primary); }
+`;
+}
+
+function extractFontNames() {
+  const fontMap = {
+    "'Oswald', sans-serif": 'family=Oswald:wght@300;400;600;700',
+    "'Special Elite', cursive": 'family=Special+Elite',
+    "'Share Tech Mono', monospace": 'family=Share+Tech+Mono',
+    "'Bebas Neue', cursive": 'family=Bebas+Neue',
+    "'Rajdhani', sans-serif": 'family=Rajdhani:wght@400;600',
+    "'Orbitron', monospace": 'family=Orbitron:wght@400;700',
+    "'Antonio', sans-serif": 'family=Antonio',
+    "'Barlow Condensed', sans-serif": 'family=Barlow+Condensed:wght@400;600',
+    "'Courier Prime', monospace": 'family=Courier+Prime',
+    "'IBM Plex Serif', serif": 'family=IBM+Plex+Serif',
+    "'Libre Baskerville', serif": 'family=Libre+Baskerville',
+    "'Playfair Display', serif": 'family=Playfair+Display',
+    "'Space Mono', monospace": 'family=Space+Mono:wght@400;700',
+    "'Fira Code', monospace": 'family=Fira+Code',
+    "'JetBrains Mono', monospace": 'family=JetBrains+Mono',
+    "'IBM Plex Mono', monospace": 'family=IBM+Plex+Mono',
+    "'Roboto Mono', monospace": 'family=Roboto+Mono'
+  };
+  const used = new Set([fonts.display, fonts.body, fonts.mono]);
+  return [...used].map(f => fontMap[f] || '').filter(Boolean).join('&');
+}
+
+function copyCSS() {
+  const root = buildRootBlock();
+  navigator.clipboard.writeText(root).then(()=>showToast(':root copiado ✓'));
+}
+
+function resetDefaults() {
+  colors = {...DEFAULTS};
+  // Update all inputs
+  Object.entries(colors).forEach(([key, val]) => {
+    const c = document.getElementById('v-'+key);
+    const h = document.getElementById('h-'+key);
+    if (c) c.value = val;
+    if (h) h.value = val;
+  });
+  updatePreview();
+  showToast('Valores restaurados');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Init
+updatePreview();
+</script>
+</body>
+</html>

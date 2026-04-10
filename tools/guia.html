@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GUÍA MAESTRA — Project Dossier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a0a08;--bg2:#0f0f0b;--bgc:#111109;
+      --a:#d4870a;--ab:#f0a020;--ad:#8a5a08;--ag:rgba(212,135,10,0.12);
+      --r:#cc2200;--rd:#7a1500;--g:#3aaa50;--gd:#2a7a3a;
+      --t:#c8b88a;--td:#6a5f48;--tb:#e8d8a0;
+      --b:rgba(212,135,10,0.2);--bb:rgba(212,135,10,0.5);
+      --fd:'Oswald',sans-serif;--fb:'Special Elite',cursive;--fm:'Share Tech Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--t);font-family:var(--fb);min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
+
+    /* NAV */
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,8,.97);border-bottom:1px solid var(--bb);backdrop-filter:blur(4px);padding:0 2rem}
+    .hi{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px}
+    .logo{font-family:var(--fd);font-weight:700;font-size:.95rem;letter-spacing:4px;color:var(--ab);text-transform:uppercase;text-decoration:none}
+    .logo span{color:var(--td);font-weight:300}
+    .hl{display:flex;gap:1.5rem}
+    .hl a{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--td);text-decoration:none;text-transform:uppercase;transition:color .2s}
+    .hl a:hover{color:var(--ab)}
+
+    /* LAYOUT */
+    .page{max-width:1100px;margin:0 auto;padding:3rem 2rem;display:grid;grid-template-columns:220px 1fr;gap:3rem;align-items:start}
+    @media(max-width:800px){.page{grid-template-columns:1fr;padding:2rem 1rem}}
+
+    /* SIDEBAR NAV */
+    .toc{position:sticky;top:76px}
+    .toc-title{font-family:var(--fm);font-size:9px;letter-spacing:3px;color:var(--ad);text-transform:uppercase;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--b)}
+    .toc-section{margin-bottom:1.2rem}
+    .toc-section-label{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--ad);text-transform:uppercase;margin-bottom:.4rem;opacity:.7}
+    .toc-link{display:block;font-family:var(--fm);font-size:10px;letter-spacing:1px;color:var(--td);text-decoration:none;padding:4px 8px;border-left:2px solid transparent;transition:all .2s;line-height:1.5}
+    .toc-link:hover,.toc-link.active{color:var(--ab);border-left-color:var(--a);background:var(--ag)}
+    @media(max-width:800px){.toc{display:none}}
+
+    /* CONTENT */
+    .content section{margin-bottom:4rem;scroll-margin-top:80px}
+
+    h1.guide-title{font-family:var(--fd);font-weight:700;font-size:clamp(1.8rem,5vw,3rem);letter-spacing:5px;color:var(--ab);text-transform:uppercase;margin-bottom:.5rem}
+    .guide-subtitle{font-family:var(--fm);font-size:10px;letter-spacing:3px;color:var(--td);text-transform:uppercase;margin-bottom:3rem}
+
+    h2.section-title{font-family:var(--fd);font-weight:600;font-size:1.2rem;letter-spacing:4px;color:var(--ab);text-transform:uppercase;margin-bottom:1.2rem;padding-bottom:.6rem;border-bottom:1px solid var(--bb);display:flex;align-items:center;gap:12px}
+    h2.section-title .snum{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--ad);font-weight:normal}
+
+    h3.step-title{font-family:var(--fd);font-weight:600;font-size:.95rem;letter-spacing:3px;color:var(--tb);text-transform:uppercase;margin:1.8rem 0 .8rem;display:flex;align-items:center;gap:10px}
+    h3.step-title .step-num{font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--a);background:var(--ag);border:1px solid var(--b);padding:2px 8px}
+
+    p.body{font-size:.9rem;line-height:1.85;color:var(--t);margin-bottom:1rem}
+    p.body strong{color:var(--tb);font-weight:normal}
+    p.body em{color:var(--td);font-style:normal}
+
+    /* STEPS */
+    .steps{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.5rem}
+    .step{display:flex;gap:1rem;padding:.9rem 1.1rem;background:var(--bgc);border:1px solid var(--b);align-items:flex-start;transition:border-color .2s}
+    .step:hover{border-color:var(--ad)}
+    .step-n{font-family:var(--fm);font-size:1rem;color:var(--a);min-width:24px;flex-shrink:0;line-height:1.4}
+    .step-body{flex:1}
+    .step-label{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--ab);text-transform:uppercase;margin-bottom:4px}
+    .step-text{font-size:.85rem;color:var(--td);line-height:1.7}
+    .step-text strong{color:var(--t)}
+    .step.highlight{border-left:3px solid var(--a)}
+
+    /* TOOL CARDS */
+    .tool-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.8rem;margin-bottom:1.5rem}
+    .tool-card{background:var(--bgc);border:1px solid var(--b);padding:1.1rem;position:relative;text-decoration:none;color:inherit;display:block;transition:border-color .2s}
+    .tool-card:hover{border-color:var(--a)}
+    .tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ad)}
+    .tool-card:hover::before{background:var(--ab)}
+    .tool-name{font-family:var(--fd);font-weight:600;font-size:.9rem;letter-spacing:3px;color:var(--tb);text-transform:uppercase;margin-bottom:.4rem}
+    .tool-for{font-family:var(--fm);font-size:9px;letter-spacing:1px;color:var(--td);line-height:1.6}
+    .tool-file{font-family:var(--fm);font-size:9px;color:var(--a);letter-spacing:1px;margin-top:.4rem}
+
+    /* CODE BLOCKS */
+    .code-block{background:#060604;border:1px solid var(--b);padding:1rem 1.2rem;margin:1rem 0;font-family:var(--fm);font-size:11px;color:#8ab06a;line-height:1.8;position:relative;overflow-x:auto}
+    .code-block .comment{color:var(--td)}
+    .code-block .key{color:var(--ab)}
+    .code-block .val{color:#8a9a6a}
+    .code-block .warn{color:var(--r)}
+    .copy-btn{position:absolute;top:.5rem;right:.5rem;background:none;border:1px solid var(--b);color:var(--td);font-family:var(--fm);font-size:9px;letter-spacing:1px;padding:3px 8px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+    .copy-btn:hover{border-color:var(--a);color:var(--a)}
+
+    /* WARNINGS / NOTES */
+    .note{border-left:3px solid var(--a);background:var(--ag);padding:.8rem 1rem;margin:1rem 0;font-family:var(--fm);font-size:10px;color:var(--t);letter-spacing:1px;line-height:1.7}
+    .note.danger{border-left-color:var(--r);background:rgba(204,34,0,.05)}
+    .note.success{border-left-color:var(--g);background:rgba(58,170,80,.05)}
+    .note strong{color:var(--ab);font-weight:normal}
+    .note.danger strong{color:var(--r)}
+    .note.success strong{color:var(--g)}
+
+    /* CHECKLIST */
+    .checklist{list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+    .checklist li{display:flex;align-items:flex-start;gap:.8rem;font-family:var(--fm);font-size:10px;letter-spacing:1px;color:var(--td);line-height:1.6;padding:.4rem 0;border-bottom:1px solid rgba(212,135,10,.08)}
+    .checklist li:last-child{border-bottom:none}
+    .checklist li::before{content:'□';color:var(--ad);flex-shrink:0;font-size:12px;line-height:1.4}
+    .checklist li strong{color:var(--t);font-weight:normal}
+
+    /* TABLE */
+    .ref-table{width:100%;border-collapse:collapse;margin:1rem 0;font-family:var(--fm);font-size:10px}
+    .ref-table th{background:var(--bgc);border:1px solid var(--b);padding:6px 10px;color:var(--ad);letter-spacing:2px;text-transform:uppercase;text-align:left;font-weight:normal}
+    .ref-table td{border:1px solid var(--b);padding:6px 10px;color:var(--td);vertical-align:top;line-height:1.6}
+    .ref-table td:first-child{color:var(--ab)}
+    .ref-table tr:hover td{background:var(--ag)}
+
+    /* DIVIDER */
+    .sep{height:1px;background:linear-gradient(90deg,var(--bb),transparent);margin:2.5rem 0}
+
+    /* PROGRESS INDICATOR */
+    .workflow{display:flex;align-items:center;gap:0;margin:1.5rem 0;flex-wrap:wrap}
+    .wf-step{font-family:var(--fm);font-size:9px;letter-spacing:1px;color:var(--td);background:var(--bgc);border:1px solid var(--b);padding:5px 12px;text-transform:uppercase;white-space:nowrap}
+    .wf-step.active{color:var(--ab);border-color:var(--a);background:var(--ag)}
+    .wf-arrow{font-family:var(--fm);font-size:11px;color:var(--ad);padding:0 4px;flex-shrink:0}
+
+    /* BACK TO TOP */
+    #back-top{position:fixed;bottom:2rem;right:2rem;background:var(--bgc);border:1px solid var(--b);color:var(--td);font-family:var(--fm);font-size:10px;letter-spacing:2px;padding:8px 14px;cursor:pointer;text-transform:uppercase;transition:all .2s;opacity:0;z-index:1000}
+    #back-top.visible{opacity:1}
+    #back-top:hover{border-color:var(--a);color:var(--a)}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="hi">
+    <a href="../index.html" class="logo">Project <span>Dossier</span> · Guía Maestra</a>
+    <div class="hl">
+      <a href="index.html">Hub de herramientas</a>
+      <a href="../index.html">← Sitio</a>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ===== TOC ===== -->
+  <nav class="toc">
+    <div class="toc-title">// Contenidos</div>
+
+    <div class="toc-section">
+      <div class="toc-section-label">Empezar</div>
+      <a href="#estructura" class="toc-link">Estructura del proyecto</a>
+      <a href="#herramientas" class="toc-link">Las herramientas</a>
+    </div>
+
+    <div class="toc-section">
+      <div class="toc-section-label">Caso nuevo</div>
+      <a href="#nuevo-caso" class="toc-link">Flujo completo</a>
+      <a href="#case-builder" class="toc-link">Usar Case Builder</a>
+      <a href="#actualizar-index" class="toc-link">Actualizar el índice</a>
+      <a href="#actualizar-mapa" class="toc-link">Actualizar el mapa</a>
+    </div>
+
+    <div class="toc-section">
+      <div class="toc-section-label">Editar</div>
+      <a href="#editar-caso" class="toc-link">Editar un caso existente</a>
+      <a href="#editar-nav" class="toc-link">Cambiar la navegación</a>
+      <a href="#editar-css" class="toc-link">Cambiar diseño / colores</a>
+    </div>
+
+    <div class="toc-section">
+      <div class="toc-section-label">Referencia</div>
+      <a href="#bloques" class="toc-link">Tipos de bloques</a>
+      <a href="#stamps" class="toc-link">Stamps y estados</a>
+      <a href="#nodos-mapa" class="toc-link">Tipos de nodos</a>
+      <a href="#errores" class="toc-link">Errores comunes</a>
+      <a href="#cuando-claude" class="toc-link">Cuándo necesitas a Claude</a>
+    </div>
+  </nav>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <h1 class="guide-title">Guía Maestra</h1>
+    <p class="guide-subtitle">// Todo lo que necesitas para trabajar el proyecto solo</p>
+
+    <!-- ESTRUCTURA -->
+    <section id="estructura">
+      <h2 class="section-title"><span class="snum">01</span>Estructura del proyecto</h2>
+      <p class="body">Antes de tocar cualquier herramienta, tienes que saber dónde vive cada cosa. El proyecto tiene una estructura fija — si mueves archivos de sitio, los enlaces se rompen.</p>
+
+      <div class="code-block">
+        <span class="comment">CONFD/                          ← raíz del proyecto</span>
+├── <span class="key">index.html</span>                  <span class="comment">← página principal con las cards</span>
+├── <span class="key">mapa.html</span>                   <span class="comment">← mapa de conexiones D3</span>
+├── <span class="key">case-builder.html</span>           <span class="comment">← herramienta: crear casos nuevos</span>
+├── css/
+│   └── <span class="key">style.css</span>               <span class="comment">← estilos globales compartidos</span>
+├── js/
+│   └── <span class="key">main.js</span>                 <span class="comment">← reloj, timeline, hamburger</span>
+├── casos/
+│   ├── <span class="key">valiant-thor.html</span>       <span class="comment">← Caso #001</span>
+│   ├── <span class="key">dulce-base.html</span>         <span class="comment">← Caso #002</span>
+│   ├── <span class="key">mk-ultra.html</span>           <span class="comment">← Caso #003</span>
+│   └── <span class="key">paperclip.html</span>          <span class="comment">← Caso #004</span>
+└── tools/
+    ├── <span class="key">index.html</span>              <span class="comment">← hub de herramientas</span>
+    ├── <span class="key">index-manager.html</span>      <span class="comment">← editar cards del índice</span>
+    ├── <span class="key">css-editor.html</span>         <span class="comment">← colores y fuentes</span>
+    ├── <span class="key">map-editor.html</span>         <span class="comment">← nodos del mapa</span>
+    ├── <span class="key">case-editor.html</span>        <span class="comment">← editar casos existentes</span>
+    ├── <span class="key">nav-editor.html</span>         <span class="comment">← menú de navegación</span>
+    └── <span class="key">guia.html</span>               <span class="comment">← este archivo</span>
+      </div>
+
+      <div class="note">
+        <strong>Regla de rutas:</strong> Los archivos en <code>casos/</code> usan <code>../css/style.css</code> y <code>../js/main.js</code>. Los archivos en la raíz usan <code>css/style.css</code> y <code>js/main.js</code>. Las herramientas en <code>tools/</code> tienen sus propios estilos embebidos.
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- HERRAMIENTAS -->
+    <section id="herramientas">
+      <h2 class="section-title"><span class="snum">02</span>Las herramientas — para qué sirve cada una</h2>
+      <p class="body">Todas las herramientas funcionan con <strong>doble clic en el navegador</strong>, sin servidor. Generan código HTML que luego copias y reemplazas en el archivo correspondiente.</p>
+
+      <div class="tool-cards">
+        <a href="../case-builder.html" class="tool-card">
+          <div class="tool-name">Case Builder</div>
+          <div class="tool-for">Crear un expediente nuevo desde cero. Genera el archivo .html completo listo para descargar.</div>
+          <div class="tool-file">→ case-builder.html (raíz)</div>
+        </a>
+        <a href="index-manager.html" class="tool-card">
+          <div class="tool-name">Index Manager</div>
+          <div class="tool-for">Editar las tarjetas del índice: stamps, nivel de peligro, texto, orden. También filtros y stats del hero.</div>
+          <div class="tool-file">→ tools/index-manager.html</div>
+        </a>
+        <a href="css-editor.html" class="tool-card">
+          <div class="tool-name">CSS Editor</div>
+          <div class="tool-for">Cambiar colores, fuentes y variables del proyecto. Preview en tiempo real. Genera el style.css actualizado.</div>
+          <div class="tool-file">→ tools/css-editor.html</div>
+        </a>
+        <a href="map-editor.html" class="tool-card">
+          <div class="tool-name">Map Editor</div>
+          <div class="tool-for">Añadir nodos y conexiones al mapa sin tocar código D3. Genera el bloque graphData para pegar en mapa.html.</div>
+          <div class="tool-file">→ tools/map-editor.html</div>
+        </a>
+        <a href="case-editor.html" class="tool-card">
+          <div class="tool-name">Case Editor</div>
+          <div class="tool-for">Editar un caso ya publicado. Pega el HTML existente, modifica visualmente y descarga el archivo actualizado.</div>
+          <div class="tool-file">→ tools/case-editor.html</div>
+        </a>
+        <a href="nav-editor.html" class="tool-card">
+          <div class="tool-name">Nav Editor</div>
+          <div class="tool-for">Añadir o renombrar páginas en el menú de navegación. Genera el bloque header para cada tipo de archivo.</div>
+          <div class="tool-file">→ tools/nav-editor.html</div>
+        </a>
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- NUEVO CASO — FLUJO COMPLETO -->
+    <section id="nuevo-caso">
+      <h2 class="section-title"><span class="snum">03</span>Añadir un caso nuevo — flujo completo</h2>
+      <p class="body">Este es el flujo exacto de principio a fin. Son <strong>4 pasos</strong> y ninguno requiere editar código a mano.</p>
+
+      <div class="workflow">
+        <div class="wf-step active">1. Case Builder</div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-step">2. Index Manager</div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-step">3. Map Editor</div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-step">4. Subir archivos</div>
+      </div>
+
+      <div class="steps">
+        <div class="step highlight">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Crear el expediente — Case Builder</div>
+            <div class="step-text">Abre <strong>case-builder.html</strong>. Rellena número, título, categorías, nivel de peligro y estado. Añade los bloques de contenido que quieras (narrativa, timeline, citas...). Pulsa <strong>Generar</strong> y luego <strong>Descargar .html</strong>. Guarda el archivo en la carpeta <strong>casos/</strong> con el nombre que pusiste.</div>
+          </div>
+        </div>
+        <div class="step highlight">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Añadir la card al índice — Index Manager</div>
+            <div class="step-text">Abre <strong>tools/index-manager.html</strong>. Pulsa <strong>"+ Añadir nuevo caso"</strong> al final de la lista. Rellena los campos con los mismos datos del caso. Ajusta el stamp y el peligro. Actualiza también el contador del hero (el número de Casos activos). Pulsa <strong>Generar</strong>, copia el HTML y <strong>reemplaza el contenido completo de index.html</strong> con él.</div>
+          </div>
+        </div>
+        <div class="step highlight">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Añadir al mapa — Map Editor</div>
+            <div class="step-text">Abre <strong>tools/map-editor.html</strong>. En el formulario de nodos, añade el caso principal (tipo: Caso, estado: Activo, URL: <code>casos/tu-archivo.html</code>). Añade también las personas y organizaciones clave. Conecta los nodos con el formulario de conexiones. Pulsa <strong>Generar graphData</strong>, copia el bloque y en <strong>mapa.html</strong> reemplaza todo el objeto <code>const graphData = { ... };</code> con el nuevo.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Subir a GitHub Pages</div>
+            <div class="step-text">Si tienes el proyecto en GitHub Pages: arrastra los archivos modificados al repositorio en GitHub.com o haz commit desde la terminal con <code>git add . && git commit -m "Caso #00X" && git push</code>. Los cambios aparecen en el sitio en 1-2 minutos.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note success">
+        <strong>Truco:</strong> el Index Manager tiene un campo "Nombre archivo HTML" — si lo rellenas con el nombre exacto del archivo (sin .html), el snippet para el index ya incluye la URL correcta del enlace.
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- CASE BUILDER EN DETALLE -->
+    <section id="case-builder">
+      <h2 class="section-title"><span class="snum">04</span>Usar el Case Builder en detalle</h2>
+
+      <h3 class="step-title"><span class="step-num">DATOS BÁSICOS</span>Campos del formulario</h3>
+      <table class="ref-table">
+        <tr><th>Campo</th><th>Qué poner</th><th>Ejemplo</th></tr>
+        <tr><td>Número</td><td>3 dígitos, sin #</td><td>005</td></tr>
+        <tr><td>Título</td><td>Nombre del caso, sin "Operación" o "Proyecto" si quieres</td><td>Rendlesham Forest</td></tr>
+        <tr><td>Subtítulo</td><td>Una línea descriptiva · Caso #00X</td><td>El Roswell británico · Caso #005</td></tr>
+        <tr><td>Categorías</td><td>Separadas por ·</td><td>OVNI · Militares · 1980</td></tr>
+        <tr><td>Fecha</td><td>Rango o año</td><td>1980 / Diciembre 1980</td></tr>
+        <tr><td>Nombre archivo</td><td>Sin espacios, sin .html, con guiones</td><td>rendlesham-forest</td></tr>
+        <tr><td>Nivel de peligro</td><td>1–5. 5 = confirmado y devastador. 1 = anecdótico</td><td>3</td></tr>
+        <tr><td>Estado</td><td>Abierto = tiene expediente. Clasificado = se muestra como bloqueado. Pendiente = en preparación</td><td>Abierto</td></tr>
+      </table>
+
+      <h3 class="step-title"><span class="step-num">BLOQUES</span>Tipos de contenido disponibles</h3>
+      <p class="body">Añade los bloques en el orden en que quieres que aparezcan en el expediente. Puedes reordenarlos con las flechas ↑↓.</p>
+
+      <table class="ref-table">
+        <tr><th>Bloque</th><th>Para qué usarlo</th></tr>
+        <tr><td>Introducción</td><td>El texto de apertura del caso. Sin título de sección, va directo. Úsalo siempre como primer bloque.</td></tr>
+        <tr><td>Sección libre</td><td>Cualquier texto con título propio: "El contexto", "Lo que sabemos", "Análisis"...</td></tr>
+        <tr><td>Timeline</td><td>Cronología de eventos con fecha, nombre del evento y detalle expandible. Ideal para casos con historia larga.</td></tr>
+        <tr><td>Galería</td><td>URLs de imágenes. Funcionan mejor con imágenes de Wikimedia Commons (dominio público).</td></tr>
+        <tr><td>Bloque redactado</td><td>Barras negras estilo CIA. Úsalo para indicar información que falta, fue destruida o sigue clasificada.</td></tr>
+        <tr><td>Cita/Testimonio</td><td>Una cita con fuente y año. Usa comillas tipográficas: " "</td></tr>
+      </table>
+
+      <div class="note">
+        <strong>Consejo para la narrativa:</strong> escribe en párrafos cortos de 3-5 líneas. Los párrafos largos se hacen pesados en pantalla. Para resaltar nombres o términos clave dentro del texto del Case Builder, puedes añadirlos entre asteriscos — cuando quieras editar el HTML después, los envuelves en <code>&lt;span class="highlight"&gt;&lt;/span&gt;</code> en el Case Editor.
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- ACTUALIZAR INDEX -->
+    <section id="actualizar-index">
+      <h2 class="section-title"><span class="snum">05</span>Actualizar el índice</h2>
+      <p class="body">El Index Manager reconstruye el <code>index.html</code> completo cada vez. Tiene los casos actuales cargados por defecto — si los cambias, recuerda que estás editando la copia local, no el archivo real.</p>
+
+      <h3 class="step-title"><span class="step-num">FLUJO</span>Pasos para actualizar</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Abre Index Manager</div>
+            <div class="step-text">Los casos existentes ya están cargados. Si has añadido uno nuevo, pulsa <strong>"+ Añadir nuevo caso"</strong> al final y rellena sus datos.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Cambia lo que necesites</div>
+            <div class="step-text">Puedes cambiar el stamp de cualquier caso (Clasificado → Abierto), el nivel de peligro, el texto del extracto, las categorías o el orden arrastrando con ↑↓. También puedes editar los filtros y los tres números del hero.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Genera y copia</div>
+            <div class="step-text">Pulsa <strong>▶ Generar</strong>. Revisa el preview. Pulsa <strong>⎘ Copiar HTML</strong>.</div>
+          </div>
+        </div>
+        <div class="step highlight">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Reemplaza el archivo</div>
+            <div class="step-text">Abre <strong>index.html</strong> con un editor de texto (VS Code, Notepad++, cualquiera). Selecciona todo (<strong>Ctrl+A</strong>), pega (<strong>Ctrl+V</strong>), guarda. El archivo queda completamente reemplazado.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note danger">
+        <strong>Importante:</strong> el Index Manager tiene los casos precargados con los datos del momento en que se creó la herramienta. Si has editado los casos manualmente desde entonces, los cambios en esos campos no se reflejan automáticamente — tendrás que actualizarlos a mano en el formulario antes de generar.
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- ACTUALIZAR MAPA -->
+    <section id="actualizar-mapa">
+      <h2 class="section-title"><span class="snum">06</span>Actualizar el mapa de conexiones</h2>
+      <p class="body">El mapa usa D3.js con un objeto <code>graphData</code> que contiene nodos y enlaces. El Map Editor genera ese bloque completo. Solo tienes que copiar y pegar en el lugar correcto de <code>mapa.html</code>.</p>
+
+      <h3 class="step-title"><span class="step-num">DÓNDE PEGAR</span>Localizar el bloque en mapa.html</h3>
+      <p class="body">Abre <code>mapa.html</code> con un editor de texto y busca (<strong>Ctrl+F</strong>) este texto exacto:</p>
+      <div class="code-block"><span class="key">const graphData = {</span></div>
+      <p class="body">Selecciona desde esa línea hasta el <code>};</code> que cierra el objeto (unas 50-80 líneas más abajo según cuántos nodos tengas). Reemplaza todo ese bloque con el que genera el Map Editor.</p>
+
+      <h3 class="step-title"><span class="step-num">TIPOS DE NODO</span>Qué tipo asignar a cada elemento</h3>
+      <table class="ref-table">
+        <tr><th>Tipo</th><th>Color en mapa</th><th>Cuándo usarlo</th></tr>
+        <tr><td>case</td><td>Ámbar (activo) / Gris (pendiente)</td><td>Cada expediente del archivo</td></tr>
+        <tr><td>person</td><td>Rojo (fallecido) / Crema (vivo)</td><td>Personas reales con nombre</td></tr>
+        <tr><td>org</td><td>Azul</td><td>Agencias, gobiernos, empresas</td></tr>
+        <tr><td>place</td><td>Verde</td><td>Lugares, instalaciones, bases</td></tr>
+      </table>
+
+      <h3 class="step-title"><span class="step-num">URL</span>Cuándo poner URL y cuándo no</h3>
+      <p class="body">Solo los nodos de tipo <strong>case</strong> que ya tienen expediente publicado necesitan URL. El resto deja el campo vacío. La URL es relativa a la raíz del proyecto:</p>
+      <div class="code-block"><span class="comment">✓ Correcto:</span>  <span class="val">casos/mk-ultra.html</span>
+<span class="comment">✗ Incorrecto:</span> <span class="warn">/casos/mk-ultra.html</span>  <span class="comment">(la barra inicial lo rompe)</span>
+<span class="comment">✗ Incorrecto:</span> <span class="warn">../casos/mk-ultra.html</span> <span class="comment">(mapa.html está en raíz)</span></div>
+
+      <h3 class="step-title"><span class="step-num">CONEXIONES</span>Fuerza de los vínculos</h3>
+      <table class="ref-table">
+        <tr><th>Tipo</th><th>Apariencia</th><th>Cuándo usarlo</th></tr>
+        <tr><td>strong</td><td>Línea más gruesa y brillante</td><td>Relación central al caso — sin esta conexión, el caso no se entiende</td></tr>
+        <tr><td>normal</td><td>Línea estándar</td><td>Relación documentada pero secundaria</td></tr>
+        <tr><td>weak</td><td>Línea fina punteada</td><td>Conexión especulativa o indirecta</td></tr>
+      </table>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- EDITAR CASO EXISTENTE -->
+    <section id="editar-caso">
+      <h2 class="section-title"><span class="snum">07</span>Editar un caso ya publicado</h2>
+      <p class="body">Para cambios pequeños (corregir un texto, añadir un párrafo) usa el Case Editor. Para cambios grandes (reestructurar secciones completas) puede ser más rápido editar el HTML directamente.</p>
+
+      <h3 class="step-title"><span class="step-num">CASE EDITOR</span>Flujo con la herramienta</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Carga el archivo</div>
+            <div class="step-text">Abre el archivo <code>.html</code> del caso con un editor de texto, selecciona todo, copia. En el Case Editor, pega en el campo de texto grande y pulsa <strong>⬆ Cargar y extraer datos</strong>.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Revisa lo extraído</div>
+            <div class="step-text">El extractor es automático pero no perfecto. Revisa que el título, subtítulo y bloques se hayan cargado correctamente. Corrige lo que no esté bien antes de continuar.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Edita y genera</div>
+            <div class="step-text">Modifica lo que necesites. Pulsa <strong>▶ Generar</strong>, revisa el preview, y descarga o copia el HTML resultante.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="step-title"><span class="step-num">A MANO</span>Edición directa en el HTML</h3>
+      <p class="body">Para cambios simples es más rápido abrir el archivo y editar directamente. Los textos del expediente están en estas clases:</p>
+      <table class="ref-table">
+        <tr><th>Clase CSS</th><th>Qué contiene</th></tr>
+        <tr><td>.narrative p</td><td>Párrafos de texto principal</td></tr>
+        <tr><td>.timeline-event</td><td>Título de cada evento en la cronología</td></tr>
+        <tr><td>.timeline-detail</td><td>Texto expandible de cada evento</td></tr>
+        <tr><td>.persona-name</td><td>Nombre en las fichas de personas</td></tr>
+        <tr><td>.persona-desc</td><td>Descripción en las fichas de personas</td></tr>
+        <tr><td>blockquote</td><td>Citas y testimonios</td></tr>
+        <tr><td>blockquote cite</td><td>Atribución de la cita</td></tr>
+      </table>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- EDITAR NAV -->
+    <section id="editar-nav">
+      <h2 class="section-title"><span class="snum">08</span>Cambiar la navegación</h2>
+      <p class="body">Cuando quieras activar las páginas "Archivo" y "Acerca de" que ahora son <code>#</code>, o añadir una sección nueva al menú, usa el Nav Editor.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Edita los enlaces</div>
+            <div class="step-text">En el Nav Editor, cambia el texto o la URL de cualquier enlace. Reordena con ↑↓. Añade nuevos con el botón "+".</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Selecciona el tipo de página</div>
+            <div class="step-text">Elige entre <strong>Raíz</strong> (para index.html y mapa.html), <strong>Caso</strong> (para archivos en /casos/) o <strong>Tool</strong> (para herramientas). Las rutas relativas cambian según esto.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Genera y reemplaza</div>
+            <div class="step-text">Genera, copia el bloque. En cada archivo HTML que quieras actualizar, busca <code>&lt;header class="site-header"&gt;</code> y reemplaza todo hasta <code>&lt;/header&gt;</code> con el nuevo bloque.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Recuerda:</strong> si cambias la navegación, tienes que aplicar el cambio en <em>todos</em> los archivos del proyecto. En la raíz (index.html, mapa.html) y en cada archivo de casos/. Los casos necesitan el bloque de tipo "Caso", no "Raíz".
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- EDITAR CSS -->
+    <section id="editar-css">
+      <h2 class="section-title"><span class="snum">09</span>Cambiar diseño y colores</h2>
+      <p class="body">El CSS Editor genera el <code>style.css</code> completo. Cuando quieras cambiar el color ámbar por otro, probar fuentes diferentes o ajustar los fondos, es el camino.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Ajusta en el panel izquierdo</div>
+            <div class="step-text">Los pickers de color actualizan el preview en tiempo real. Prueba combinaciones hasta que te guste el resultado. El <strong>ámbar</strong> es el color dominante — cambiar <code>--amber</code>, <code>--amber-bright</code> y <code>--amber-dim</code> juntos cambia toda la personalidad visual del proyecto.</div>
+          </div>
+        </div>
+        <div class="step highlight">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Genera el CSS completo</div>
+            <div class="step-text">Pulsa <strong>▶ Generar CSS completo</strong>, luego cambia a la pestaña HTML y <strong>copia todo</strong>. Abre <code>css/style.css</code>, selecciona todo, pega, guarda.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note danger">
+        <strong>Precaución:</strong> el CSS Editor reemplaza el archivo completo. Si has hecho cambios manuales en style.css que no están en el editor, se perderán. Haz una copia de seguridad antes.
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- REFERENCIA DE BLOQUES -->
+    <section id="bloques">
+      <h2 class="section-title"><span class="snum">10</span>Referencia rápida — bloques de contenido</h2>
+      <p class="body">Estos son los fragmentos HTML que componen el interior de cada expediente. Si necesitas añadir algo manualmente o entender el código generado, aquí está la referencia.</p>
+
+      <h3 class="step-title"><span class="step-num">NARRATIVA</span>Texto principal con párrafos</h3>
+      <div class="code-block">
+<button class="copy-btn" onclick="copyBlock(this)">Copiar</button><span class="key">&lt;div class="narrative"&gt;</span>
+  <span class="key">&lt;p&gt;</span>Texto del párrafo.<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;p&gt;</span>Nombre con énfasis: <span class="key">&lt;span class="highlight"&gt;</span>Sidney Gottlieb<span class="key">&lt;/span&gt;</span>.<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;blockquote&gt;</span>
+    "Texto de la cita entre comillas tipográficas."
+    <span class="key">&lt;cite&gt;</span>— Fuente, Contexto, Año<span class="key">&lt;/cite&gt;</span>
+  <span class="key">&lt;/blockquote&gt;</span>
+<span class="key">&lt;/div&gt;</span>
+      </div>
+
+      <h3 class="step-title"><span class="step-num">TIMELINE</span>Evento expandible</h3>
+      <div class="code-block">
+<button class="copy-btn" onclick="copyBlock(this)">Copiar</button><span class="key">&lt;div class="timeline-item"&gt;</span>
+  <span class="key">&lt;p class="timeline-date"&gt;</span>1953<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;p class="timeline-event"&gt;</span>Nombre del evento<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;p class="expand-hint"&gt;</span>↓ clic para expandir<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;p class="timeline-detail"&gt;</span>Detalle completo del evento...<span class="key">&lt;/p&gt;</span>
+<span class="key">&lt;/div&gt;</span>
+      </div>
+
+      <h3 class="step-title"><span class="step-num">PERSONA</span>Ficha de persona clave</h3>
+      <div class="code-block">
+<button class="copy-btn" onclick="copyBlock(this)">Copiar</button><span class="key">&lt;div class="persona-card"&gt;</span>
+  <span class="key">&lt;p class="persona-role"&gt;</span>Director técnico<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;p class="persona-name"&gt;</span>Sidney Gottlieb<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;p class="persona-desc"&gt;</span>Descripción breve...<span class="key">&lt;/p&gt;</span>
+  <span class="key">&lt;span class="persona-status status-deceased"&gt;</span>Fallecido — 1999<span class="key">&lt;/span&gt;</span>
+<span class="key">&lt;/div&gt;</span>
+<span class="comment">
+Clases de estado disponibles:
+  status-deceased  → borde rojo
+  status-recruited → borde ámbar
+  status-convicted → borde naranja
+  status-escaped   → borde rojo dim
+  status-unknown   → borde gris</span>
+      </div>
+
+      <h3 class="step-title"><span class="step-num">REDACTADO</span>Bloque de información eliminada</h3>
+      <div class="code-block">
+<button class="copy-btn" onclick="copyBlock(this)">Copiar</button><span class="key">&lt;div class="redacted-block"&gt;</span>
+  <span class="key">&lt;div class="redacted-label"&gt;</span>// DESCRIPCIÓN DEL BLOQUE ELIMINADO //<span class="key">&lt;/div&gt;</span>
+  <span class="key">&lt;div style="margin-top:1rem"&gt;</span>
+    <span class="key">&lt;div class="redacted-bar" style="width:100%"&gt;&lt;/div&gt;</span>
+    <span class="key">&lt;div class="redacted-bar" style="width:85%"&gt;&lt;/div&gt;</span>
+    <span class="key">&lt;div class="redacted-bar" style="width:92%"&gt;&lt;/div&gt;</span>
+  <span class="key">&lt;/div&gt;</span>
+<span class="key">&lt;/div&gt;</span>
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- STAMPS Y ESTADOS -->
+    <section id="stamps">
+      <h2 class="section-title"><span class="snum">11</span>Stamps y estados</h2>
+      <table class="ref-table">
+        <tr><th>Clase</th><th>Visual</th><th>Cuándo usarlo</th></tr>
+        <tr><td>stamp-open</td><td>Verde — "Abierto"</td><td>El expediente está publicado y accesible</td></tr>
+        <tr><td>stamp-classified</td><td>Rojo — "Clasificado"</td><td>El expediente existe pero está "bloqueado" narrativamente</td></tr>
+        <tr><td>stamp-pending</td><td>Ámbar — "Pendiente"</td><td>En preparación, no hay expediente aún</td></tr>
+      </table>
+
+      <div class="note">
+        <strong>Regla práctica:</strong> si el archivo .html del caso ya existe en /casos/ → usa <strong>stamp-open</strong>. Si el caso aparece en el index como "próximamente" sin archivo → usa <strong>stamp-classified</strong> o <strong>stamp-pending</strong> y añade la clase <code>coming-soon</code> al div de la card.
+      </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- ERRORES COMUNES -->
+    <section id="errores">
+      <h2 class="section-title"><span class="snum">12</span>Errores más comunes</h2>
+
+      <ul class="checklist">
+        <li><strong>El caso sale en el index pero el enlace no funciona</strong> — el nombre del archivo en el href no coincide con el nombre real del .html. Son case-sensitive: <code>MK-Ultra.html</code> ≠ <code>mk-ultra.html</code>.</li>
+        <li><strong>Los estilos del caso no se cargan (página sin diseño)</strong> — el archivo está en /casos/ pero la ruta al CSS dice <code>css/style.css</code> en vez de <code>../css/style.css</code>. Cada caso necesita el <code>../</code> para subir un nivel.</li>
+        <li><strong>El mapa no muestra los nodos nuevos</strong> — pegaste el graphData en el lugar equivocado o con sintaxis rota. Abre la consola del navegador (F12 → Console) y busca el error. Suele ser una coma sobrante o que falta el <code>};</code> de cierre.</li>
+        <li><strong>El Index Manager genera un index que no tiene todos los casos</strong> — los casos están precargados en la herramienta con los datos del momento en que se creó. Si has añadido casos nuevos a mano, tienes que añadirlos también en el Index Manager antes de generar.</li>
+        <li><strong>La timeline no se expande al hacer clic</strong> — falta el script <code>&lt;script src="../js/main.js"&gt;&lt;/script&gt;</code> al final del body, o la ruta es incorrecta.</li>
+        <li><strong>Las imágenes del caso no cargan</strong> — las URLs de imágenes externas a veces cambian o expiran. Cada caso tiene un <code>onerror</code> que muestra "IMAGEN CLASIFICADA" si la imagen falla. Para imágenes permanentes, usa Wikimedia Commons con la URL completa de commons.wikimedia.org.</li>
+        <li><strong>El menú hamburger en móvil no se abre</strong> — falta el botón <code>&lt;button class="nav-toggle"&gt;</code> antes del <code>&lt;div class="nav-status"&gt;</code> en el header del archivo. Cada caso necesita tener ese botón.</li>
+      </ul>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- CUÁNDO NECESITAS A CLAUDE -->
+    <section id="cuando-claude">
+      <h2 class="section-title"><span class="snum">13</span>Cuándo necesitas a Claude — y cuándo no</h2>
+      <p class="body">La idea de toda esta infraestructura es que puedas trabajar el proyecto solo. Aquí tienes claro qué puedes hacer sin ayuda y qué no.</p>
+
+      <h3 class="step-title"><span class="step-num">SIN CLAUDE</span>Lo que puedes hacer completamente solo</h3>
+      <ul class="checklist">
+        <li><strong>Crear un caso nuevo</strong> — Case Builder completo, sin excepción</li>
+        <li><strong>Cambiar el stamp de un caso</strong> (Clasificado → Abierto) — Index Manager</li>
+        <li><strong>Añadir o reordenar filtros en el índice</strong> — Index Manager</li>
+        <li><strong>Actualizar el contador de casos activos</strong> — Index Manager, campo "Número" en el hero stat</li>
+        <li><strong>Añadir nodos y conexiones al mapa</strong> — Map Editor</li>
+        <li><strong>Corregir texto en un caso ya publicado</strong> — Case Editor o edición directa del HTML</li>
+        <li><strong>Cambiar colores y fuentes del proyecto</strong> — CSS Editor</li>
+        <li><strong>Activar páginas del menú ("Archivo", "Acerca de")</strong> — Nav Editor</li>
+        <li><strong>Añadir un bloque redactado o una cita</strong> a un caso — editar el HTML directamente con la referencia de arriba</li>
+      </ul>
+
+      <h3 class="step-title"><span class="step-num">CON CLAUDE</span>Cuándo tiene sentido pedirme ayuda</h3>
+      <ul class="checklist">
+        <li><strong>Escribir el contenido narrativo</strong> de un caso que no conoces bien — investigación y redacción</li>
+        <li><strong>Añadir una funcionalidad nueva</strong> que no existe en ninguna herramienta (un nuevo tipo de bloque, una página entera nueva)</li>
+        <li><strong>Depurar un error raro</strong> que no aparece en la lista de errores comunes</li>
+        <li><strong>Rediseñar una sección completa</strong> del proyecto (nuevo layout, nueva página)</li>
+        <li><strong>Integrar algo externo</strong> — API, base de datos, sistema de comentarios</li>
+      </ul>
+
+      <div class="note success">
+        <strong>Para conversaciones con Claude:</strong> abre siempre una conversación nueva por tema. "Necesito el contenido del caso Majestic 12" es una conversación. "El Map Editor tiene un bug en las conexiones" es otra. Nunca mezcles en el mismo hilo contenido creativo con correcciones de código — cada tema por separado consume mucho menos contexto.
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Arriba</button>
+
+<script>
+// TOC activo al scroll
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc-link');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0% -70% 0%' });
+
+sections.forEach(s => observer.observe(s));
+
+// Back to top
+window.addEventListener('scroll', () => {
+  document.getElementById('back-top').classList.toggle('visible', window.scrollY > 400);
+});
+
+// Copy code blocks
+function copyBlock(btn) {
+  const block = btn.parentElement;
+  const text = block.innerText.replace('Copiar\n', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+</script>
+
+</body>
+</html>

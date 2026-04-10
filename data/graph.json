@@ -1,0 +1,67 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "Datos centralizados del grafo de conexiones — Project Dossier",
+    "note": "Este archivo es la única fuente de verdad para nodos y conexiones. Tanto mapa.html como tablon.html lo consumen."
+  },
+  "nodes": [
+    { "id": "valiant-thor",   "label": "Valiant Thor",      "type": "case",   "status": "active",   "desc": "Ser extraterrestre supuestamente alojado en el Pentágono entre 1957 y 1960. Testigo principal: Phil Schneider.", "url": "casos/valiant-thor.html" },
+    { "id": "dulce-base",     "label": "Dulce Base",        "type": "place",  "status": "active",   "desc": "Instalación subterránea en Nuevo México. Siete niveles. Conexión directa con Phil Schneider y proyectos negros.", "url": "casos/dulce-base.html" },
+    { "id": "mk-ultra",       "label": "Proyecto MK-Ultra", "type": "case",   "status": "active",   "desc": "Programa de control mental de la CIA (1953–1973). Confirmado por documentos desclasificados. Más de 150 subprogramas. Miles de víctimas sin consentimiento.", "url": "casos/mk-ultra.html" },
+    { "id": "majestic12",     "label": "Majestic 12",       "type": "case",   "status": "active",   "desc": "Supuesto comité de 12 personas creado por Truman en 1947 para gestionar el contacto extraterrestre tras Roswell.", "url": "casos/majestic-12.html" },
+    { "id": "paperclip",      "label": "Op. Paperclip",     "type": "case",   "status": "active",   "desc": "Programa secreto para reclutar 1.600 científicos nazis tras la WWII. Expedientes falsificados. Conexión directa con MK-Ultra y el programa Apollo.", "url": "casos/paperclip.html" },
+
+    { "id": "phil-schneider", "label": "Phil Schneider",    "type": "person", "status": "deceased", "desc": "Geólogo y contratista militar. Afirmó haber trabajado en bases subterráneas clasificadas. Muerto en enero de 1996 en circunstancias no aclaradas.", "url": null },
+    { "id": "frank-stranges", "label": "Frank Stranges",    "type": "person", "status": "deceased", "desc": "Pastor evangelista. Afirmó haber conocido a Valiant Thor en el Pentágono. Autor de 'Stranger at the Pentagon' (1967).", "url": null },
+    { "id": "eisenhower",     "label": "Eisenhower",        "type": "person", "status": "deceased", "desc": "34º Presidente de EE.UU. Supuestamente se reunió con Valiant Thor en 1957. También vinculado a reuniones en Holloman AFB.", "url": null },
+    { "id": "vannevar-bush",  "label": "Vannevar Bush",     "type": "person", "status": "deceased", "desc": "Director científico del Proyecto Manhattan. Supuesto MJ-2. El candidato más lógico para liderar análisis de tecnología desconocida.", "url": null },
+    { "id": "forrestal",      "label": "James Forrestal",   "type": "person", "status": "deceased", "desc": "Primer Secretario de Defensa (1947-49). Supuesto impulsor de MJ-12. Muerto al caer de una ventana del hospital naval. Oficialmente: suicidio.", "url": null },
+    { "id": "hillenkoetter",  "label": "R. Hillenkoetter",  "type": "person", "status": "deceased", "desc": "Primer Director de la CIA (1947-50). Supuesto MJ-1. En 1960 declaró públicamente que el gobierno ocultaba información sobre OVNIs.", "url": null },
+    { "id": "gottlieb",       "label": "Sidney Gottlieb",   "type": "person", "status": "deceased", "desc": "Bioquímico. Director técnico de MK-Ultra. Conocido como 'el hechicero'. Ordenó la destrucción de archivos en 1973. Nunca fue procesado.", "url": null },
+    { "id": "richard-helms",  "label": "Richard Helms",     "type": "person", "status": "deceased", "desc": "Director de operaciones de la CIA. Ordenó destruir los archivos de MK-Ultra. Condenado en 1977 por perjurio.", "url": null },
+    { "id": "frank-olson",    "label": "Frank Olson",       "type": "person", "status": "deceased", "desc": "Bacteriólogo dosificado con LSD sin su conocimiento. Murió en 1953. Segunda autopsia en 1994 apunta a homicidio.", "url": null },
+    { "id": "ewen-cameron",   "label": "Dr. Ewen Cameron",  "type": "person", "status": "deceased", "desc": "Psiquiatra que realizó experimentos de desprogramación mental en Montreal, financiado encubiertamente por la CIA.", "url": null },
+    { "id": "von-braun",      "label": "Wernher von Braun", "type": "person", "status": "deceased", "desc": "SS-Sturmbannführer. Supervisó producción de V-2 con trabajo esclavo. En EE.UU.: director de la NASA. Nunca fue procesado.", "url": null },
+    { "id": "otto-ambros",    "label": "Otto Ambros",       "type": "person", "status": "deceased", "desc": "Director de planta IG Farben en Auschwitz. Condenado en Nuremberg, liberado por presión americana. Contratado por DoD y Dow Chemical.", "url": null },
+
+    { "id": "pentagono",      "label": "Pentágono",         "type": "place",  "status": "active",   "desc": "Cuartel general del Departamento de Defensa de EE.UU. Escenario central del caso Valiant Thor.", "url": null },
+    { "id": "cia",            "label": "CIA",               "type": "org",    "status": "active",   "desc": "Agencia Central de Inteligencia. Vinculada al Proyecto MK-Ultra y a múltiples casos de este archivo.", "url": null },
+    { "id": "nasa",           "label": "NASA",              "type": "org",    "status": "active",   "desc": "Agencia espacial americana fundada en 1958. Su programa de cohetes fue desarrollado en gran parte por ex científicos nazis bajo Wernher von Braun.", "url": null }
+  ],
+  "links": [
+    { "source": "valiant-thor",   "target": "phil-schneider",  "type": "strong", "rel": "testigo directo" },
+    { "source": "valiant-thor",   "target": "frank-stranges",  "type": "strong", "rel": "testigo directo" },
+    { "source": "valiant-thor",   "target": "eisenhower",      "type": "strong", "rel": "reunión documentada" },
+    { "source": "valiant-thor",   "target": "pentagono",       "type": "strong", "rel": "localización" },
+    { "source": "valiant-thor",   "target": "majestic12",      "type": "normal", "rel": "posible vínculo" },
+
+    { "source": "phil-schneider", "target": "dulce-base",      "type": "strong", "rel": "trabajó allí" },
+    { "source": "phil-schneider", "target": "majestic12",      "type": "normal", "rel": "conocimiento interno" },
+
+    { "source": "eisenhower",     "target": "majestic12",      "type": "normal", "rel": "fundador" },
+    { "source": "majestic12",     "target": "vannevar-bush",   "type": "strong", "rel": "miembro MJ-2" },
+    { "source": "majestic12",     "target": "forrestal",       "type": "strong", "rel": "miembro fundador" },
+    { "source": "majestic12",     "target": "hillenkoetter",   "type": "strong", "rel": "miembro MJ-1" },
+    { "source": "hillenkoetter",  "target": "cia",             "type": "strong", "rel": "director fundador" },
+    { "source": "eisenhower",     "target": "pentagono",       "type": "normal", "rel": "comandante en jefe" },
+    { "source": "majestic12",     "target": "paperclip",       "type": "normal", "rel": "red compartida" },
+
+    { "source": "mk-ultra",       "target": "cia",             "type": "strong", "rel": "programa interno" },
+    { "source": "majestic12",     "target": "cia",             "type": "normal", "rel": "actores comunes" },
+    { "source": "mk-ultra",       "target": "gottlieb",        "type": "strong", "rel": "director técnico" },
+    { "source": "mk-ultra",       "target": "richard-helms",   "type": "strong", "rel": "supervisor" },
+    { "source": "mk-ultra",       "target": "frank-olson",     "type": "strong", "rel": "víctima" },
+    { "source": "mk-ultra",       "target": "ewen-cameron",    "type": "strong", "rel": "subcontrato" },
+    { "source": "gottlieb",       "target": "cia",             "type": "strong", "rel": "empleado" },
+    { "source": "richard-helms",  "target": "cia",             "type": "strong", "rel": "director" },
+
+    { "source": "paperclip",      "target": "von-braun",       "type": "strong", "rel": "reclutado" },
+    { "source": "paperclip",      "target": "otto-ambros",     "type": "strong", "rel": "reclutado" },
+    { "source": "paperclip",      "target": "nasa",            "type": "strong", "rel": "origen del programa" },
+    { "source": "paperclip",      "target": "mk-ultra",        "type": "normal", "rel": "red de científicos" },
+    { "source": "von-braun",      "target": "nasa",            "type": "strong", "rel": "director" },
+    { "source": "otto-ambros",    "target": "cia",             "type": "normal", "rel": "contratado" },
+
+    { "source": "dulce-base",     "target": "pentagono",       "type": "normal", "rel": "financiación" }
+  ]
+}

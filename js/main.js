@@ -464,13 +464,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const caseHero = document.querySelector('.case-hero');
   if (!caseHero) return;
 
-  // Extraer caseId del breadcrumb o del título
-  const breadcrumb = document.querySelector('.breadcrumb span:last-child');
-  const caseNumber = breadcrumb ? breadcrumb.textContent.trim() : '';
-  // Usar el título del caso como ID aproximado
-  const titleEl = document.querySelector('.case-hero-title');
-  const titleText = titleEl ? titleEl.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'unknown';
-  const caseId = titleText;
+  // Extraer caseId del slug de la URL (ej. "casos/valiant-thor.html" → "valiant-thor")
+  const caseId = window.location.pathname.split('/').pop().replace('.html', '') || 'unknown';
 
   // --- Tracking de tiempo ---
   let startTime = Date.now();

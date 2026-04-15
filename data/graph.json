@@ -8,7 +8,7 @@
     { "id": "valiant-thor",   "label": "Valiant Thor",      "type": "case",   "status": "active",   "desc": "Ser extraterrestre supuestamente alojado en el Pentágono entre 1957 y 1960. Testigo principal: Phil Schneider.", "url": "casos/valiant-thor.html" },
     { "id": "dulce-base",     "label": "Dulce Base",        "type": "place",  "status": "active",   "desc": "Instalación subterránea en Nuevo México. Siete niveles. Conexión directa con Phil Schneider y proyectos negros.", "url": "casos/dulce-base.html" },
     { "id": "mk-ultra",       "label": "Proyecto MK-Ultra", "type": "case",   "status": "active",   "desc": "Programa de control mental de la CIA (1953–1973). Confirmado por documentos desclasificados. Más de 150 subprogramas. Miles de víctimas sin consentimiento.", "url": "casos/mk-ultra.html" },
-    { "id": "majestic12",     "label": "Majestic 12",       "type": "case",   "status": "active",   "desc": "Supuesto comité de 12 personas creado por Truman en 1947 para gestionar el contacto extraterrestre tras Roswell.", "url": "casos/majestic-12.html" },
+    { "id": "majestic-12",     "label": "Majestic 12",       "type": "case",   "status": "active",   "desc": "Supuesto comité de 12 personas creado por Truman en 1947 para gestionar el contacto extraterrestre tras Roswell.", "url": "casos/majestic-12.html" },
     { "id": "paperclip",      "label": "Op. Paperclip",     "type": "case",   "status": "active",   "desc": "Programa secreto para reclutar 1.600 científicos nazis tras la WWII. Expedientes falsificados. Conexión directa con MK-Ultra y el programa Apollo.", "url": "casos/paperclip.html" },
 
     { "id": "phil-schneider", "label": "Phil Schneider",    "type": "person", "status": "deceased", "desc": "Geólogo y contratista militar. Afirmó haber trabajado en bases subterráneas clasificadas. Muerto en enero de 1996 en circunstancias no aclaradas.", "url": null },
@@ -26,28 +26,33 @@
 
     { "id": "pentagono",      "label": "Pentágono",         "type": "place",  "status": "active",   "desc": "Cuartel general del Departamento de Defensa de EE.UU. Escenario central del caso Valiant Thor.", "url": null },
     { "id": "cia",            "label": "CIA",               "type": "org",    "status": "active",   "desc": "Agencia Central de Inteligencia. Vinculada al Proyecto MK-Ultra y a múltiples casos de este archivo.", "url": null },
-    { "id": "nasa",           "label": "NASA",              "type": "org",    "status": "active",   "desc": "Agencia espacial americana fundada en 1958. Su programa de cohetes fue desarrollado en gran parte por ex científicos nazis bajo Wernher von Braun.", "url": null }
+    { "id": "nasa",           "label": "NASA",              "type": "org",    "status": "active",   "desc": "Agencia espacial americana fundada en 1958. Su programa de cohetes fue desarrollado en gran parte por ex científicos nazis bajo Wernher von Braun.", "url": null },
+
+    { "id": "varginha",       "label": "Varginha",          "type": "case",   "status": "active",   "desc": "20 de enero de 1996. Varginha, Brasil. Tres testigos directas, un soldado muerto, más de cien testimonios y cero explicaciones oficiales del Ejército Brasileño.", "url": "casos/varginha.html" },
+    { "id": "marco-chereze",  "label": "Marco Chereze",     "type": "person", "status": "deceased", "desc": "Soldado del 2º Regimiento de Infantería de Varginha. Supuestamente involucrado en el traslado de la criatura capturada. Murió de infección de origen desconocido semanas después, con 23 años.", "url": null },
+    { "id": "liliane-silva",  "label": "Liliane da Silva",  "type": "person", "status": "active",   "desc": "Una de las tres testigos directas del avistamiento del 20 de enero de 1996. Ha mantenido su testimonio sin modificaciones durante treinta años.", "url": null },
+    { "id": "ejercito-brasil","label": "Ejército Brasil",   "type": "org",    "status": "active",   "desc": "2º Regimiento de Infantería de Campaña, con sede en Varginha. Negó cualquier operativo especial el 20 de enero de 1996 pese a los testimonios de múltiples civiles.", "url": null }
   ],
   "links": [
     { "source": "valiant-thor",   "target": "phil-schneider",  "type": "strong", "rel": "testigo directo" },
     { "source": "valiant-thor",   "target": "frank-stranges",  "type": "strong", "rel": "testigo directo" },
     { "source": "valiant-thor",   "target": "eisenhower",      "type": "strong", "rel": "reunión documentada" },
     { "source": "valiant-thor",   "target": "pentagono",       "type": "strong", "rel": "localización" },
-    { "source": "valiant-thor",   "target": "majestic12",      "type": "normal", "rel": "posible vínculo" },
+    { "source": "valiant-thor",   "target": "majestic-12",      "type": "normal", "rel": "posible vínculo" },
 
     { "source": "phil-schneider", "target": "dulce-base",      "type": "strong", "rel": "trabajó allí" },
-    { "source": "phil-schneider", "target": "majestic12",      "type": "normal", "rel": "conocimiento interno" },
+    { "source": "phil-schneider", "target": "majestic-12",      "type": "normal", "rel": "conocimiento interno" },
 
-    { "source": "eisenhower",     "target": "majestic12",      "type": "normal", "rel": "fundador" },
-    { "source": "majestic12",     "target": "vannevar-bush",   "type": "strong", "rel": "miembro MJ-2" },
-    { "source": "majestic12",     "target": "forrestal",       "type": "strong", "rel": "miembro fundador" },
-    { "source": "majestic12",     "target": "hillenkoetter",   "type": "strong", "rel": "miembro MJ-1" },
+    { "source": "eisenhower",     "target": "majestic-12",      "type": "normal", "rel": "fundador" },
+    { "source": "majestic-12",     "target": "vannevar-bush",   "type": "strong", "rel": "miembro MJ-2" },
+    { "source": "majestic-12",     "target": "forrestal",       "type": "strong", "rel": "miembro fundador" },
+    { "source": "majestic-12",     "target": "hillenkoetter",   "type": "strong", "rel": "miembro MJ-1" },
     { "source": "hillenkoetter",  "target": "cia",             "type": "strong", "rel": "director fundador" },
     { "source": "eisenhower",     "target": "pentagono",       "type": "normal", "rel": "comandante en jefe" },
-    { "source": "majestic12",     "target": "paperclip",       "type": "normal", "rel": "red compartida" },
+    { "source": "majestic-12",     "target": "paperclip",       "type": "normal", "rel": "red compartida" },
 
     { "source": "mk-ultra",       "target": "cia",             "type": "strong", "rel": "programa interno" },
-    { "source": "majestic12",     "target": "cia",             "type": "normal", "rel": "actores comunes" },
+    { "source": "majestic-12",     "target": "cia",             "type": "normal", "rel": "actores comunes" },
     { "source": "mk-ultra",       "target": "gottlieb",        "type": "strong", "rel": "director técnico" },
     { "source": "mk-ultra",       "target": "richard-helms",   "type": "strong", "rel": "supervisor" },
     { "source": "mk-ultra",       "target": "frank-olson",     "type": "strong", "rel": "víctima" },
@@ -62,6 +67,12 @@
     { "source": "von-braun",      "target": "nasa",            "type": "strong", "rel": "director" },
     { "source": "otto-ambros",    "target": "cia",             "type": "normal", "rel": "contratado" },
 
-    { "source": "dulce-base",     "target": "pentagono",       "type": "normal", "rel": "financiación" }
+    { "source": "dulce-base",     "target": "pentagono",       "type": "normal", "rel": "financiación" },
+
+    { "source": "varginha",       "target": "marco-chereze",   "type": "strong", "rel": "víctima directa" },
+    { "source": "varginha",       "target": "liliane-silva",   "type": "strong", "rel": "testigo principal" },
+    { "source": "varginha",       "target": "ejercito-brasil", "type": "strong", "rel": "operativo encubierto" },
+    { "source": "varginha",       "target": "majestic-12",     "type": "normal", "rel": "patrón de ocultación" },
+    { "source": "marco-chereze",  "target": "ejercito-brasil", "type": "strong", "rel": "soldado — unidad 2ºRI" }
   ]
 }
